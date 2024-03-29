@@ -77,7 +77,7 @@ def generate_event_data(num_events):
             "event_name": generate_fake_event_name(),
             "date": fake.date_time_this_year().isoformat(),
             "available_tickets": random.randint(0, 1000),
-            "ticket_price": random.randint(10, 1000),
+            "ticket_price": random.randint(10, 200),
             "address": fake.address(),
             "description": fake.text()
         }
@@ -120,11 +120,17 @@ def generate_reply_data(num_replies):
 
 def generate_document():
     categories = generate_category_data()
-    locations = generate_location_data(5000)
+    locations = sorted(generate_location_data(5000), key=lambda x: x["city_name"])
+
     events = generate_event_data(10000)
     users = generate_user_data(1500)
     comments = generate_comment_data(5000)
     replies = generate_reply_data(10000)
+
+    events = [{**event, "event_id": i+1} for i, event in enumerate(events)]
+    users = [{**user, "user_id": i+1} for i, user in enumerate(users)]
+    comments = [{**comment, "comment_id": i+1} for i, comment in enumerate(comments)]
+    replies = [{**reply, "reply_id": i+1} for i, reply in enumerate(replies)]
 
     documents = {
         "categories": categories,
