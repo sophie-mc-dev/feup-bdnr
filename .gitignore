@@ -1,3 +1,9 @@
 /node_modules/*
 *.DS_STORE
 src/data/couchbase_documents.json
+src/data/categories.json
+src/data/comments.json
+src/data/events.json
+src/data/locations.json
+src/data/replies.json
+src/data/users.json

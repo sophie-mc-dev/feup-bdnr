@@ -1,35 +1,35 @@
 from faker import Faker
 import random
 import json
-from datetime import datetime
 
-# still not finished, WIP
-
-topics =["Music Concert",
-            "Art Exhibition",
-            "Film Festival",
-            "Fashion Show",
-            "Food Fair",
-            "Technology Conference",
-            "Sporting Event",
-            "Charity Gala",
-            "Comedy Show",
-            "Poetry Reading",
-            "Wine Tasting",
-            "Dance Performance",
-            "Theater Play",
-            "Business Summit",
-            "Cultural Festival",
-            "Academic Symposium",
-            "Product Launch",
-            "Wellness Retreat",
-            "Car Show",
-            "Trade Expo"]
+topics = [
+    "Music Concert",
+    "Art Exhibition",
+    "Film Festival",
+    "Fashion Show",
+    "Food Fair",
+    "Technology Conference",
+    "Sporting Event",
+    "Charity Gala",
+    "Comedy Show",
+    "Poetry Reading",
+    "Wine Tasting",
+    "Dance Performance",
+    "Theater Play",
+    "Business Summit",
+    "Cultural Festival",
+    "Academic Symposium",
+    "Product Launch",
+    "Wellness Retreat",
+    "Car Show",
+    "Trade Expo",
+]
 
 
 trans_status = ["shopping_cart", "purchased"]
 
 fake = Faker()
+
 
 # don't forget that a user can have at most one transaction with the status shoppingCart
 def generate_transaction_data(num_transactions):
@@ -38,36 +38,35 @@ def generate_transaction_data(num_transactions):
         transaction = {
             "transaction_id": fake.unique.random_number(digits=6),
             "transaction_date": fake.date_time_this_year().isoformat(),
-            "transaction_status": random.choice(trans_status)
+            "transaction_status": random.choice(trans_status),
         }
         transactions.append(transaction)
     return transactions
 
 
-
 def generate_fake_event_name():
     return fake.catch_phrase()
 
+
 def generate_fake_location():
     return fake.city()
+
 
 def generate_location_data(num_locations):
     locations = []
     for _ in range(num_locations):
         city = generate_fake_location()
-        locations.append({
-            "city_name": city
-        })
+        locations.append({"city_name": city})
     return locations
+
 
 def generate_category_data():
     categories = []
     for i in topics:
-        category = {
-            "category_name": i
-        }
+        category = {"category_name": i}
         categories.append(category)
     return categories
+
 
 def generate_event_data(num_events):
     events = []
@@ -79,10 +78,11 @@ def generate_event_data(num_events):
             "available_tickets": random.randint(0, 1000),
             "ticket_price": random.randint(10, 200),
             "address": fake.address(),
-            "description": fake.text()
+            "description": fake.text(),
         }
         events.append(event)
     return events
+
 
 def generate_user_data(num_users):
     users = []
@@ -92,10 +92,11 @@ def generate_user_data(num_users):
             "name": fake.name(),
             "username": fake.user_name(),
             "email": fake.email(),
-            "password": fake.password()
+            "password": fake.password(),
         }
         users.append(user)
     return users
+
 
 def generate_comment_data(num_comments):
     comments = []
@@ -103,20 +104,19 @@ def generate_comment_data(num_comments):
         comment = {
             "comment_id": fake.unique.random_number(digits=6),
             "text": fake.text(),
-            "replies": []
+            "replies": [],
         }
         comments.append(comment)
     return comments
 
+
 def generate_reply_data(num_replies):
     replies = []
     for _ in range(num_replies):
-        reply = {
-            "reply_id": fake.unique.random_number(digits=6),
-            "text": fake.text()
-        }
+        reply = {"reply_id": fake.unique.random_number(digits=6), "text": fake.text()}
         replies.append(reply)
     return replies
+
 
 def generate_document():
     categories = generate_category_data()
@@ -127,25 +127,33 @@ def generate_document():
     comments = generate_comment_data(5000)
     replies = generate_reply_data(10000)
 
-    events = [{**event, "event_id": i+1} for i, event in enumerate(events)]
-    users = [{**user, "user_id": i+1} for i, user in enumerate(users)]
-    comments = [{**comment, "comment_id": i+1} for i, comment in enumerate(comments)]
-    replies = [{**reply, "reply_id": i+1} for i, reply in enumerate(replies)]
+    events = [{**event, "event_id": i + 1} for i, event in enumerate(events)]
+    users = [{**user, "user_id": i + 1} for i, user in enumerate(users)]
+    comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
+    replies = [{**reply, "reply_id": i + 1} for i, reply in enumerate(replies)]
 
-    documents = {
-        "categories": categories,
-        "locations": locations,
-        "events": events,
-        "users": users,
-        "comments": comments,
-        "replies": replies
-    }
+    return categories, locations, events, users, comments, replies
 
-    return documents
 
 if __name__ == "__main__":
-    documents = generate_document()
-    with open('couchbase_documents.json', 'w') as file:
-        json.dump(documents, file, indent=4, default=str)
+    categories, locations, events, users, comments, replies = generate_document()
 
-    print("JSON documents generated and saved to couchbase_documents.json")
+    with open("categories.json", "w") as file:
+        json.dump(categories, file, indent=4)
+
+    with open("locations.json", "w") as file:
+        json.dump(locations, file, indent=4)
+
+    with open("events.json", "w") as file:
+        json.dump(events, file, indent=4)
+
+    with open("users.json", "w") as file:
+        json.dump(users, file, indent=4)
+
+    with open("comments.json", "w") as file:
+        json.dump(comments, file, indent=4)
+
+    with open("replies.json", "w") as file:
+        json.dump(replies, file, indent=4)
+
+    print("JSON documents generated and saved to the data folder.")
