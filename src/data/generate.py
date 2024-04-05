@@ -127,6 +127,8 @@ def generate_document():
     comments = generate_comment_data(5000)
     replies = generate_reply_data(10000)
 
+    categories = [{"category_id": i + 1, **category} for i, category in enumerate(categories)]
+    locations = [{"location_id": i + 1, **location} for i, location in enumerate(locations)]
     events = [{**event, "event_id": i + 1} for i, event in enumerate(events)]
     users = [{**user, "user_id": i + 1} for i, user in enumerate(users)]
     comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
