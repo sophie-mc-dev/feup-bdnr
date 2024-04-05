@@ -11,7 +11,13 @@ Here are the full steps to get the project up and running:
 
    If the script fails to run on Linux, try adding the execution permission by running `chmod +x server.sh` and `chmod +x configure.sh` on the [couchbase-custom](src/couchbase-custom/) directory as well. If it still doesn't execute correctly, try running it with Admin permissions.
 
-3. Open your browser and go to [localhost:8091](http://localhost:8091) and login with the default credentials.
+3. Open a new terminal window and navigate to the [src](src/) folder.
+
+4. Run the `create.sh` script to create the collections (users, locations, categories, and events).
+
+5. After creating the collections, run the `populate.sh` script to import the data.
+
+6. Open your browser and go to [localhost:8091](http://localhost:8091) and login with the default credentials:
 
    - **username**: Administrator
    - **password**: password
