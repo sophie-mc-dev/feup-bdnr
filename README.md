@@ -9,15 +9,20 @@ Here are the full steps to get the project up and running:
 
    **NOTE:** if you're running the project in Windows, run `bash server.sh` and, in case you're in a UNIX based OS, simply run `./server.sh`.
 
-   If the script fails to run on Linux, try adding the execution permission by running `chmod +x server.sh` and `chmod +x configure.sh` on the [couchbase-custom](src/couchbase-custom/) directory as well. If it still doesn't execute correctly, try running it with Admin permissions.
+   If the script fails to run on Linux, try adding the execution permission by running `chmod +x server.sh`. If it still doesn't execute correctly, try running it with Admin permissions.
 
-3. Open a new terminal window and navigate to the [src](src/) folder.
+3. Run the `create.sh` script to create the collections (users, locations, categories, events and transactions).
 
-4. Run the `create.sh` script to create the collections (users, locations, categories, and events).
+   **NOTE:** if you're running the project in Windows, run `bash create.sh` and, in case you're in a UNIX based OS, simply run `./create.sh`.
 
-5. After creating the collections, run the `populate.sh` script to import the data.
+   If the script fails to run on Linux, try adding the execution permission by running `chmod +x create.sh`. If it still doesn't execute correctly, try running it with Admin permissions.
 
-6. Open your browser and go to [localhost:8091](http://localhost:8091) and login with the default credentials:
+4. After creating the collections, run the `populate.sh` script to import the data.
+   **NOTE:** if you're running the project in Windows, run `bash populate.sh` and, in case you're in a UNIX based OS, simply run `./populate.sh`.
+
+   If the script fails to run on Linux, try adding the execution permission by running `chmod +x populate.sh`. If it still doesn't execute correctly, try running it with Admin permissions.
+
+5. Open your browser and go to [localhost:8091](http://localhost:8091) and login with the default credentials:
 
    - **username**: Administrator
    - **password**: password
