@@ -39,6 +39,8 @@ def generate_transaction_data(num_transactions):
             "transaction_id": fake.unique.random_number(digits=6),
             "transaction_date": fake.date_time_this_year().isoformat(),
             "transaction_status": random.choice(trans_status),
+            "user_id": "",  # will be filled later when the users are created
+            "items": [] # will be filled later when the events and type of tickets are created
         }
         transactions.append(transaction)
     return transactions
@@ -48,22 +50,19 @@ def generate_fake_event_name():
     return fake.catch_phrase()
 
 
-def generate_fake_location():
-    return fake.city()
-
-
-def generate_location_data(num_locations):
-    locations = []
-    for _ in range(num_locations):
-        city = generate_fake_location()
-        locations.append({"city_name": city})
+def read_locations_from_json(file_path):
+    with open(file_path, 'r') as file:
+        locations = json.load(file)
     return locations
 
 
 def generate_category_data():
     categories = []
-    for i in topics:
-        category = {"category_name": i}
+    for topic in topics:
+        category = {
+            "category_name": topic,
+            "event_ids": [] # will be filled later when the events are created
+        }
         categories.append(category)
     return categories
 
@@ -75,10 +74,12 @@ def generate_event_data(num_events):
             "event_id": fake.unique.random_number(digits=6),
             "event_name": generate_fake_event_name(),
             "date": fake.date_time_this_year().isoformat(),
-            "available_tickets": random.randint(0, 1000),
-            "ticket_price": random.randint(10, 200),
             "address": fake.address(),
             "description": fake.text(),
+            "categories": [], # will be populated by linking to a category
+            "location": "",  # will be filled later when the locations are created
+            "ticket_types": [], # will be filled later
+            "comments": [] # will be filled later when the comments are created
         }
         events.append(event)
     return events
@@ -93,6 +94,7 @@ def generate_user_data(num_users):
             "username": fake.user_name(),
             "email": fake.email(),
             "password": fake.password(),
+            "liked_events": [] 
         }
         users.append(user)
     return users
@@ -103,8 +105,10 @@ def generate_comment_data(num_comments):
     for _ in range(num_comments):
         comment = {
             "comment_id": fake.unique.random_number(digits=6),
+            "user_id": "",
+            "user_name": "",
             "text": fake.text(),
-            "replies": [],
+            "replies": [],   # will be filled later when the replies are created
         }
         comments.append(comment)
     return comments
@@ -113,32 +117,81 @@ def generate_comment_data(num_comments):
 def generate_reply_data(num_replies):
     replies = []
     for _ in range(num_replies):
-        reply = {"reply_id": fake.unique.random_number(digits=6), "text": fake.text()}
+        reply = {
+            "reply_id": fake.unique.random_number(digits=6), 
+            "user_id": "",
+            "user_name": "",
+            "text": fake.text()
+        }
         replies.append(reply)
     return replies
 
 
 def generate_document():
     categories = generate_category_data()
-    locations = sorted(generate_location_data(5000), key=lambda x: x["city_name"])
+    locations = read_locations_from_json('./input_generate/locations_input.json')
 
     events = generate_event_data(10000)
     users = generate_user_data(1500)
     comments = generate_comment_data(5000)
     replies = generate_reply_data(10000)
 
+    # Assign ids
     categories = [{"category_id": i + 1, **category} for i, category in enumerate(categories)]
-    locations = [{"location_id": i + 1, **location} for i, location in enumerate(locations)]
     events = [{**event, "event_id": i + 1} for i, event in enumerate(events)]
     users = [{**user, "user_id": i + 1} for i, user in enumerate(users)]
     comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
     replies = [{**reply, "reply_id": i + 1} for i, reply in enumerate(replies)]
 
-    return categories, locations, events, users, comments, replies
+    # Assign a random list of liked events for each user
+    for user in users:
+        user["liked_events"] = random.sample(range(1, len(events) + 1), random.randint(1, 20))
+
+    # Assign a random user to each comment
+    for comment in comments:
+        random_user = random.choice(users)
+        comment["user_id"] = random_user["user_id"]
+        comment["user_name"] = random_user["name"]
+
+    # Assign a random user and comment to each reply 
+    for reply in replies:
+        random_user = random.choice(users)
+        reply["user_id"] = random_user["user_id"]
+        reply["user_name"] = random_user["name"]
+
+        random_comment = random.choice(comments)
+        random_comment["replies"].append(reply)
+    
+    # Assign each comment to a random event
+    for comment in comments:
+        random_event = random.choice(events)
+        random_event["comments"].append(comment)
+
+    # Assign location and categories of each event
+    for event in events:
+        random_event_location = random.choice(locations)
+        event["location"] = random_event_location["city_name"]
+        random_event_location.setdefault("event_ids", []).append(event["event_id"])
+
+        random_event_categories =  random.sample(categories, random.randint(1, 3))
+        for random_category in random_event_categories:
+            event["categories"].append(random_category["category_name"])
+            random_category["event_ids"].append(event["event_id"])
+
+        # TODO: Assign ticket types for each event
+        #
+
+    
+
+        # Add artists
+
+        # Add Organization
+
+    return categories, locations, events, users
 
 
 if __name__ == "__main__":
-    categories, locations, events, users, comments, replies = generate_document()
+    categories, locations, events, users = generate_document()
 
     with open("categories.json", "w") as file:
         json.dump(categories, file, indent=4)
@@ -152,10 +205,8 @@ if __name__ == "__main__":
     with open("users.json", "w") as file:
         json.dump(users, file, indent=4)
 
-    with open("comments.json", "w") as file:
-        json.dump(comments, file, indent=4)
+    # TODO: transactions 
 
-    with open("replies.json", "w") as file:
-        json.dump(replies, file, indent=4)
+    # TODO: artists
 
     print("JSON documents generated and saved to the data folder.")
