@@ -66,6 +66,23 @@ def generate_category_data():
         categories.append(category)
     return categories
 
+def read_artists_from_json(file_path):
+    with open(file_path, 'r') as file:
+        artist_names = json.load(file)
+    return artist_names
+
+def generate_artist_data(file_path):
+    artist_names = read_artists_from_json(file_path)
+
+    artists = []
+    for artist_name in artist_names:
+        artist = {
+            "artist_name": artist_name,
+            "event_ids": []  # will be filled later when the events are created
+        }
+        artists.append(artist)
+    return artists
+
 
 def generate_event_data(num_events):
     events = []
@@ -143,7 +160,8 @@ def generate_reply_data(num_replies):
 
 def generate_document():
     categories = generate_category_data()
-    locations = read_locations_from_json('./input_generate/locations_input.json')
+    locations = read_locations_from_json('./input_data/locations.json')
+    artists = generate_artist_data('./input_data/artist_names.json')
 
     events = generate_event_data(10000)
     users = generate_user_data(1500, 250)
@@ -152,6 +170,7 @@ def generate_document():
 
     # Assign ids
     categories = [{"category_id": i + 1, **category} for i, category in enumerate(categories)]
+    artists = [{"artist_id": i + 1, **artist} for i, artist in enumerate(artists)]
     events = [{**event, "event_id": i + 1} for i, event in enumerate(events)]
     users = [{**user, "user_id": i + 1} for i, user in enumerate(users)]
     comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
@@ -200,21 +219,29 @@ def generate_document():
             event["categories"].append(random_category["category_name"])
             random_category["event_ids"].append(event["event_id"])
 
+        has_artists = random.choice([True, False])
+        if (has_artists):
+            random_event_artists = random.sample(artists, random.randint(1, 6))
+            for random_artist in random_event_artists:
+                event.setdefault("artists", []).append(random_artist["artist_name"]) 
+                random_artist["event_ids"].append(event["event_id"])
+
         # TODO: Assign ticket types for each event
 
-        # Add artists
-
-    return categories, locations, events, users
+    return categories, locations, artists, events, users
 
 
 if __name__ == "__main__":
-    categories, locations, events, users = generate_document()
+    categories, locations, artists, events, users = generate_document()
 
     with open("categories.json", "w") as file:
         json.dump(categories, file, indent=4)
 
     with open("locations.json", "w") as file:
         json.dump(locations, file, indent=4)
+    
+    with open("artists.json", "w") as file:
+        json.dump(artists, file, indent=4)
 
     with open("events.json", "w") as file:
         json.dump(events, file, indent=4)
@@ -223,7 +250,5 @@ if __name__ == "__main__":
         json.dump(users, file, indent=4)
 
     # TODO: transactions 
-
-    # TODO: artists
 
     print("JSON documents generated and saved to the data folder.")
