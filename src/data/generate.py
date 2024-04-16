@@ -76,6 +76,7 @@ def generate_event_data(num_events):
             "date": fake.date_time_this_year().isoformat(),
             "address": fake.address(),
             "description": fake.text(),
+            "organization_id": "", # will be filled later when organizations are created
             "categories": [], # will be populated by linking to a category
             "location": "",  # will be filled later when the locations are created
             "ticket_types": [], # will be filled later
@@ -85,18 +86,31 @@ def generate_event_data(num_events):
     return events
 
 
-def generate_user_data(num_users):
+def generate_user_data(num_consumers, num_organizations):
     users = []
-    for _ in range(num_users):
+    for _ in range(num_consumers):
         user = {
             "user_id": fake.unique.random_number(digits=6),
             "name": fake.name(),
-            "username": fake.user_name(),
-            "email": fake.email(),
+            "username": fake.unique.user_name(),
+            "email": fake.unique.email(),
             "password": fake.password(),
-            "liked_events": [] 
+            "is_organization": False,
+            "liked_events": []
         }
         users.append(user)
+
+    for _ in range(num_organizations):
+        organization = {
+            "user_id": fake.unique.random_number(digits=6),
+            "name": fake.company(),
+            "username": fake.unique.user_name(),
+            "email": fake.unique.email(),
+            "password": fake.password(),
+            "is_organization": True
+        }
+        users.append(organization)
+
     return users
 
 
@@ -132,7 +146,7 @@ def generate_document():
     locations = read_locations_from_json('./input_generate/locations_input.json')
 
     events = generate_event_data(10000)
-    users = generate_user_data(1500)
+    users = generate_user_data(1500, 250)
     comments = generate_comment_data(5000)
     replies = generate_reply_data(10000)
 
@@ -143,21 +157,26 @@ def generate_document():
     comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
     replies = [{**reply, "reply_id": i + 1} for i, reply in enumerate(replies)]
 
-    # Assign a random list of liked events for each user
-    for user in users:
-        user["liked_events"] = random.sample(range(1, len(events) + 1), random.randint(1, 20))
+    # Get consumers and organizations
+    consumers = [user for user in users if not user.get("is_organization", False)]
+    organizations = [user for user in users if user.get("is_organization") is True]
 
-    # Assign a random user to each comment
+    # Assign a random list of liked events for each consumer
+    for consumer in consumers:
+        if consumer.get("is_organization", False) is False:
+            consumer["liked_events"] = random.sample(range(1, len(events) + 1), random.randint(1, 20))
+
+    # Assign a random consumer to each comment
     for comment in comments:
-        random_user = random.choice(users)
-        comment["user_id"] = random_user["user_id"]
-        comment["user_name"] = random_user["name"]
+        random_consumer = random.choice(consumers)
+        comment["user_id"] = random_consumer["user_id"]
+        comment["user_name"] = random_consumer["name"]
 
-    # Assign a random user and comment to each reply 
+    # Assign a random consumer and comment to each reply 
     for reply in replies:
-        random_user = random.choice(users)
-        reply["user_id"] = random_user["user_id"]
-        reply["user_name"] = random_user["name"]
+        random_consumer = random.choice(consumers)
+        reply["user_id"] = random_consumer["user_id"]
+        reply["user_name"] = random_consumer["name"]
 
         random_comment = random.choice(comments)
         random_comment["replies"].append(reply)
@@ -167,8 +186,11 @@ def generate_document():
         random_event = random.choice(events)
         random_event["comments"].append(comment)
 
-    # Assign location and categories of each event
+    # Assign organization, location and categories of each event
     for event in events:
+        random_organization = random.choice(organizations)
+        event["organization_id"] =  random_organization["user_id"]
+
         random_event_location = random.choice(locations)
         event["location"] = random_event_location["city_name"]
         random_event_location.setdefault("event_ids", []).append(event["event_id"])
@@ -179,13 +201,8 @@ def generate_document():
             random_category["event_ids"].append(event["event_id"])
 
         # TODO: Assign ticket types for each event
-        #
-
-    
 
         # Add artists
-
-        # Add Organization
 
     return categories, locations, events, users
 
