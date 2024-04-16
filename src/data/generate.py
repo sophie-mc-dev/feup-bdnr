@@ -71,13 +71,20 @@ def read_artists_from_json(file_path):
         artist_names = json.load(file)
     return artist_names
 
-def generate_artist_data(file_path):
-    artist_names = read_artists_from_json(file_path)
+def read_songs_from_json(file_path):
+    with open(file_path, 'r') as file:
+        artist_songs = json.load(file)
+    return artist_songs
 
+def generate_artist_data(file_path, file_path2):
+    artist_names = read_artists_from_json(file_path)
+    artist_songs = read_songs_from_json(file_path2)
     artists = []
     for artist_name in artist_names:
         artist = {
             "artist_name": artist_name,
+            "artist_biography": fake.text(),
+            "artist_top5_music": artist_songs.get(artist_name, []),
             "event_ids": []  # will be filled later when the events are created
         }
         artists.append(artist)
@@ -161,7 +168,7 @@ def generate_reply_data(num_replies):
 def generate_document():
     categories = generate_category_data()
     locations = read_locations_from_json('./input_data/locations.json')
-    artists = generate_artist_data('./input_data/artist_names.json')
+    artists = generate_artist_data('./input_data/artist_names.json', './input_data/artist_songs.json')
 
     events = generate_event_data(10000)
     users = generate_user_data(1500, 250)
