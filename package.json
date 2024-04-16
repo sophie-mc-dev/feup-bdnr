@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/sophie-mc-dev/feup-bdnr/issues"
   },
-  "homepage": "https://github.com/sophie-mc-dev/feup-bdnr#readme"
+  "homepage": "https://github.com/sophie-mc-dev/feup-bdnr#readme",
+  "dependencies": {
+    "couchbase": "^4.3.0"
+  }
 }
