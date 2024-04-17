@@ -2,7 +2,7 @@ const couchbase = require('couchbase')
 
 async function main() {
   // For a secure cluster connection, use `couchbases://<your-cluster-ip>` instead.
-  const clusterConnStr = 'couchbase://172.17.0.2'
+  const clusterConnStr = 'couchbase://localhost'
   const username = 'Administrator'
   const password = 'password'
   const bucketName = 'event_shop'

@@ -8,9 +8,7 @@ docker pull "$COUCHBASE_IMAGE"
 
 # Step 2: Run Docker container
 echo; echo "Step 2: Running Docker container..."
-docker run -d --name "$CONTAINER_NAME" \
-    -p 8091-8093:8091-8093 \
-    "$COUCHBASE_IMAGE"
+docker run -d --name "$CONTAINER_NAME" -p 8091-8094:8091-8094 -p 11210:11210 couchbase/server
 
 # Wait for Couchbase to start up
 echo; echo "Waiting for Couchbase to start up..."
