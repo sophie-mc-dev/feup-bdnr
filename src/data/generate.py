@@ -1,23 +1,33 @@
+import datetime
+from datetime import datetime, timedelta
 from faker import Faker
 import random
 import json
 
-trans_status = ["shopping_cart", "purchased"]
-
 fake = Faker()
 
 # don't forget that a user can have at most one transaction with the status shoppingCart
-def generate_transaction_data(num_transactions):
+def generate_transaction_data(num_purchases, num_shopping_cart):
     transactions = []
-    for _ in range(num_transactions):
-        transaction = {
+    for _ in range(num_purchases):
+        purchase = {
             "transaction_id": fake.unique.random_number(digits=6),
-            "transaction_date": fake.date_time_this_year().isoformat(),
-            "transaction_status": random.choice(trans_status),
+            "transaction_date": "", #will be filled later
+            "transaction_status": "purchased",
             "user_id": "",  # will be filled later when the users are created
             "items": [] # will be filled later when the events and type of tickets are created
         }
-        transactions.append(transaction)
+        transactions.append(purchase)
+
+    for _ in range(num_shopping_cart):
+        shopping_cart = {
+            "transaction_id": fake.unique.random_number(digits=6),
+            "transaction_date": "", #will be filled later
+            "transaction_status": "shopping_cart",
+            "user_id": "",  # will be filled later when the users are created
+            "items": [] # will be filled later when the events and type of tickets are created
+        }
+        transactions.append(shopping_cart)
     return transactions
 
 
@@ -158,6 +168,8 @@ def generate_document():
     comments = generate_comment_data(5000)
     replies = generate_reply_data(10000)
 
+    transactions = generate_transaction_data(3000, 750)
+
     # Assign ids
     categories = [{"category_id": i + 1, **category} for i, category in enumerate(categories)]
     artists = [{"artist_id": i + 1, **artist} for i, artist in enumerate(artists)]
@@ -215,12 +227,52 @@ def generate_document():
             for random_artist in random_event_artists:
                 event.setdefault("artists", []).append(random_artist["artist_name"]) 
                 random_artist["event_ids"].append(event["event_id"])
+    
+    # Assign consumer and items of each transaction
+    consumers_without_shopping_cart = [user for user in users if not user.get("is_organization", False)]
+    for transaction in transactions:
+        # assign a customer to the transaction, considering that each consumer can only have at most one shopping cart
+        if (transaction["transaction_status"] == "purchased"):
+            random_consumer = random.choice(consumers)
+            transaction["user_id"] =  random_consumer["user_id"]
+        else:
+            # assign a consumer with no shopping cart
+            random_consumer = random.choice(consumers_without_shopping_cart)
+            transaction["user_id"] =  random_consumer["user_id"]
+            consumers_without_shopping_cart.remove(random_consumer)
 
-    return categories, locations, artists, events, users
+        # generate items
+        num_items = random.randint(1, 5)
+        transaction_event_dates = []
+        
+        for _ in range(num_items):
+            random_event = random.choice(events)
+            random_ticket_type =  random.choice(random_event["ticket_types"])
+            random_quantity = random.randint(1, 5)
+            new_item = {
+                "event_id": random_event["event_id"],
+                "event_name": random_event["event_name"],
+                "ticket_type": random_ticket_type["ticket_type"],
+                "ticket_price": random_ticket_type["price"],
+                "quantity": random_quantity
+            }
+            transaction["items"].append(new_item)
+            transaction_event_dates.append(datetime.strptime(random_event["date"], "%Y-%m-%dT%H:%M:%S.%f"))
+        
+        # assign the transaction date, considering that the event
+        earliest_event_date = min(transaction_event_dates)
+        upper_bound = earliest_event_date - timedelta(days=1)  # Corrected here
+        lower_bound = earliest_event_date - timedelta(days=60)
+        
+        # Generate the purchase date within the range between the upper and lower bounds
+        transaction_date = fake.date_time_between_dates(datetime_start=lower_bound, datetime_end=upper_bound)
+        transaction["transaction_date"] = transaction_date.strftime("%Y-%m-%dT%H:%M:%S")
+
+    return categories, locations, artists, events, users, transactions
 
 
 if __name__ == "__main__":
-    categories, locations, artists, events, users = generate_document()
+    categories, locations, artists, events, users, transactions = generate_document()
 
     with open("./generated_data/categories.json", "w") as file:
         json.dump(categories, file, indent=4)
@@ -237,7 +289,8 @@ if __name__ == "__main__":
     with open("./generated_data/users.json", "w") as file:
         json.dump(users, file, indent=4)
 
-    # TODO: transactions 
+    with open("./generated_data/transactions.json", "w") as file:
+        json.dump(transactions, file, indent=4)
 
     print("JSON documents generated and saved to the generated_data folder.")
     print("Num categories: ", len(categories))
