@@ -17,7 +17,7 @@ Here are the full steps to get the project up and running:
 
    If the script fails to run on Linux, try adding the execution permission by running `chmod +x create.sh`. If it still doesn't execute correctly, try running it with Admin permissions.
 
-4. Before running the next and final script, make sure you have generated data inside the [data](src/data/) directory. If not, run the Python script `generate.py`.<br>
+4. Before running the next and final script, make sure you have generated data inside the [generated_data](src/data/generated_data/) directory. If not, run the Python script `generate_input_events.py` and `generate.py`.<br>
    **Note:** First, before running any Python scripts, make sure you install the required packages by running in the [src](src/) directory:
 
    ```
