@@ -39,3 +39,10 @@ echo; echo "Step 5: Importing 'artists' collection ..."
 docker cp "$ARTISTS_JSON_PATH" "$CONTAINER_NAME":/tmp/artists.json
 docker exec "$CONTAINER_NAME" cbimport json --format list -c "http://$COUCHBASE_HOST:$COUCHBASE_PORT" -u "$COUCHBASE_USERNAME" -p "$COUCHBASE_PASSWORD" -d 'file:///tmp/artists.json' -b "$COUCHBASE_BUCKET_NAME" --scope-collection-exp "$COUCHBASE_SCOPE_NAME.artists" -g %artist_name%
 docker exec "$CONTAINER_NAME" rm /tmp/artists.json
+
+# Import transactions
+echo; echo "Step 6: Importing 'transactions' collection ..."
+
+docker cp "$TRANSACTIONS_JSON_PATH" "$CONTAINER_NAME":/tmp/transactions.json
+docker exec "$CONTAINER_NAME" cbimport json --format list -c "http://$COUCHBASE_HOST:$COUCHBASE_PORT" -u "$COUCHBASE_USERNAME" -p "$COUCHBASE_PASSWORD" -d 'file:///tmp/transactions.json' -b "$COUCHBASE_BUCKET_NAME" --scope-collection-exp "$COUCHBASE_SCOPE_NAME.transactions" -g %transaction_id%
+docker exec "$CONTAINER_NAME" rm /tmp/transactions.json

@@ -18,4 +18,5 @@ CREATE COLLECTION IF NOT EXISTS event_shop._default.categories;
 CREATE COLLECTION IF NOT EXISTS event_shop._default.locations;
 CREATE COLLECTION IF NOT EXISTS event_shop._default.events;
 CREATE COLLECTION IF NOT EXISTS event_shop._default.artists;
+CREATE COLLECTION IF NOT EXISTS event_shop._default.transactions;
 EOF'

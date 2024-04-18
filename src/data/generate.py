@@ -177,6 +177,7 @@ def generate_document():
     users = [{**user, "user_id": i + 1} for i, user in enumerate(users)]
     comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
     replies = [{**reply, "reply_id": i + 1} for i, reply in enumerate(replies)]
+    transactions = [{**transaction, "transaction_id": i + 1} for i, transaction in enumerate(transactions)]
 
     # Get consumers and organizations
     consumers = [user for user in users if not user.get("is_organization", False)]
