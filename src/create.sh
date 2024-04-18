@@ -4,11 +4,8 @@ source .env
 
 docker run --rm \
     --network container:"$CONTAINER_NAME" \
-    "$COUCHBASE_IMAGE" /bin/sh -c '/opt/couchbase/bin/couchbase-cli bucket-create -c localhost:8091 \
-    -u Administrator -p password --bucket event_shop --bucket-type couchbase \
-    --bucket-ramsize 100 --bucket-replica 1 \
-    --wait'
-
+    "$COUCHBASE_IMAGE" /bin/sh -c '/opt/couchbase/bin/couchbase-cli bucket-list -c localhost:8091 \
+    -u Administrator -p password | grep -oP "\bevent_shop\b"'
 
 docker run --rm \
     --network container:"$CONTAINER_NAME" \
