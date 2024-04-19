@@ -1,4 +1,4 @@
-/node_modules/*
+node_modules
 *.DS_STORE
 src/data/couchbase_documents.json
 src/data/categories.json
