@@ -1,16 +1,21 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const userRoutes = require('./routes/userRoutes');
 
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/users', userRoutes);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.get('*', (req, res) => {
+  console.log(`Received request for: ${req.originalUrl}`)
+  res.status(404).send('Not Found')
+})
+
+module.exports = { app }
 
 /*
 async function main() {
