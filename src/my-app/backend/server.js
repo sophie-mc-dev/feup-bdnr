@@ -1,7 +1,7 @@
-const app = require('./app')
+import { app } from './app.js'
 
 const startApiServer = async () => {
-  const port = process.env.APP_PORT
+  const port = 3000
   app.listen(port, () => {
     console.log(`API started at http://localhost:${port}`)
   })
