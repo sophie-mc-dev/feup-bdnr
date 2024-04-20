@@ -9,12 +9,14 @@ import ProfilePage from './pages/ProfilePage';
 import PurchasesPage from './pages/PurchasesPage';
 import ShoppingCartPage from './pages/ShoppingCartPage';
 import TicketsPage from './pages/TicketsPage';
+import Sidebar from './components/Sidebar/Sidebar';
 
 function App() {
   return (
     <BrowserRouter>
       <div>
         <Routes>
+          <Route path="/" element={<Sidebar profileType="user" />} />
           <Route path="/" element={<HomePage />} />
 
           <Route path="/artists" element={<AllArtistsPage />} />
