@@ -2,4 +2,6 @@
 
 cd my-app/backend
 
-#TODO: 
+npm install
+
+npm start
