@@ -1,44 +1,87 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { usersCollection } = require('../db/connection');
+const { connectToCouchbase } = require('../db/connection');
+const uuid = require('uuid');
 
-// User registration
-exports.register = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        // Check if user already exists
-        const existingUser = await usersCollection.get(email);
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-        // Save user to database
-        await usersCollection.insert(email, { password: hashedPassword });
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+// login user
+async function loginUser(req, res) {
+    if (!req.body.email && !req.body.password) {
+        return res.status(401).send({ "message": "An `email` and `password` are required" })
+    } else if (!req.body.email || !req.body.password) {
+        return res.status(401).send({ 
+          "message": `A ${!req.body.email ? '`email`' : '`password`'} is required`
+        })
     }
-};
 
-// User login
-exports.login = async (req, res) => {
+    const query = 'SELECT * FROM `users` WHERE email = $1 AND password = $2 OR username = $1 AND password = $2';
+    const params = [req.body.email, req.body.password];
+    const { usersCollection } = await connectToCouchbase();
+
     try {
-        const { email, password } = req.body;
-        // Get user from database
-        const user = await usersCollection.get(email);
-        if (!user) {
-            return res.status(400).json({ message: 'User not found' });
+        const result = await usersCollection.query(query, { parameters: params });
+        if (!result.rows.length) {
+            return res.status(401).send({ "message": "Invalid email/username or password" })
         }
-        // Check password
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-        // Generate JWT
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.json(result.rows[0]);
     }
+    catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+// register user
+async function registerUser(req, res) {
+    if (!req.body.email && !req.body.password) {
+        return res.status(401).send({ "message": "An `email` and `password` are required" })
+    } else if (!req.body.email || !req.body.password) {
+        return res.status(401).send({ 
+          "message": `A ${!req.body.email ? '`email`' : '`password`'} is required`
+        })
+    }
+
+    const id = uuid.v4()
+    const user = {
+        "user_id": id,
+        "name": req.body.name,
+        "username": req.body.username,
+        "email": req.body.email,
+        "password": req.body.password,
+        "is_organization": req.body.is_organization || false,
+        "liked_events": [],
+    }
+
+    const { usersCollection } = await connectToCouchbase();
+
+    try{
+        await usersCollection.upsert('new_user', user);
+        res.json(user);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+
+}
+
+// get user profile
+async function getUserById(req, res) {
+    let userId = req.params.user_id;
+    const { usersCollection } = await connectToCouchbase();
+
+    try {
+        const result = await usersCollection.get(userId);
+        if (!result) {
+            res.status(404).send('User not found');
+        } else {
+            res.json(result.value);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+module.exports = {
+    loginUser,
+    registerUser,
+    getUserById
 };
