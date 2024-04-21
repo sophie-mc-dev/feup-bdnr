@@ -1,6 +1,5 @@
-import express from 'express'
-import cors from 'cors'
-
+const express = require('express');
+const cors = require('cors')
 
 const app = express()
 app.use(cors())
@@ -13,7 +12,9 @@ app.get('/', (req, res) => {
   res.status(404).send('Not Found')
 })
 
-export { app }
+module.exports.app = app;
+
+
 /*
 async function main() {
   // For a secure cluster connection, use `couchbases://<your-cluster-ip>` instead.

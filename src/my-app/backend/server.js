@@ -1,4 +1,4 @@
-import { app } from './app.js'
+const { app } = require("./app")
 
 const startApiServer = async () => {
   const port = 3000
