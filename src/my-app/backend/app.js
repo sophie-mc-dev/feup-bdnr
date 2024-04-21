@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors')
+const eventRoute = require("./routes/eventRoutes")
+const categoryRoute = require("./routes/categoryRoutes")
+const locationRoute = require("./routes/locationRoutes")
 
 const app = express()
 app.use(cors())
@@ -11,6 +14,12 @@ app.get('/', (req, res) => {
   console.log(`Received request for: ${req.originalUrl}`)
   res.status(404).send('Not Found')
 })
+
+app.use('/events', eventRoute);
+
+app.use('/categories', categoryRoute);
+
+app.use('/locations', locationRoute);
 
 module.exports.app = app;
 
