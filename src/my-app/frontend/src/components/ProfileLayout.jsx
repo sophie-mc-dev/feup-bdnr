@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import TopBar from "../components/TopBar";
 import Sidebar from "../components/Sidebar";
 import ProfilePage from "../pages/ProfilePage";
+import TicketsPage from "../pages/TicketsPage";
+import FavoritesPage from "../pages/FavoritesPage";
+import PurchasesPage from "../pages/PurchasesPage";
 
 const ProfileLayout = () => {
   const [selectedItem, setSelectedItem] = useState("My Profile");
@@ -16,14 +19,14 @@ const ProfileLayout = () => {
       case "My Profile":
         return <ProfilePage />;
       case "My Tickets":
-        return <MyTicketsPage />; 
+        return <TicketsPage />;
       case "My Liked Events":
-        return <MyLikedEventsPage />; 
+        return <FavoritesPage />;
       case "My Orders":
-        return <MyOrdersPage />; 
-      
+        return <PurchasesPage />;
+
       default:
-        return <ProfilePage />; 
+        return <ProfilePage />;
     }
   };
 
