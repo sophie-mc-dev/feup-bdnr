@@ -1,7 +1,7 @@
 const { connectToCouchbase } = require('../db/connection');
 
 async function getAllCategories(req, res) {
-    const query = 'SELECT category_name FROM `categories`';
+    const query = 'SELECT category_name FROM `categories` ORDER BY category_name';
 
     try {
         const { bucket } = await connectToCouchbase();

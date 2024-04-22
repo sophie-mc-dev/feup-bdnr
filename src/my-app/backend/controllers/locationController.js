@@ -1,11 +1,10 @@
 const { connectToCouchbase } = require('../db/connection');
 
 async function getAllCities(req, res) {
-    const query = 'SELECT city_name FROM `locations`';
+    const query = 'SELECT city_name FROM `locations` ORDER BY city_name';
 
     try {
         const { bucket } = await connectToCouchbase();
-        console.log("hello")
         const result = await bucket.scope("_default").query(query);
         res.json(result.rows.map(row => row.city_name));
     } catch (error) {
