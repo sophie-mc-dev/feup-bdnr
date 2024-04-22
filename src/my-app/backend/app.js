@@ -3,6 +3,7 @@ const cors = require('cors')
 const eventRoute = require("./routes/eventRoutes")
 const categoryRoute = require("./routes/categoryRoutes")
 const locationRoute = require("./routes/locationRoutes")
+const artistRoute = require("./routes/artistRoutes")
 
 const app = express()
 app.use(cors())
@@ -20,6 +21,8 @@ app.use('/events', eventRoute);
 app.use('/categories', categoryRoute);
 
 app.use('/locations', locationRoute);
+
+app.use('/artists', artistRoute);
 
 module.exports.app = app;
 
