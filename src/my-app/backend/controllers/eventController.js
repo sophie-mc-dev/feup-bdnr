@@ -15,9 +15,9 @@ async function getUpcomingEvents(req, res) {
 
 async function getEventById(req, res) {
   let eventId = req.params.event_id;
-  const { eventsCollection } = await connectToCouchbase();
 
   try {
+    const { eventsCollection } = await connectToCouchbase();
     const result = await eventsCollection.get(eventId);
     if (!result) {
       res.status(404).send('Event not found');
@@ -30,21 +30,32 @@ async function getEventById(req, res) {
   }
 }
 
-async function filterAndOrderEvents(req, res) { // TODO: complete using date
-  const category = req.params.category;
-  const location = req.params.location;
+async function filter(req, res) { // TODO: complete using date
+  const category = req.query.category;
+  const location = req.query.location;
+  let query = 'SELECT * FROM `events` WHERE MILLIS(date) >= NOW_MILLIS()';
+  let query_params = [];
 
-  const query = 'SELECT * FROM `events` WHERE $1 IN categories AND $2 IN location';
-  const options = { parameters: [category, location] };
+  if (category.trim().length !== 0) {
+    query_params.push(category)
+    const category_index = query_params.length;
+    query += ' AND $' + category_index + ' IN categories';
+  }
+
+  if (location.trim().length !== 0) { 
+    query_params.push(location)
+    const location_index = query_params.length;
+    query += ' AND location = $' + location_index;
+  }
+  const options = { parameters: query_params };
+
   try {
+    const { bucket } = await connectToCouchbase();
     const result = await bucket.defaultScope().query(query, options);
     if (!result) {
-        res.status(404).send('Event not found');
+      res.status(404).send('Events not found');
     } else {
-        res.json(result.value);
-        result.rows.forEach((row) => {
-            console.log(row)
-        });
+      res.json(result.rows.map(row => row.events));
     }
   } catch (error) {
     console.error('Error:', error);
@@ -53,7 +64,7 @@ async function filterAndOrderEvents(req, res) { // TODO: complete using date
 }
 
 module.exports = {
-    getUpcomingEvents,
-    getEventById,
-    filterAndOrderEvents
+  getUpcomingEvents,
+  getEventById,
+  filter
 };
