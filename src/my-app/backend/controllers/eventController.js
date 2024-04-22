@@ -33,19 +33,24 @@ async function getEventById(req, res) {
 async function filter(req, res) { // TODO: complete using date
   const category = req.query.category;
   const location = req.query.location;
+  const artist = req.query.artist;
+
   let query = 'SELECT * FROM `events` WHERE MILLIS(date) >= NOW_MILLIS()';
   let query_params = [];
 
   if (category.trim().length !== 0) {
     query_params.push(category)
-    const category_index = query_params.length;
-    query += ' AND $' + category_index + ' IN categories';
+    query += ' AND $' + query_params.length + ' IN categories';
   }
 
   if (location.trim().length !== 0) { 
     query_params.push(location)
-    const location_index = query_params.length;
-    query += ' AND location = $' + location_index;
+    query += ' AND location = $' + query_params.length;
+  }
+
+  if (artist.trim().length !== 0) {
+    query_params.push(artist)
+    query += ' AND $' + query_params.length + ' IN artists';
   }
   const options = { parameters: query_params };
 
