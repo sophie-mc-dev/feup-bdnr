@@ -7,45 +7,22 @@ import FavoritesPage from "../pages/FavoritesPage";
 import PurchasesPage from "../pages/PurchasesPage";
 
 const ProfileLayout = () => {
-  const [selectedItem, setSelectedItem] = useState("My Profile");
-
-  const handleSidebarItemClick = (item) => {
-    setSelectedItem(item);
-  };
-
-  // Function to render content based on selected sidebar item
-  const renderMainContent = () => {
-    switch (selectedItem) {
-      case "My Profile":
-        return <ProfilePage />;
-      case "My Tickets":
-        return <TicketsPage />;
-      case "My Liked Events":
-        return <FavoritesPage />;
-      case "My Orders":
-        return <PurchasesPage />;
-
-      default:
-        return <ProfilePage />;
-    }
-  };
-
+  const [selectedContent, setSelectedContent] = useState("My Profile");
+ 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Top Bar */}
-      <TopBar />
-
-      <div className="flex-grow flex">
-        {/* Sidebar */}
-        <Sidebar onItemClick={handleSidebarItemClick} />
-
-        {/* Main Content */}
-        <div className="flex-grow p-8 bg-white rounded-lg shadow-lg overflow-y-auto">
-          {renderMainContent()}
-        </div>
-      </div>
-    </div>
+     <div className="min-h-screen bg-gray-100 flex flex-col">
+       <TopBar />
+       <div className="flex-grow flex">
+         <Sidebar profileType="user" onItemClick={setSelectedContent} />
+         <div className="flex-grow p-8 bg-white rounded-lg shadow-lg overflow-y-auto">
+           {selectedContent === "My Profile" && <ProfilePage />}
+           {selectedContent === "My Tickets" && <TicketsPage />}
+           {selectedContent === "My Liked Events" && <FavoritesPage />}
+           {selectedContent === "My Orders" && <PurchasesPage />}
+         </div>
+       </div>
+     </div>
   );
-};
+ };
 
 export default ProfileLayout;

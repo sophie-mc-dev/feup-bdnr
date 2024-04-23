@@ -1,4 +1,6 @@
+// Sidebar.js
 import React from "react";
+import SidebarItem from "./SidebarItem";
 
 const Sidebar = ({ profileType, onItemClick }) => {
   const getUserItems = () => [
@@ -7,43 +9,39 @@ const Sidebar = ({ profileType, onItemClick }) => {
     "My Liked Events",
     "My Orders",
   ];
-  const getOrganizationItems = () => [
-    "My Settings",
-    "My Events",
-    "Analytics",
-  ];
 
-  const mainItems =
-    profileType === "user" ? getUserItems() : getOrganizationItems();
+  const getOrganizationItems = () => ["My Events", "Analytics"];
+
+  const mainItems = profileType === "user" ? getUserItems() : getOrganizationItems();
   const additionalItems = ["Settings", "Log Out"];
+
+  const handleItemClick = (contentType) => {
+    if (onItemClick) {
+      onItemClick(contentType); // Notify parent component (ProfileLayout)
+    }
+  };
 
   return (
     <div className="w-[400px] h-full min-h-screen bg-[#FDC27B] items-center justify-between p-5">
-      <div className="sidebar-section">
+      <div className="mb-4">
         {mainItems.map((item, index) => (
-          <div
+          <SidebarItem
             key={index}
-            className="flex justify-between items-center bg-[#242565] text-[white] cursor-pointer mb-2.5 p-2.5 hover:bg-[#494391]"
-            onClick={() => onItemClick(item)}
-          >
-            <span className="grow font-medium">{item}</span>
-            <span className="text-base ml-[5px]">➔</span>
-          </div>
+            item={item}
+            onItemClick={handleItemClick}
+          />
         ))}
       </div>
-      <div className="sidebar-section">
+
+      <div>
         {additionalItems.map((item, index) => (
-          <div
+          <SidebarItem
             key={index}
-            className="flex justify-between items-center bg-[#242565] text-[white] cursor-pointer mb-2.5 p-2.5 hover:bg-[#494391]"
-            onClick={() => onItemClick(item)}
-          >
-            <span className="grow font-medium">{item}</span>
-            <span className="text-base ml-[5px]">➔</span>
-          </div>
+            item={item}
+            onItemClick={handleItemClick}
+          />
         ))}
       </div>
-      
     </div>
   );
 };

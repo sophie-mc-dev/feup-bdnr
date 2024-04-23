@@ -1,19 +1,10 @@
-// ProfilePage.jsx
-
 import React, { useState } from "react";
-import TopBar from "../components/TopBar";
-import Sidebar from "../components/Sidebar";
 
 const ProfilePage = () => {
-  const [mainContent, setMainContent] = useState("");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleSidebarItemClick = (item) => {
-    setMainContent(item);
-  };
 
   const handleSave = () => {
     console.log("Saving changes...");
