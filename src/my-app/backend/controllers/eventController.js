@@ -34,6 +34,7 @@ async function filter(req, res) { // TODO: complete using date
   const category = req.query.category;
   const location = req.query.location;
   const artist = req.query.artist;
+  const sortBy = req.query.sortBy;
 
   let query = 'SELECT * FROM `events` WHERE MILLIS(date) >= NOW_MILLIS()';
   let query_params = [];
@@ -52,6 +53,17 @@ async function filter(req, res) { // TODO: complete using date
     query_params.push(artist)
     query += ' AND $' + query_params.length + ' IN artists';
   }
+
+  if (sortBy === "date") { 
+    query += ' ORDER BY MILLIS(date) ASC';
+  } else if (sortBy === "popularity") { 
+    query += ' ORDER BY num_likes DESC';
+  } else if (sortBy === "price_asc") {
+    query += ' ORDER BY price ASC'; // TODO: implement sorting by price
+  } else if (sortBy === "price_desc") {
+    query += ' ORDER BY price DESC';
+  } 
+
   const options = { parameters: query_params };
 
   try {

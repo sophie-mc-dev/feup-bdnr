@@ -7,7 +7,7 @@ function HomePage() {
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
   const [artists, setArtistsOptions] = useState([]);
-  const [filters, setFilters] = useState({ category: '', location: '', artist: '' });
+  const [filters, setFilters] = useState({ category: '', location: '', artist: '', sortBy: 'date' });
 
   useEffect(() => {
     fetchUpcomingEvents();
@@ -103,6 +103,13 @@ function HomePage() {
             ))}
           </select>
 
+          <select name="sortBy" value={filters.sortBy} onChange={handleFiltersChange}> 
+            <option value="date">Date</option>
+            <option value="price_asc">Price (ascending)</option>
+            <option value="price_desc">Price (descending)</option>
+            <option value="popularity">Popularity</option>
+          </select>
+
           <div className="flex flex-col gap-y-5">
             {upcomingEvents.map((upcomingEvent, index) => (
               <div className='p-5 border bg-gray-100 rounded-lg'>
@@ -110,6 +117,7 @@ function HomePage() {
                 <p>Location: {upcomingEvent.location}</p>
                 <p>Categories: {upcomingEvent.categories.join(', ')}</p>
                 <p>Date and Time: {upcomingEvent.date}</p>
+                <p>Num likes: {upcomingEvent.num_likes}</p>
                 {upcomingEvent.artists && <p>Artists: {upcomingEvent.artists.join(', ')}</p>}
               </div>
             ))}
