@@ -1,12 +1,17 @@
 const { connectToCouchbase } = require('../db/connection');
 
 async function getUpcomingEvents(req, res) {
-  const query = 'SELECT * FROM `events` WHERE MILLIS(date) >= NOW_MILLIS() ORDER BY MILLIS(date) ASC';
+  const query =  `
+  SELECT event_id, event_name, date, location, categories, artists, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+  FROM events
+  WHERE MILLIS(date) >= NOW_MILLIS()
+  ORDER BY MILLIS(date)
+`;
   
   try {
     const { bucket } = await connectToCouchbase();
     const result = await bucket.scope("_default").query(query);
-    res.json(result.rows.map(row => row.events));
+    res.json(result.rows.map(row => row));
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -36,7 +41,11 @@ async function filter(req, res) { // TODO: complete using date
   const artist = req.query.artist;
   const sortBy = req.query.sortBy;
 
-  let query = 'SELECT * FROM `events` WHERE MILLIS(date) >= NOW_MILLIS()';
+  let query = `
+  SELECT event_id, event_name, date, location, categories, artists, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+  FROM events
+  WHERE MILLIS(date) >= NOW_MILLIS()
+  `;
   let query_params = [];
 
   if (category.trim().length !== 0) {
@@ -59,9 +68,9 @@ async function filter(req, res) { // TODO: complete using date
   } else if (sortBy === "popularity") { 
     query += ' ORDER BY num_likes DESC';
   } else if (sortBy === "price_asc") {
-    query += ' ORDER BY price ASC'; // TODO: implement sorting by price
+    query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) ASC';
   } else if (sortBy === "price_desc") {
-    query += ' ORDER BY price DESC';
+    query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) DESC';
   } 
 
   const options = { parameters: query_params };
@@ -72,7 +81,7 @@ async function filter(req, res) { // TODO: complete using date
     if (!result) {
       res.status(404).send('Events not found');
     } else {
-      res.json(result.rows.map(row => row.events));
+      res.json(result.rows.map(row => row));
     }
   } catch (error) {
     console.error('Error:', error);

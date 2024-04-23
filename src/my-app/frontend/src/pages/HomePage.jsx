@@ -28,7 +28,7 @@ function HomePage() {
   const fetchUpcomingEvents = async () => {
     try {
       let response;
-      const hasFilters = Object.values(filters).some(value => value.trim().length > 0);
+      const hasFilters = Object.values(filters).some(value => value.trim().length > 0) && filters.sortBy !== 'date';
 
       if (hasFilters) {
         response = await axios.get('http://localhost:3000/events/filter', {params: filters});
@@ -118,6 +118,8 @@ function HomePage() {
                 <p>Categories: {upcomingEvent.categories.join(', ')}</p>
                 <p>Date and Time: {upcomingEvent.date}</p>
                 <p>Num likes: {upcomingEvent.num_likes}</p>
+                <p>Min price: {upcomingEvent.min_price}</p>
+                
                 {upcomingEvent.artists && <p>Artists: {upcomingEvent.artists.join(', ')}</p>}
               </div>
             ))}
