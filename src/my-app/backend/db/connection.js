@@ -1,16 +1,38 @@
 const couchbase = require('couchbase');
 
-async function connectToCouchbase() {
-  // Initialize Couchbase connection
-  const clusterConnStr = 'couchbase://localhost';
-  const username = 'Administrator';
-  const password = 'password';
-  const bucketName = 'event_shop';
+// Initialize Couchbase connection
+const clusterConnStr = 'couchbase://localhost';
+const username = 'Administrator';
+const password = 'password';
+const bucketName = 'event_shop';
 
-  const cluster = await couchbase.connect(clusterConnStr, {
-    username: username,
-    password: password,
-  });
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections growing exponentially
+ * during API Route usage.
+ */
+let cached = global.couchbase
+
+if (!cached) {
+  cached = global.couchbase = { conn: null }
+}
+
+async function createCouchbaseCluster(){
+    if (cached.conn){
+        return cached.conn
+    }
+
+    cached.conn = await couchbase.connect(clusterConnStr, {
+        username: username,
+        password: password,
+    });
+
+    return cached.conn;
+}
+
+async function connectToCouchbase() {
+
+  const cluster = await createCouchbaseCluster();
 
   const bucket = cluster.bucket(bucketName);
   const artistsCollection = bucket.defaultScope().collection('artists');

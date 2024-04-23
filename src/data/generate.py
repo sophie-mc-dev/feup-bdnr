@@ -6,6 +6,19 @@ import json
 
 fake = Faker()
 
+def generate_random_date():
+    current_year =  datetime.now().year
+    start_date = datetime(current_year, 1, 1)
+    end_date = datetime(current_year, 12, 31)
+
+    # Generate a random hour and number of days and add it to the start date
+    random_days = random.randint(0, (end_date - start_date).days)
+    random_hour = random.randint(0, 23)
+    random_minute = random.choice([0, 30])
+    random_date = start_date + timedelta(days=random_days, hours=random_hour, minutes=random_minute)
+
+    return random_date.isoformat()
+
 # don't forget that a user can have at most one transaction with the status shoppingCart
 def generate_transaction_data(num_purchases, num_shopping_cart):
     transactions = []
@@ -91,7 +104,7 @@ def generate_event_data(file_path):
             "event_id": fake.unique.random_number(digits=6),
             "event_name": event_data['event_name'],
             "description": event_data['description'],
-            "date": fake.date_time_this_year().isoformat(),
+            "date": generate_random_date(),
             "address": fake.address(),
             "location": "",  # will be filled later when the locations are created,
             "organization_id": "", # will be filled later when organizations are created
@@ -258,7 +271,7 @@ def generate_document():
                 "quantity": random_quantity
             }
             transaction["items"].append(new_item)
-            transaction_event_dates.append(datetime.strptime(random_event["date"], "%Y-%m-%dT%H:%M:%S.%f"))
+            transaction_event_dates.append(datetime.strptime(random_event["date"], "%Y-%m-%dT%H:%M:%S"))
         
         # assign the transaction date, considering that the event
         earliest_event_date = min(transaction_event_dates)
