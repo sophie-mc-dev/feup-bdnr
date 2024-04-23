@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TopBar from '../components/TopBar';
+import Loading from '../components/Loading';
 
 function HomePage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
   const [artists, setArtistsOptions] = useState([]);
-  const [filters, setFilters] = useState({ category: '', location: '', artist: '', sortBy: 'date' });
+  const initialFilters = { category: '', location: '', artist: '', event_date: '', sortBy: 'date' };
+  const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
     fetchUpcomingEvents();
@@ -26,9 +29,10 @@ function HomePage() {
   };
 
   const fetchUpcomingEvents = async () => {
+    setIsLoading(true);
     try {
       let response;
-      const hasFilters = Object.values(filters).some(value => value.trim().length > 0) && filters.sortBy !== 'date';
+      const hasFilters = Object.values(filters).some(value => value.trim().length > 0) && filters !== initialFilters;
 
       if (hasFilters) {
         response = await axios.get('http://localhost:3000/events/filter', {params: filters});
@@ -36,7 +40,9 @@ function HomePage() {
         response = await axios.get('http://localhost:3000/events');
       }
       setUpcomingEvents(response.data);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error('Error fetching data:', error);
     }
   };
@@ -76,18 +82,20 @@ function HomePage() {
         <div className='ml-20 mr-20 flex flex-col gap-y-8'>
           <h1 className="text-3xl font-bold underline ">Upcoming Events</h1>
 
-          <select name="category" value={filters.category} onChange={handleFiltersChange}> 
-            <option value="">All Categories</option>
-            {categories.map((option, index) => (
+          <select name="location" value={filters.location} onChange={handleFiltersChange}> 
+            <option value="">All Locations</option>
+            {locations.map((option, index) => (
               <option key={index} value={option}>
                 {option}
               </option>
             ))}
           </select>
 
-          <select name="location" value={filters.location} onChange={handleFiltersChange}> 
-            <option value="">All Locations</option>
-            {locations.map((option, index) => (
+          <input type="date" id="event_date_input" name="event_date" onChange={handleFiltersChange}></input>
+
+          <select name="category" value={filters.category} onChange={handleFiltersChange}> 
+            <option value="">All Categories</option>
+            {categories.map((option, index) => (
               <option key={index} value={option}>
                 {option}
               </option>
@@ -111,17 +119,23 @@ function HomePage() {
           </select>
 
           <div className="flex flex-col gap-y-5">
-            {upcomingEvents.map((upcomingEvent, index) => (
-              <div className='p-5 border bg-gray-100 rounded-lg'>
-                <p>{upcomingEvent.event_name}</p>
-                <p>Location: {upcomingEvent.location}</p>
-                <p>Categories: {upcomingEvent.categories.join(', ')}</p>
-                <p>Date and Time: {upcomingEvent.date}</p>
-                <p>Num likes: {upcomingEvent.num_likes}</p>
-                <p>Min price: {upcomingEvent.min_price}</p>
-                
-                {upcomingEvent.artists && <p>Artists: {upcomingEvent.artists.join(', ')}</p>}
-              </div>
+          {isLoading? (
+            <Loading/>
+          ) : ( upcomingEvents.length === 0? (
+            <p>No upcoming events found.</p>
+          ) : (
+              upcomingEvents.map((upcomingEvent, index) => (
+                <div key={upcomingEvent.event_id} className='p-5 border bg-gray-100 rounded-lg'>
+                  <p>{upcomingEvent.event_name}</p>
+                  <p>Location: {upcomingEvent.location}</p>
+                  <p>Categories: {upcomingEvent.categories.join(', ')}</p>
+                  <p>Date and Time: {upcomingEvent.date}</p>
+                  <p>Num likes: {upcomingEvent.num_likes}</p>
+                  <p>Min price: {upcomingEvent.min_price}</p>
+                  
+                  {upcomingEvent.artists && <p>Artists: {upcomingEvent.artists.join(', ')}</p>}
+                </div>
+              ))
             ))}
           </div>
         </div>
