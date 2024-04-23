@@ -102,13 +102,14 @@ def generate_event_data(file_path):
     for event_data in data:
         event = {
             "event_id": fake.unique.random_number(digits=6),
+            "organization_id": "", # will be filled later when organizations are created
             "event_name": event_data['event_name'],
             "description": event_data['description'],
             "date": generate_random_date(),
             "address": fake.address(),
             "location": "",  # will be filled later when the locations are created,
-            "organization_id": "", # will be filled later when organizations are created
             "categories": event_data['categories'], 
+            "num_likes": 0, # will be incremented every time a user likes the event
             "ticket_types": event_data['ticket_types'],
             "comments": [] # will be filled later when the comments are created
         }
@@ -199,7 +200,10 @@ def generate_document():
     # Assign a random list of liked events for each consumer
     for consumer in consumers:
         if consumer.get("is_organization", False) is False:
-            consumer["liked_events"] = random.sample(range(1, len(events) + 1), random.randint(1, 20))
+            random_liked_events = random.sample(events, random.randint(0, 20))
+            for random_event in random_liked_events:
+                consumer["liked_events"].append(random_event["event_id"])
+                random_event["num_likes"] += 1
 
     # Assign a random consumer to each comment
     for comment in comments:
