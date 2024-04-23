@@ -21,6 +21,7 @@ topic_to_categories = {
     "Sports": ["Sports", "Fitness", "Competition"],
     "Food & Drink": ["Food & Drink", "Culinary", "Tastings"],
     "Business": ["Business", "Entrepreneurship", "Networking"],
+    "Science": ["Science", "Technology", "Innovation"],
     "Health & Wellness": ["Health & Wellness", "Fitness"],
     "Education": ["Education", "Learning", "Development"],
     "Environment": ["Environment", "Sustainability", "Green Living"],
@@ -42,6 +43,7 @@ topic_to_categories = {
     "History": ["History", "Heritage"],
     "Literature": ["Literature", "Writing"],
     "Comedy": ["Comedy", "Humor", "Stand-up"],
+    "Fitness": ["Fitness", "Sports", "Health & Wellness"],
     "Yoga": ["Yoga", "Mindfulness", "Well-being"],
     "Meditation": ["Meditation", "Mindfulness", "Spirituality"],
     "Beauty": ["Beauty", "Makeup"],
@@ -57,7 +59,7 @@ def generate_events():
         for type in types:
             for adjective in adjectives:
                 event_name = f"{adjective} {topic} {type}"
-                categories = generate_event_categories(event_name)
+                categories = topic_to_categories.get(topic, [])
                 description = generate_event_description(event_name)
                 ticket_types = generate_ticket_types(event_name)
                 events.append({
@@ -68,13 +70,6 @@ def generate_events():
                 })
     random.shuffle(events)
     return events
-
-# Function to generate categories according to the event name
-def generate_event_categories(event_name): 
-    words = event_name.split()
-    event_topic = words[1]
-
-    return topic_to_categories.get(event_topic, [])
 
 # Function to generate event description according to its name
 def generate_event_description(event_name):
