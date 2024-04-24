@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import TopBar from "../components/TopBar";
+import Loading from "../components/Loading";
 import Footer from "../components/Footer";
 
 function HomePage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
-  const [artists, setArtistsOptions] = useState([]);
-  const [filters, setFilters] = useState({
+  
+  const initialFilters = {
     category: "",
     location: "",
     artist: "",
+    event_date: "",
     sortBy: "date",
-  });
+  };
+  const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
     fetchUpcomingEvents();
@@ -32,11 +36,12 @@ function HomePage() {
   };
 
   const fetchUpcomingEvents = async () => {
+    setIsLoading(true);
     try {
       let response;
       const hasFilters =
         Object.values(filters).some((value) => value.trim().length > 0) &&
-        filters.sortBy !== "date";
+        filters !== initialFilters;
 
       if (hasFilters) {
         response = await axios.get("http://localhost:3000/events/filter", {
@@ -46,7 +51,9 @@ function HomePage() {
         response = await axios.get("http://localhost:3000/events");
       }
       setUpcomingEvents(response.data);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error fetching data:", error);
     }
   };
@@ -171,16 +178,25 @@ function HomePage() {
 
           {/* Container for events */}
           <div className="flex flex-col gap-y-5">
-            {upcomingEvents.map((upcomingEvent, index) => (
-              <div key={index} className="p-5 border bg-gray-100 rounded-lg">
-                <p>{upcomingEvent.event_name}</p>
-                <p>Location: {upcomingEvent.location}</p>
-                <p>Categories: {upcomingEvent.categories.join(", ")}</p>
-                <p>Date and Time: {upcomingEvent.date}</p>
-                <p>Num likes: {upcomingEvent.num_likes}</p>
-                <p>Min price: {upcomingEvent.min_price}</p>
-              </div>
-            ))}
+            {isLoading ? (
+              <Loading />
+            ) : upcomingEvents.length === 0 ? (
+              <p>No upcoming events found.</p>
+            ) : (
+              upcomingEvents.map((upcomingEvent, index) => (
+                <div
+                  key={upcomingEvent.event_id}
+                  className="p-5 border bg-gray-100 rounded-lg"
+                >
+                  <p>{upcomingEvent.event_name}</p>
+                  <p>Location: {upcomingEvent.location}</p>
+                  <p>Categories: {upcomingEvent.categories.join(", ")}</p>
+                  <p>Date and Time: {upcomingEvent.date}</p>
+                  <p>Num likes: {upcomingEvent.num_likes}</p>
+                  <p>Min price: {upcomingEvent.min_price}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

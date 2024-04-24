@@ -35,19 +35,26 @@ async function getEventById(req, res) {
   }
 }
 
-async function filter(req, res) { // TODO: complete using date
-  const category = req.query.category;
-  const location = req.query.location;
-  const artist = req.query.artist;
-  const sortBy = req.query.sortBy;
+async function filter(req, res) {
+  const {category, location, artist, event_date, sortBy } = req.query;
 
-  let query = `
-  SELECT event_id, event_name, date, location, categories, artists, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
-  FROM events
-  WHERE MILLIS(date) >= NOW_MILLIS()
-  `;
+  let query;
   let query_params = [];
 
+  query = `
+    SELECT event_id, event_name, date, location, categories, artists, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+    FROM events
+  `;
+
+  if (event_date.trim().length !== 0) {
+    console.log(event_date);
+    query_params.push(event_date);
+    query += ` WHERE DATE_FORMAT_STR(date, '1111-11-11') = $` + query_params.length;
+  }
+  else {
+    query += ` WHERE MILLIS(date) >= NOW_MILLIS()`;
+  }
+  
   if (category.trim().length !== 0) {
     query_params.push(category)
     query += ' AND $' + query_params.length + ' IN categories';
