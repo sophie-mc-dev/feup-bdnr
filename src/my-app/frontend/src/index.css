@@ -7,6 +7,10 @@
   font-family: 'Montserrat', sans-serif;
 }
 
+.half-screen {
+  height: 50vh; /* Set the height to 50% of the viewport height */
+}
+
 .profile-pic {
   border-radius: 50%;
   width: 3em;

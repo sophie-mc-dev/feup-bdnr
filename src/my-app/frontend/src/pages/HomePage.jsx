@@ -1,3 +1,4 @@
+import "../index.css";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import TopBar from "../components/TopBar";
@@ -9,7 +10,8 @@ function HomePage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
-  
+  const [artists, setArtistsOptions] = useState([]);
+
   const initialFilters = {
     category: "",
     location: "",
@@ -91,19 +93,19 @@ function HomePage() {
         <TopBar></TopBar>
 
         {/* bg image and search bar container */}
-        <div class="min-h-screen bg-gray-100 flex justify-center items-center">
-          <div class="container mx-auto bg-[#242565] rounded-lg p-14">
+        <div className='half-screen bg-gray-100 flex justify-center items-center'>
+          <div className="container mx-auto bg-[#242565] rounded-lg p-14">
             <form>
-              <div class="sm:flex items-center bg-white rounded-lg overflow-hidden px-2 py-1 justify-between">
+              <div className="sm:flex items-center bg-white rounded-lg overflow-hidden px-2 py-1 justify-between">
                 <input
-                  class="text-base text-gray-400 flex-grow outline-none px-2 "
+                  className="text-base text-gray-400 flex-grow outline-none px-2 "
                   type="text"
                   placeholder="Search event or artist name"
                 />
-                <div class="ms:flex items-center px-2 rounded-lg space-x-4 mx-auto ">
+                <div className="ms:flex items-center px-2 rounded-lg space-x-4 mx-auto ">
                   {/* Locations Select */}
                   <select
-                    class="text-base text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
+                    className="text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
                     name="location"
                     value={filters.location}
                     onChange={handleFiltersChange}
@@ -116,19 +118,15 @@ function HomePage() {
                     ))}
                   </select>
 
-                  {/* Date Select */}
-                  <select
-                    class="text-base text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-                    name="date"
-                    value={filters.sortBy}
+                  {/* Date Picker */}
+                  <input
+                    className="text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
+                    name="event_date"
+                    type = "date"
                     onChange={handleFiltersChange}
                   >
-                    <option value="" selected>
-                      Any date
-                    </option>
-                    {/* date picker?? */}
-                  </select>
-                  <button class="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500">
+                  </input>
+                  <button className="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500">
                     Search
                   </button>
                 </div>
@@ -146,10 +144,10 @@ function HomePage() {
             </div>
 
             {/* Selects container */}
-            <div className="flex items-center">
+            <div className="flex flex-row gap-x-2">
               {/* First Select (Category) */}
               <select
-                className="select select-bordered w-full max-w-xs"
+                className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
                 name="category"
                 value={filters.category}
                 onChange={handleFiltersChange}
@@ -162,13 +160,29 @@ function HomePage() {
                 ))}
               </select>
 
-              {/* Second Select (Sort By) */}
+              {/* Second Select (Artists) */}
               <select
-                className="select select-bordered w-full max-w-xs ml-2"
+                className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
+                name="artist"
+                value={filters.artist}
+                onChange={handleFiltersChange}
+              >
+                <option value="">All Artists</option>
+                {artists.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              {/* Third Select (Sort By) */}
+              <select
+                className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
                 name="sortBy"
                 value={filters.sortBy}
                 onChange={handleFiltersChange}
               >
+                <option value="date">Date (ascending)</option>
                 <option value="price_asc">Price (ascending)</option>
                 <option value="price_desc">Price (descending)</option>
                 <option value="popularity">Popularity</option>
