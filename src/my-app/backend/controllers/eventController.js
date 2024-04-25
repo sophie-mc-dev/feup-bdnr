@@ -36,7 +36,7 @@ async function getEventById(req, res) {
 }
 
 async function filter(req, res) {
-  const {category, location, artist, event_date, sortBy } = req.query;
+  const {category, location, event_date, sortBy } = req.query;
 
   let query;
   let query_params = [];
@@ -47,7 +47,6 @@ async function filter(req, res) {
   `;
 
   if (event_date.trim().length !== 0) {
-    console.log(event_date);
     query_params.push(event_date);
     query += ` WHERE DATE_FORMAT_STR(date, '1111-11-11') = $` + query_params.length;
   }
@@ -63,11 +62,6 @@ async function filter(req, res) {
   if (location.trim().length !== 0) { 
     query_params.push(location)
     query += ' AND location = $' + query_params.length;
-  }
-
-  if (artist.trim().length !== 0) {
-    query_params.push(artist)
-    query += ' AND $' + query_params.length + ' IN artists';
   }
 
   if (sortBy === "date") { 

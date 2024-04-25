@@ -7,7 +7,6 @@ import Footer from "../components/Footer";
 import DatePicker from "../components-event-filters/DatePicker";
 import CategoryFilter from "../components-event-filters/CategoryFilter";
 import LocationFilter from "../components-event-filters/LocationFilter";
-import ArtistFilter from "../components-event-filters/ArtistFilter";
 import SortByFilter from "../components-event-filters/SortByFilter";
 
 function HomePage() {
@@ -15,12 +14,10 @@ function HomePage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
-  const [artists, setArtistsOptions] = useState([]);
 
   const initialFilters = {
     category: "",
     location: "",
-    artist: "",
     event_date: "",
     sortBy: "date",
   };
@@ -30,7 +27,6 @@ function HomePage() {
     fetchUpcomingEvents();
     fetchCategories();
     fetchLocations();
-    fetchArtists();
   }, []);
 
   const handleFiltersChange = (event) => {
@@ -83,15 +79,6 @@ function HomePage() {
     }
   };
 
-  const fetchArtists = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/artists/names");
-      setArtistsOptions(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   return (
     <>
       <div className="flex flex-col">
@@ -130,7 +117,6 @@ function HomePage() {
             {/* Selects container */}
             <div className="flex flex-row gap-x-2">
               <CategoryFilter name="category" value={filters.category} options={categories} onChange={handleFiltersChange}/>
-              <ArtistFilter name="artist" value={filters.artist} options={artists} onChange={handleFiltersChange}/>
               <SortByFilter name="sortBy" value={filters.sortBy} onChange={handleFiltersChange}/>
             </div>
           </div>
