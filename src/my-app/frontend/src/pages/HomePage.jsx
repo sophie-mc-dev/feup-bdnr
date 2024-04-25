@@ -4,6 +4,11 @@ import axios from "axios";
 import TopBar from "../components/TopBar";
 import Loading from "../components/Loading";
 import Footer from "../components/Footer";
+import DatePicker from "../components-event-filters/DatePicker";
+import CategoryFilter from "../components-event-filters/CategoryFilter";
+import LocationFilter from "../components-event-filters/LocationFilter";
+import ArtistFilter from "../components-event-filters/ArtistFilter";
+import SortByFilter from "../components-event-filters/SortByFilter";
 
 function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +99,7 @@ function HomePage() {
 
         {/* bg image and search bar container */}
         <div className='half-screen bg-gray-100 flex justify-center items-center'>
+          
           <div className="container mx-auto bg-[#242565] rounded-lg p-14">
             <form>
               <div className="sm:flex items-center bg-white rounded-lg overflow-hidden px-2 py-1 justify-between">
@@ -103,32 +109,10 @@ function HomePage() {
                   placeholder="Search event or artist name"
                 />
                 <div className="ms:flex items-center px-2 rounded-lg space-x-4 mx-auto ">
-                  {/* Locations Select */}
-                  <select
-                    className="text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-                    name="location"
-                    value={filters.location}
-                    onChange={handleFiltersChange}
-                  >
-                    <option value="">All Locations</option>
-                    {locations.map((option, index) => (
-                      <option key={index} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* Date Picker */}
-                  <input
-                    className="text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-                    name="event_date"
-                    type = "date"
-                    onChange={handleFiltersChange}
-                  >
-                  </input>
-                  <button className="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500">
-                    Search
-                  </button>
+                  {/* Locations and Date Select */}
+                  <LocationFilter name="location" value={filters.location} options={locations} onChange={handleFiltersChange}/>
+                  <DatePicker name="event_date" onChange={handleFiltersChange} />
+                  <button className="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500"> Search </button>
                 </div>
               </div>
             </form>
@@ -137,7 +121,7 @@ function HomePage() {
 
         <div className="ml-20 mr-20 pt-20">
           {/* Container for heading and selects */}
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-6">
             {/* Heading container */}
             <div>
               <h1 className="text-3xl font-bold">Upcoming Events</h1>
@@ -145,48 +129,9 @@ function HomePage() {
 
             {/* Selects container */}
             <div className="flex flex-row gap-x-2">
-              {/* First Select (Category) */}
-              <select
-                className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-                name="category"
-                value={filters.category}
-                onChange={handleFiltersChange}
-              >
-                <option value="">All Categories</option>
-                {categories.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-
-              {/* Second Select (Artists) */}
-              <select
-                className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-                name="artist"
-                value={filters.artist}
-                onChange={handleFiltersChange}
-              >
-                <option value="">All Artists</option>
-                {artists.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-
-              {/* Third Select (Sort By) */}
-              <select
-                className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-                name="sortBy"
-                value={filters.sortBy}
-                onChange={handleFiltersChange}
-              >
-                <option value="date">Date (ascending)</option>
-                <option value="price_asc">Price (ascending)</option>
-                <option value="price_desc">Price (descending)</option>
-                <option value="popularity">Popularity</option>
-              </select>
+              <CategoryFilter name="category" value={filters.category} options={categories} onChange={handleFiltersChange}/>
+              <ArtistFilter name="artist" value={filters.artist} options={artists} onChange={handleFiltersChange}/>
+              <SortByFilter name="sortBy" value={filters.sortBy} onChange={handleFiltersChange}/>
             </div>
           </div>
 
