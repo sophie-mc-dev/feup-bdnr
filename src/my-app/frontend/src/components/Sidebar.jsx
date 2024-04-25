@@ -7,7 +7,7 @@ const Sidebar = ({ profileType, onItemClick }) => {
     "My Profile",
     "My Tickets",
     "My Liked Events",
-    "My Orders",
+    "My Purchases",
   ];
 
   const getOrganizationItems = () => ["My Events", "Analytics"];

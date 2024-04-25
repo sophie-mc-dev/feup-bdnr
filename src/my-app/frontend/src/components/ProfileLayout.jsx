@@ -18,7 +18,7 @@ const ProfileLayout = () => {
            {selectedContent === "My Profile" && <ProfilePage />}
            {selectedContent === "My Tickets" && <TicketsPage />}
            {selectedContent === "My Liked Events" && <FavoritesPage />}
-           {selectedContent === "My Orders" && <PurchasesPage />}
+           {selectedContent === "My Purchases" && <PurchasesPage />}
          </div>
        </div>
      </div>
