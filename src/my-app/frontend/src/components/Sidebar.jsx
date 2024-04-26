@@ -6,7 +6,7 @@ const Sidebar = ({ profileType, onItemClick }) => {
   const getUserItems = () => [
     "My Profile",
     "My Tickets",
-    "My Liked Events",
+    "My Favorites",
     "My Purchases",
   ];
 

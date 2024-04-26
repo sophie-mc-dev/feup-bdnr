@@ -21,7 +21,7 @@ const PurchasesPage = () => {
   const fetchPurchases = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/transactions/purchases/10");
+      const response = await axios.get("http://localhost:3000/transactions/purchases/" + userInfo.id);
       setPurchases(response.data);
       setIsLoading(false);
     } catch (error) {

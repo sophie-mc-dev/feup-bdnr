@@ -90,8 +90,34 @@ async function filter(req, res) {
   }
 }
 
+async function getLikedEventsByUserId(req, res) {
+  const user_id = req.params.user_id;
+  const query = `
+    SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+    FROM events
+    WHERE ARRAY_CONTAINS (
+      (SELECT RAW event_id 
+      FROM users as u
+      UNNEST liked_events AS event_id
+      WHERE u.user_id = $1), 
+      event_id    
+    )`
+  ;
+  const options = {parameters: [user_id]}
+
+  try {
+      const { bucket } = await connectToCouchbase();
+      const result = await bucket.defaultScope().query(query, options);
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+  }
+}
+
 module.exports = {
   getUpcomingEvents,
   getEventById,
-  filter
+  filter,
+  getLikedEventsByUserId
 };

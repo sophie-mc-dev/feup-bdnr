@@ -17,7 +17,7 @@ const ProfileLayout = () => {
          <div className="flex-grow p-8 bg-white rounded-lg shadow-lg overflow-y-auto">
            {selectedContent === "My Profile" && <ProfilePage />}
            {selectedContent === "My Tickets" && <TicketsPage />}
-           {selectedContent === "My Liked Events" && <FavoritesPage />}
+           {selectedContent === "My Favorites" && <FavoritesPage />}
            {selectedContent === "My Purchases" && <PurchasesPage />}
          </div>
        </div>

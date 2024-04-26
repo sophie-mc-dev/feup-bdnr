@@ -11,5 +11,8 @@ router.get('/filter', EventController.filter);
 // event Page
 router.get('/:event_id', EventController.getEventById);
 
+// liked events by specific user
+router.get('/favorites/:user_id', EventController.getLikedEventsByUserId);
+
 module.exports = router;
 
