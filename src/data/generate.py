@@ -185,13 +185,13 @@ def generate_document():
     transactions = generate_transaction_data(3000, 750)
 
     # Assign ids
-    categories = [{"category_id": i + 1, **category} for i, category in enumerate(categories)]
-    artists = [{"artist_id": i + 1, **artist} for i, artist in enumerate(artists)]
-    events = [{**event, "event_id": i + 1} for i, event in enumerate(events)]
-    users = [{**user, "user_id": i + 1} for i, user in enumerate(users)]
-    comments = [{**comment, "comment_id": i + 1} for i, comment in enumerate(comments)]
-    replies = [{**reply, "reply_id": i + 1} for i, reply in enumerate(replies)]
-    transactions = [{**transaction, "transaction_id": i + 1} for i, transaction in enumerate(transactions)]
+    categories = [{"category_id": str(i + 1), **category} for i, category in enumerate(categories)]
+    artists = [{"artist_id": str(i + 1), **artist} for i, artist in enumerate(artists)]
+    events = [{**event, "event_id": str(i + 1)} for i, event in enumerate(events)]
+    users = [{**user, "user_id": str(i + 1)} for i, user in enumerate(users)]
+    comments = [{**comment, "comment_id": str(i + 1)} for i, comment in enumerate(comments)]
+    replies = [{**reply, "reply_id": str(i + 1)} for i, reply in enumerate(replies)]
+    transactions = [{**transaction, "transaction_id": str(i + 1)} for i, transaction in enumerate(transactions)]
 
     # Get consumers and organizations
     consumers = [user for user in users if not user.get("is_organization", False)]
