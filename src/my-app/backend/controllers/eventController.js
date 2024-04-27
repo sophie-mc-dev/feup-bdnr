@@ -2,7 +2,7 @@ const { connectToCouchbase } = require('../db/connection');
 
 async function getUpcomingEvents(req, res) {
   const query =  `
-  SELECT event_id, event_name, date, location, categories, artists, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+  SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
   FROM events
   WHERE MILLIS(date) >= NOW_MILLIS()
   ORDER BY MILLIS(date)
@@ -42,7 +42,7 @@ async function filter(req, res) {
   let query_params = [];
 
   query = `
-    SELECT event_id, event_name, date, location, categories, artists, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+    SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
     FROM events
   `;
 

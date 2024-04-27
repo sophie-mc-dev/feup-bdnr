@@ -44,10 +44,10 @@ const ConsumerOptions = () => {
       <a href='/'>EVENTS</a>
       <a href='/artists'>ARTISTS</a>
       <Link to='/'>
-        <img src='favorites.svg' alt="Favorites" />
+        <img src='/favorites.svg' alt="Favorites" />
       </Link>
       <Link to='/'>
-        <img src='shoppingCart.svg' alt="Shopping Cart" />
+        <img src='/shoppingCart.svg' alt="Shopping Cart" />
       </Link>
       <Link to='/profile'>
         <div className='profile-pic'></div>
@@ -62,7 +62,7 @@ const TopBar = () => {
     <header className='p-3 flex justify-between bg-blue-950'>
 
       <Link to='/'>
-        <img className='w-36 ml-4' src='logo.svg' alt="ComforTix Logo" />
+        <img className='w-36 ml-4' src='/logo.svg' alt="ComforTix Logo" />
       </Link>
       
       <div className='flex items-center gap-x-8 me-4 text-l text-white font-light .header-options'>
