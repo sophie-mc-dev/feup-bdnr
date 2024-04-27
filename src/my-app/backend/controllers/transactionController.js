@@ -37,7 +37,30 @@ async function getShoppingCartByUserId(req, res) {
     }
 }
 
+async function getTicketsByUserId(req, res) {
+    const user_id = req.params.user_id;
+    const query = `
+      SELECT i.event_id, i.event_name, i.ticket_type, SUM(i.quantity) AS quantity
+      FROM transactions AS t 
+      UNNEST items AS i
+      WHERE t.user_id=$1 AND t.transaction_status=$2
+      GROUP BY i.event_id, i.ticket_type, i.event_name
+      ORDER BY i.event_name, i.ticket_type
+    `;
+    const options = {parameters: [user_id, 'purchased']}
+  
+    try {
+        const { bucket } = await connectToCouchbase();
+        const result = await bucket.defaultScope().query(query, options);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+  
 module.exports = {
     getPurchasesByUserId,
-    getShoppingCartByUserId
+    getShoppingCartByUserId,
+    getTicketsByUserId
 };
