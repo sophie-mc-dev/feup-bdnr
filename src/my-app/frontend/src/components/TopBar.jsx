@@ -46,7 +46,7 @@ const ConsumerOptions = () => {
       <Link to='/'>
         <img src='/favorites.svg' alt="Favorites" />
       </Link>
-      <Link to='/'>
+      <Link to='/shopping-cart'>
         <img src='/shoppingCart.svg' alt="Shopping Cart" />
       </Link>
       <Link to='/profile'>
