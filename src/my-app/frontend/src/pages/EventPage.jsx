@@ -1,7 +1,6 @@
 import "../index.css";
 import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
-import TopBar from "../components/TopBar";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
@@ -29,7 +28,6 @@ const EventPage = () => {
 
   return (
     <div className="flex flex-col">
-      <TopBar></TopBar>
       {isLoading ? (
         <Loading />
       ) : (

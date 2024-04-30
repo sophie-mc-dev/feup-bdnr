@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import TopBar from "../components/TopBar";
 
 const ShoppingCartPage = () => {
   const [cartItems, setCartItems] = useState([
@@ -37,7 +36,6 @@ const ShoppingCartPage = () => {
 
   return (
     <div>
-      <TopBar></TopBar>
       <div className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold">Shopping Cart</h2>
         <p className="mb-2">You have {cartItems.length} items in your cart</p>

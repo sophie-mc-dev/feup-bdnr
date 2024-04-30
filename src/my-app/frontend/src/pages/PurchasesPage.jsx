@@ -49,6 +49,8 @@ const PurchasesPage = () => {
     );
   }
 
+  // TODO: update cards display and add transactions card
+
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-6">My Purchases</h2>

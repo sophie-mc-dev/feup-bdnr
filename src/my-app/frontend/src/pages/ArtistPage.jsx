@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import TopBar from "../components/TopBar";
 import EventCard from "../components/EventCard";
 import Loading from "../components/Loading";
 
@@ -26,9 +25,10 @@ const ArtistPage = ({ artist }) => {
   // Use placeholder data if no artist data provided
   artist = artist || placeholderArtist;
 
+  // TODO:
+
   return (
     <div className="flex flex-col">
-      <TopBar></TopBar>
       <div className="p-20">
         <h2 className="text-2xl font-semibold mb-6">AN {artistInfo}</h2>{" "}
         {/* name */}

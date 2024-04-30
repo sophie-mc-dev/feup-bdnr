@@ -1,19 +1,41 @@
 import React, { useState } from "react";
 
-const EventCard = ({ title, categories, location, date, likes, price, imageUrl }) => {
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0"); // Ensure minutes are always two digits
+
+  return `${month} ${day} ${year}, ${hours}h${minutes}`;
+};
+
+const EventCard = ({
+  title,
+  categories,
+  location,
+  date,
+  likes,
+  price,
+  imageUrl,
+}) => {
   const [liked, setLiked] = useState(false);
 
   const handleLikeClick = () => {
     setLiked(!liked);
   };
 
-  // handle event card click
+  // TODO: handle event card click (on title only?)
+  // allow filter by category when the category is clicked
+  // update card fixed width and height so they all look the same
 
   const categoryList = categories.split(", ");
+  const formattedDate = formatDate(date);
 
   const imageContainerStyle = {
     backgroundImage: `url(${imageUrl})`,
-    backgroundColor: imageUrl ? "transparent" : "#D1D5DB", 
+    backgroundColor: imageUrl ? "transparent" : "#D1D5DB",
   };
 
   return (
@@ -50,7 +72,9 @@ const EventCard = ({ title, categories, location, date, likes, price, imageUrl }
           {/* Heart button */}
           <button
             onClick={handleLikeClick}
-            className={`text-gray-500 focus:outline-none ${liked ? "text-red-500" : ""}`}
+            className={`text-gray-500 focus:outline-none ${
+              liked ? "text-red-500" : ""
+            }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +129,7 @@ const EventCard = ({ title, categories, location, date, likes, price, imageUrl }
             <line x1="11" y1="15" x2="12" y2="15" />
             <line x1="12" y1="15" x2="12" y2="18" />
           </svg>
-          {date}
+          {formattedDate}
         </div>
 
         {/* Likes and Price */}
@@ -124,7 +148,10 @@ const EventCard = ({ title, categories, location, date, likes, price, imageUrl }
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-xs text-gray-500">{likes} people like this</span>
+            <span className="text-xs text-gray-500">
+              {likes} {likes === 1 ? "person" : "people"}{" "}
+              {likes === 1 ? "likes" : "like"} this
+            </span>
           </div>
           {/* Price */}
           <div className="text-xs text-gray-500">Starting at ${price}</div>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import TopBar from "../components/TopBar";
 import Sidebar from "../components/Sidebar";
 import ProfilePage from "../pages/ProfilePage";
 import TicketsPage from "../pages/TicketsPage";
@@ -11,7 +10,6 @@ const ProfileLayout = () => {
  
   return (
      <div className="min-h-screen bg-gray-100 flex flex-col">
-       <TopBar />
        <div className="flex-grow flex">
          <Sidebar profileType="user" onItemClick={setSelectedContent} />
          <div className="flex-grow p-8 bg-white rounded-lg shadow-lg overflow-y-auto">
