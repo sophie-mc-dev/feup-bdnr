@@ -22,13 +22,13 @@ async function getPurchasesByUserId(req, res) {
 
 async function getShoppingCartByUserId(req, res) {
     const user_id = req.params.user_id;
-    const query = 'SELECT * FROM transactions WHERE user_id = $1 AND transaction_status = $2';
+    const query = 'SELECT RAW items FROM transactions WHERE user_id = $1 AND transaction_status = $2';
     const options = {parameters: [user_id, 'shopping_cart']}
 
     try {
         const { bucket } = await connectToCouchbase();
         const result = await bucket.defaultScope().query(query, options);
-        res.json(result.rows.map(row => row.transactions));
+        res.json(result.rows[0]);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
