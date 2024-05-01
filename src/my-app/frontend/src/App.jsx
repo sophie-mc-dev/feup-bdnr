@@ -13,6 +13,7 @@ import ShoppingCartPage from './pages/ShoppingCartPage';
 import TicketsPage from './pages/TicketsPage';
 import ProfileLayout from './components/ProfileLayout';
 import TopBar from './components/TopBar';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/new_event" element={<NewEventPage />} />
-          <Route path="/profile" element={<ProfileLayout />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/purchases" element={<PurchasesPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/shopping-cart" element={<ShoppingCartPage />} />

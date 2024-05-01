@@ -2,12 +2,13 @@ import "../index.css";
 import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
+import Sidebar from "../components/Sidebar";
 
 // TODO: use login logic to set the following data
 const isLoggedIn = true;
 const userInfo = {
   id: "10",
-  is_organization: false
+  is_organization: false,
 };
 
 const PurchasesPage = () => {
@@ -21,7 +22,9 @@ const PurchasesPage = () => {
   const fetchPurchases = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/transactions/purchases/" + userInfo.id);
+      const response = await axios.get(
+        "http://localhost:3000/transactions/purchases/" + userInfo.id
+      );
       setPurchases(response.data);
       setIsLoading(false);
     } catch (error) {
@@ -31,8 +34,11 @@ const PurchasesPage = () => {
   };
 
   const outputPurchaseInfo = (purchase, index) => {
-    return(
-      <div key={index} className="flex flex-col rounded-lg gap-y-5 px-7 py-5 bg-gray-200">
+    return (
+      <div
+        key={index}
+        className="flex flex-col rounded-lg gap-y-5 px-7 py-5 bg-gray-200"
+      >
         <p>Date:{purchase.transaction_date}</p>
         <p>Total: €{purchase.total_price}</p>
 
@@ -44,26 +50,29 @@ const PurchasesPage = () => {
             <p>Quantity:{item.quantity}</p>
           </div>
         ))}
-
       </div>
     );
-  }
+  };
 
   // TODO: update cards display and add transactions card
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-6">My Purchases</h2>
-      <div className="flex flex-col gap-y-5">
-        {isLoading ? (
-          <Loading />
-        ) : purchases.length === 0 ? (
-          <p>No purchases found.</p>
-        ) : ( 
-          purchases.map((purchase, index) => (
-            outputPurchaseInfo(purchase, index)
-          ))
-        )}
+    <div className="flex">
+      <Sidebar profileType="user" />
+
+      <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
+        <h2 className="text-2xl font-semibold mb-6">My Purchases</h2>
+        <div className="flex flex-col gap-y-5">
+          {isLoading ? (
+            <Loading />
+          ) : purchases.length === 0 ? (
+            <p>No purchases found.</p>
+          ) : (
+            purchases.map((purchase, index) =>
+              outputPurchaseInfo(purchase, index)
+            )
+          )}
+        </div>
       </div>
     </div>
   );
