@@ -3,12 +3,24 @@ import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
+import PurchaseCard from "../components/PurchaseCard";
 
 // TODO: use login logic to set the following data
 const isLoggedIn = true;
 const userInfo = {
   id: "10",
   is_organization: false,
+};
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0"); 
+
+  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
 };
 
 const PurchasesPage = () => {
@@ -34,22 +46,29 @@ const PurchasesPage = () => {
   };
 
   const outputPurchaseInfo = (purchase, index) => {
-    return (
-      <div
-        key={index}
-        className="flex flex-col rounded-lg gap-y-5 px-7 py-5 bg-gray-200"
-      >
-        <p>Date:{purchase.transaction_date}</p>
-        <p>Total: €{purchase.total_price}</p>
+    const formattedDate = formatDate(purchase.transaction_date);
 
-        {purchase.items.map((item, index) => (
-          <div key={index}>
-            <p className="font-medium">{item.event_name}</p>
-            <p>Ticket Type:{item.ticket_type} </p>
-            <p>Ticket Price:€{item.ticket_price} </p>
-            <p>Quantity:{item.quantity}</p>
-          </div>
-        ))}
+    return (
+      <div key={index} className="flex flex-col rounded-lg gap-y-5 px-7 py-5 ">
+        {/* Purchase Date and Total Price */}
+        <div className="flex justify-between">
+          <p className="text-lg font-bold">{formattedDate}</p>
+          <p className="text-lg font-bold">Total: €{purchase.total_price}</p>
+        </div>
+
+        {/* Purchase Cards */}
+        <div className="mt-5 grid grid-rows-1 md:grid-rows-2 lg:grid-rows-3 gap-5">
+          {purchase.items.map((item, index) => (
+            <div key={index}>
+              <PurchaseCard
+                event_name={item.event_name}
+                ticket_type={item.ticket_type}
+                ticket_price={item.ticket_price}
+                quantity={item.quantity}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   };

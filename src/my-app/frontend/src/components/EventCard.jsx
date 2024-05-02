@@ -39,7 +39,7 @@ const EventCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col max-w-xs">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-120 max-w-s">
       {/* Image container */}
       <div
         className="w-full h-40 bg-cover bg-center"

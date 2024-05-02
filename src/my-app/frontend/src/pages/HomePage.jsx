@@ -85,9 +85,8 @@ function HomePage() {
   return (
     <>
       <div className="flex flex-col">
-
         {/* bg image and search bar container */}
-        <div className="half-screen bg-gray-100 flex justify-center items-center">
+        <div className="half-screen bg-[#FDC27B] flex justify-center items-center">
           <div className="container mx-auto bg-[#242565] rounded-lg p-14">
             <form>
               <div className="sm:flex items-center bg-white rounded-lg overflow-hidden px-2 py-1 justify-between">
@@ -142,30 +141,31 @@ function HomePage() {
             </div>
           </div>
 
-          {/* Container for events */}
-          <div className="flex flex-wrap gap-5 justify-center">
-            {isLoading ? (
-              <div className="flex justify-center items-center w-full">
-                {" "}
-                <Loading />
-              </div>
-            ) : upcomingEvents.length === 0 ? (
-              <p>No upcoming events found.</p>
-            ) : (
-              upcomingEvents.map((upcomingEvent, index) => (
-                <div key={upcomingEvent.event_id} className="max-w-xs">
-                  <EventCard
-                    title={upcomingEvent.event_name}
-                    categories={upcomingEvent.categories.join(", ")}
-                    location={upcomingEvent.location}
-                    date={upcomingEvent.date}
-                    likes={upcomingEvent.num_likes}
-                    price={upcomingEvent.min_price}
-                    imageUrl=""
-                  ></EventCard>
+          <div className="flex justify-center">
+            {/* <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"> */}
+            <div className="flex flex-wrap justify-between gap-5">
+              {isLoading ? (
+                <div className="flex justify-center items-center w-full">
+                  <Loading />
                 </div>
-              ))
-            )}
+              ) : upcomingEvents.length === 0 ? (
+                <p>No upcoming events found.</p>
+              ) : (
+                upcomingEvents.map((upcomingEvent, index) => (
+                  <div key={upcomingEvent.event_id} className="max-w-xs">
+                    <EventCard
+                      title={upcomingEvent.event_name}
+                      categories={upcomingEvent.categories.join(", ")}
+                      location={upcomingEvent.location}
+                      date={upcomingEvent.date}
+                      likes={upcomingEvent.num_likes}
+                      price={upcomingEvent.min_price}
+                      imageUrl=""
+                    ></EventCard>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
 

@@ -38,8 +38,9 @@ const FavoritesPage = () => {
     return (
       <div
         key={index}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+        className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
       >
+        
         <EventCard
           title={event.event_name}
           categories={event.categories.join(", ")}
