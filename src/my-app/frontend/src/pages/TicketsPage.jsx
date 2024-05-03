@@ -57,28 +57,27 @@ const TicketsPage = () => {
         <h2 className="text-2xl font-semibold mb-5">My Tickets</h2>
 
         <section className="grid">
-    <h3 className="text-xl font-semibold mb-5">Upcoming Events</h3>
-    <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {isLoadingUpcoming ? (
-            <Loading />
-        ) : upcomingTickets.length === 0 ? (
-            <p>No tickets found.</p>
-        ) : (
-            upcomingTickets.map((ticket, index) => (
+          <h3 className="text-xl font-semibold mb-5">Upcoming Events</h3>
+          <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {isLoadingUpcoming ? (
+              <Loading />
+            ) : upcomingTickets.length === 0 ? (
+              <p>No tickets found.</p>
+            ) : (
+              upcomingTickets.map((ticket, index) => (
                 <div key={index}>
-                    <TicketCard
-                        event_ID={ticket.event_id}
-                        event_name={ticket.event_name}
-                        date={ticket.event_date}
-                        ticket_type={ticket.ticket_type}
-                        quantity={ticket.quantity}
-                    ></TicketCard>
+                  <TicketCard
+                    event_ID={ticket.event_id}
+                    event_name={ticket.event_name}
+                    date={ticket.event_date}
+                    ticket_type={ticket.ticket_type}
+                    quantity={ticket.quantity}
+                  ></TicketCard>
                 </div>
-            ))
-        )}
-    </div>
-</section>
-
+              ))
+            )}
+          </div>
+        </section>
 
         <section>
           <h3 className="text-xl font-semibold pt-20 mb-5">Past Events</h3>

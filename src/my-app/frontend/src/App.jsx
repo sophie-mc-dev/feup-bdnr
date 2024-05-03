@@ -1,19 +1,19 @@
-import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import AllArtistsPage from './pages/AllArtistsPage';
-import ArtistPage from './pages/ArtistPage';
-import EventPage from './pages/EventPage';
-import FavoritesPage from './pages/FavoritesPage';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import NewEventPage from './pages/NewEventPage';
-import PurchasesPage from './pages/PurchasesPage';
-import RegisterPage from './pages/RegisterPage';
-import ShoppingCartPage from './pages/ShoppingCartPage';
-import TicketsPage from './pages/TicketsPage';
-import ProfileLayout from './components/ProfileLayout';
-import TopBar from './components/TopBar';
-import ProfilePage from './pages/ProfilePage';
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import AllArtistsPage from "./pages/AllArtistsPage";
+import ArtistPage from "./pages/ArtistPage";
+import EventPage from "./pages/EventPage";
+import FavoritesPage from "./pages/FavoritesPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import NewEventPage from "./pages/NewEventPage";
+import PurchasesPage from "./pages/PurchasesPage";
+import RegisterPage from "./pages/RegisterPage";
+import ShoppingCartPage from "./pages/ShoppingCartPage";
+import TicketsPage from "./pages/TicketsPage";
+import TopBar from "./components/TopBar";
+import ProfilePage from "./pages/ProfilePage";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -36,6 +36,7 @@ function App() {
           <Route path="/tickets" element={<TicketsPage />} />
         </Routes>
       </div>
+      <Footer />
     </BrowserRouter>
   );
 }

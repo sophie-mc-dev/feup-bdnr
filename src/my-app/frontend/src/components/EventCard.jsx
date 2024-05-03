@@ -8,59 +8,27 @@ const formatDate = (dateString) => {
   const hours = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, "0"); // Ensure minutes are always two digits
 
-  return `${month} ${day} ${year}, ${hours}h${minutes}`;
+  return `${month} ${day}, ${year} at ${hours}:${minutes}`;
 };
 
-const EventCard = ({
-  title,
-  categories,
-  location,
-  date,
-  likes,
-  price,
-  imageUrl,
-}) => {
+const EventCard = ({ event }) => {
   const [liked, setLiked] = useState(false);
+  const formattedDate = formatDate(event.date);
 
+  // TODO: handle like click so it adds event to favorites list
   const handleLikeClick = () => {
     setLiked(!liked);
   };
 
-  // TODO: handle event card click (on title only?)
-  // allow filter by category when the category is clicked
-  // update card fixed width and height so they all look the same
-
-  const categoryList = categories.split(", ");
-  const formattedDate = formatDate(date);
-
-  const imageContainerStyle = {
-    backgroundImage: `url(${imageUrl})`,
-    backgroundColor: imageUrl ? "transparent" : "#D1D5DB",
-  };
-
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-120 max-w-s">
-      {/* Image container */}
-      <div
-        className="w-full h-40 bg-cover bg-center"
-        style={imageContainerStyle}
-        aria-label={title}
-      >
-        {/* Display placeholder content if imageUrl is not provided */}
-        {!imageUrl && (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-            <span className="text-gray-500">Image Not Available</span>
-          </div>
-        )}
-      </div>
-
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[230px] w-[350px]">
       {/* Details container */}
       <div className="flex-grow p-4">
         {/* Categories and Heart button */}
         <div className="flex justify-between items-center mb-2">
           {/* Categories */}
           <div className="flex flex-wrap">
-            {categoryList.map((category, index) => (
+            {event.categories.map((category, index) => (
               <span
                 key={index}
                 className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2 mb-2"
@@ -92,7 +60,12 @@ const EventCard = ({
         </div>
 
         {/* Title, Location, Date */}
-        <div className="text-lg font-bold mb-1">{title}</div>
+        <a
+          href={`/events/${event.event_id}`}
+          className="text-lg font-bold mb-1"
+        >
+          {event.event_name}
+        </a>
         <div className="flex items-center text-sm text-gray-600 mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +80,7 @@ const EventCard = ({
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          {location}
+          {event.location}
         </div>
         <div className="flex items-center text-sm text-gray-600 mb-4">
           <svg
@@ -149,12 +122,14 @@ const EventCard = ({
               />
             </svg>
             <span className="text-xs text-gray-500">
-              {likes} {likes === 1 ? "person" : "people"}{" "}
-              {likes === 1 ? "likes" : "like"} this
+              {event.num_likes} {event.num_likes === 1 ? "person" : "people"}{" "}
+              {event.num_likes === 1 ? "likes" : "like"} this
             </span>
           </div>
           {/* Price */}
-          <div className="text-xs text-gray-500">Starting at ${price}</div>
+          <div className="text-xs text-gray-500">
+            Starting at ${event.min_price}
+          </div>
         </div>
       </div>
     </div>

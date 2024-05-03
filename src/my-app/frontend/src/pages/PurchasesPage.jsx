@@ -73,8 +73,6 @@ const PurchasesPage = () => {
     );
   };
 
-  // TODO: update cards display and add transactions card
-
   return (
     <div className="flex">
       <Sidebar profileType="user" />

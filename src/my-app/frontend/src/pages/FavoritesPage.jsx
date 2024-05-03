@@ -40,21 +40,12 @@ const FavoritesPage = () => {
         key={index}
         className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
       >
-        
         <EventCard
-          title={event.event_name}
-          categories={event.categories.join(", ")}
-          location={event.location}
-          date={event.date}
-          likes={event.num_likes}
-          price={event.min_price}
-          imageUrl=""
+          event={event}
         ></EventCard>
       </div>
     );
   };
-
-  // TODO: update cards display and add transactions card
 
   return (
     <div className="flex">

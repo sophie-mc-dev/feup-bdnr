@@ -79,9 +79,6 @@ function HomePage() {
     }
   };
 
-  // TODO: update cards display
-  // display only 8 events and have a load more button that loads more 8 cards at a time
-
   return (
     <>
       <div className="flex flex-col">
@@ -154,13 +151,7 @@ function HomePage() {
                 upcomingEvents.map((upcomingEvent, index) => (
                   <div key={upcomingEvent.event_id} className="max-w-xs">
                     <EventCard
-                      title={upcomingEvent.event_name}
-                      categories={upcomingEvent.categories.join(", ")}
-                      location={upcomingEvent.location}
-                      date={upcomingEvent.date}
-                      likes={upcomingEvent.num_likes}
-                      price={upcomingEvent.min_price}
-                      imageUrl=""
+                      event={upcomingEvent}
                     ></EventCard>
                   </div>
                 ))
