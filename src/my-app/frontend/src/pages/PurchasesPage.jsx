@@ -1,16 +1,9 @@
 import "../index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
-import PurchaseCard from "../components/PurchaseCard";
-
-// TODO: use login logic to set the following data
-const isLoggedIn = true;
-const userInfo = {
-  id: "10",
-  is_organization: false,
-};
+import { UserContext } from "../contexts/UserContext";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -24,6 +17,8 @@ const formatDate = (dateString) => {
 };
 
 const PurchasesPage = () => {
+  const { user } = useContext(UserContext);
+
   const [isLoading, setIsLoading] = useState(true);
   const [purchases, setPurchases] = useState([]);
 
@@ -35,7 +30,7 @@ const PurchasesPage = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:3000/transactions/purchases/" + userInfo.id
+        "http://localhost:3000/transactions/purchases/" + user.user_id
       );
       setPurchases(response.data);
       setIsLoading(false);

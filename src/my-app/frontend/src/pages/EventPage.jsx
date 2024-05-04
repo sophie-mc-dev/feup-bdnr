@@ -1,8 +1,9 @@
 import "../index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 
 const EventPage = () => {
   const { id } = useParams();
@@ -49,21 +50,6 @@ const EventPage = () => {
             </div>
           ))}
       
-          <h3>Comments:</h3>
-          {eventInfo.comments.map((comment) => (
-            <div key={comment.comment_id}>
-              <p>User: {comment.user_name}</p>
-              <p>Comment: {comment.text}</p>
-      
-              <h4>Replies:</h4>
-              {comment.replies.map((reply) => (
-                <div key={reply.reply_id}>
-                  <p>User: {reply.user_name}</p>
-                  <p>Reply: {reply.text}</p>
-                </div>
-              ))}
-            </div>
-          ))}
         </div>
         ) }
     </div>

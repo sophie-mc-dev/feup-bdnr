@@ -1,18 +1,14 @@
 import "../index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import EventCard from "../components/EventCard";
 import Sidebar from "../components/Sidebar";
-
-// TODO: use login logic to set the following data
-const isLoggedIn = true;
-const userInfo = {
-  id: "11",
-  is_organization: false,
-};
+import { UserContext } from "../contexts/UserContext";
 
 const FavoritesPage = () => {
+  const { user } = useContext(UserContext);
+
   const [isLoading, setIsLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
 
@@ -24,7 +20,7 @@ const FavoritesPage = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:3000/events/favorites/" + userInfo.id
+        "http://localhost:3000/events/favorites/" + user.user_id
       );
       setFavorites(response.data);
       setIsLoading(false);

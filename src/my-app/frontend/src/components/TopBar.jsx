@@ -1,74 +1,102 @@
 import "../index.css";
-import { Link } from "react-router-dom";
-
-// TODO: use login logic to set the following data
-const isLoggedIn = true;
-const userInfo = {
-  id: "user_id",
-  is_organization: false,
-};
+import React, {useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "../contexts/UserContext";
 
 const VisitorOptions = () => {
   return (
     <>
-      <a href="/">EVENTS</a>
-      <a href="/artists">ARTISTS</a>
-      <Link to="/login">
-        <button className="py-2 px-4 rounded-full border border-white hover:bg-white hover:bg-opacity-15">
-          LOGIN
-        </button>
-      </Link>
+      <a href="/">Events</a>
+      <a href="/artists">Artists</a>
+      <div className="fle flex-row">
+        <Link to="/login">
+          <button className="py-1 px-3 rounded-bl-lg rounded-l-lg font-normal border border-white hover:bg-white hover:bg-opacity-15"> Log In </button>
+        </Link>
+        <Link to="/register">
+          <button className="py-1 px-3 rounded-br-lg rounded-r-lg font-normal text-[#242565] border bg-white border-white hover:bg-white"> Register </button>
+        </Link>
+      </div>
     </>
   );
 };
 
 const OrganizationOptions = () => {
+  const { logout } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout().then(() => {
+      navigate('/login');
+    });
+  }
+
   return (
     <>
       <a>MY EVENTS</a>
       <Link to="/new_event">
-        <button className="py-2 px-4 rounded-full border border-white hover:bg-white hover:bg-opacity-15">
+        <button className="py-1.5 px-3 rounded-lg border border-white hover:bg-white hover:bg-opacity-15">
           CREATE EVENT
         </button>
       </Link>
-      <Link to="/profile">
-        <div className="profile-pic"></div>
-      </Link>
+      <div className="fle flex-row">
+        <Link to="/profile">
+          <button className="py-1 px-3 rounded-bl-lg rounded-l-lg font-normal border border-white hover:bg-white hover:bg-opacity-15"> My Account </button>
+        </Link>
+        <button onClick={handleLogout} className="py-1 px-3 rounded-br-lg rounded-r-lg font-normal text-[#242565] border bg-white border-white hover:bg-white"> Log Out </button>
+      </div>
     </>
   );
 };
 
 const ConsumerOptions = () => {
+  const { logout } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout().then(() => {
+      navigate('/login');
+    });
+  }
+
   return (
     <>
       <a href="/">EVENTS</a>
       <a href="/artists">ARTISTS</a>
-      <Link to="/favorites">
+      <Link to="/profile/favorites">
         <img src="/favorites.svg" alt="Favorites" />
       </Link>
       <Link to="/shopping-cart">
         <img src="/shoppingCart.svg" alt="Shopping Cart" />
       </Link>
-      <Link to="/profile">
-        <svg class="h-6 w-6 text-white-500"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />  <circle cx="12" cy="7" r="4" /></svg>      </Link>
-      <Link to="/">
-        <svg class="h-6 w-6 text-white-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />  <path d="M7 12h14l-3 -3m0 6l3 -3" /></svg>
-      </Link>
+      <div className="fle flex-row">
+        <Link to="/profile">
+          <button className="py-1 px-3 rounded-bl-lg rounded-l-lg font-normal text-[#242565] border bg-white border-white hover:bg-white"> My Account </button>
+        </Link>
+        <button onClick={handleLogout} className="py-1 px-3 rounded-br-lg rounded-r-lg font-normal border border-white hover:bg-white hover:bg-opacity-15"> Log Out </button>
+      </div>
     </>
   );
 };
 
 const TopBar = () => {
+  const { user, isLoggedIn } = useContext(UserContext);
+
   return (
-    <header className="p-3 flex justify-between bg-blue-950">
+    <header className="px-2 py-4 flex justify-between bg-[#242565]">
       <Link to="/">
-        <img className="w-36 ml-4" src="/logo.svg" alt="ComforTix Logo" />
+        <img className="w-40 ml-4" src="/logo.svg" alt="ComforTix Logo" />
       </Link>
 
-      <div className="flex items-center gap-x-8 me-4 text-l text-white font-light .header-options">
-        {isLoggedIn && userInfo.is_organization && <OrganizationOptions />}
-        {isLoggedIn && !userInfo.is_organization && <ConsumerOptions />}
-        {!isLoggedIn && <VisitorOptions />}
+      <div className="flex items-center gap-x-8 me-4 text-l text-white font-light">
+        {isLoggedIn ? (
+          user.is_organization ? (
+            <OrganizationOptions/>
+          ) : (
+            <ConsumerOptions/>
+          )
+        ) : (
+          <VisitorOptions />
+        )}
       </div>
     </header>
   );

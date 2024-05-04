@@ -1,18 +1,13 @@
 import "../index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
-import TicketCard from "../components/TicketCard";
-
-// TODO: use login logic to set the following data
-const isLoggedIn = true;
-const userInfo = {
-  id: "10",
-  is_organization: false,
-};
+import { UserContext } from "../contexts/UserContext";
 
 const TicketsPage = () => {
+  const { user } = useContext(UserContext);
+
   const [isLoadingUpcoming, setIsLoadingUpcoming] = useState(true);
   const [isLoadingPast, setIsLoadingPast] = useState(true);
   const [upcomingTickets, setUpcomingTickets] = useState([]);
@@ -25,9 +20,7 @@ const TicketsPage = () => {
 
   const fetchTUpcomingTickets = async () => {
     try {
-      let res = await axios.get(
-        "http://localhost:3000/transactions/tickets/upcoming/" + userInfo.id
-      );
+      let res = await axios.get("http://localhost:3000/transactions/tickets/upcoming/"+user.user_id);
       setUpcomingTickets(res.data);
       setIsLoadingUpcoming(false);
     } catch (error) {
@@ -38,9 +31,7 @@ const TicketsPage = () => {
 
   const fetchPastTickets = async () => {
     try {
-      let res = await axios.get(
-        "http://localhost:3000/transactions/tickets/past/" + userInfo.id
-      );
+      let res = await axios.get("http://localhost:3000/transactions/tickets/past/"+user.user_id);
       setPastTickets(res.data);
       setIsLoadingPast(false);
     } catch (error) {

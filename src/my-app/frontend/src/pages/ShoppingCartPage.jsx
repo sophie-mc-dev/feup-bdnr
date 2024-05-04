@@ -1,16 +1,12 @@
 import "../index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
-import ShoppingCartCard from "../components/ShoppingCartCard";
-
-// TODO: use login logic to set the following data
-const userInfo = {
-  id: "11",
-  is_organization: false,
-};
+import { UserContext } from "../contexts/UserContext";
 
 const ShoppingCartPage = () => {
+  const { user } = useContext(UserContext);
+
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,13 +17,8 @@ const ShoppingCartPage = () => {
   const fetchShoppingCart = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        "http://localhost:3000/transactions/shopping_cart/" + userInfo.id
-      );
-      const cartItemsWithId = response.data.map((item, index) => ({
-        ...item,
-        id: index,
-      }));
+      const response = await axios.get("http://localhost:3000/transactions/shopping_cart/" + user.user_id);
+      const cartItemsWithId = response.data.map((item, index) => ({ ...item, id: index }));
       setCartItems(cartItemsWithId);
       setIsLoading(false);
     } catch (error) {
