@@ -6,37 +6,34 @@ const formatDate = (dateString) => {
   const month = date.toLocaleString("default", { month: "long" });
   const year = date.getFullYear();
   const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0"); // Ensure minutes are always two digits
+  const minutes = date.getMinutes().toString().padStart(2, "0");
 
   return `${month} ${day}, ${year} at ${hours}:${minutes}`;
 };
 
 const EventCard = ({ event }) => {
   const [liked, setLiked] = useState(false);
+  const [numLikes, setNumLikes] = useState(event.num_likes);
   const formattedDate = formatDate(event.date);
 
-  // TODO: handle like click so it adds event to favorites list
   const handleLikeClick = () => {
+    // TODO: handle like click so it adds event to favorites list
     setLiked(!liked);
+    setNumLikes((prev) => (liked ? prev - 1 : prev + 1));
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[230px] w-[350px]">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-[230px] w-[350px] transition-transform duration-300 ease-in-out hover:scale-105">
       {/* Details container */}
       <div className="flex-grow p-4">
-        {/* Categories and Heart button */}
-        <div className="flex justify-between items-center mb-2">
-          {/* Categories */}
-          <div className="flex flex-wrap">
-            {event.categories.map((category, index) => (
-              <span
-                key={index}
-                className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2 mb-2"
-              >
-                {category}
-              </span>
-            ))}
-          </div>
+        {/* Title and Like Button */}
+        <div className="flex justify-between items-center">
+          <a
+            href={`/events/${event.event_id}`}
+            className="text-md font-bold mb-1"
+          >
+            {event.event_name}
+          </a>
           {/* Heart button */}
           <button
             onClick={handleLikeClick}
@@ -59,13 +56,7 @@ const EventCard = ({ event }) => {
           </button>
         </div>
 
-        {/* Title, Location, Date */}
-        <a
-          href={`/events/${event.event_id}`}
-          className="text-lg font-bold mb-1"
-        >
-          {event.event_name}
-        </a>
+        {/* Location and Date */}
         <div className="flex items-center text-sm text-gray-600 mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -122,13 +113,27 @@ const EventCard = ({ event }) => {
               />
             </svg>
             <span className="text-xs text-gray-500">
-              {event.num_likes} {event.num_likes === 1 ? "person" : "people"}{" "}
-              {event.num_likes === 1 ? "likes" : "like"} this
+              {numLikes} {numLikes === 1 ? "person" : "people"}{" "}
+              {numLikes === 1 ? "likes" : "like"} this
             </span>
           </div>
           {/* Price */}
           <div className="text-xs text-gray-500">
             Starting at ${event.min_price}
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex flex-wrap">
+            {event.categories.map((category, index) => (
+              <span
+                key={index}
+                className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2 mb-2"
+              >
+                {category}
+              </span>
+            ))}
           </div>
         </div>
       </div>

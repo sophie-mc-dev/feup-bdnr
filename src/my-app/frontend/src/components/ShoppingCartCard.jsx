@@ -22,7 +22,9 @@ const ShoppingCartCard = ({ item, removeItem, updateQuantity }) => {
         </button>
       </div>
       <div className="flex flex-row justify-between items-end">
-        <p className="flex-gow-1 text-sm">{item.ticket_type}</p>
+        <span className="flex-gow-1 bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2 mb-2">
+            {item.ticket_type}
+          </span>
         <div className="flex items-center">
           <button
             onClick={() => updateQuantity(item.id, -1)}
