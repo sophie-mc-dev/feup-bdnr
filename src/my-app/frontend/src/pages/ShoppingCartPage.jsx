@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
+import ShoppingCartCard from "../components/ShoppingCartCard";
 
 const ShoppingCartPage = () => {
   const { user } = useContext(UserContext);

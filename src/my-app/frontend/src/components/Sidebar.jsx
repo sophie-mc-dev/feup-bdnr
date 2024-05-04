@@ -8,6 +8,7 @@ const Sidebar = ({ profileType, onItemClick }) => {
 
   const getUserItems = () => [
     { name: "My Profile", to: "/profile" },
+    { name: "My Comments", to: "/comments" },
     { name: "My Tickets", to: "/tickets" },
     { name: "My Favorites", to: "/favorites" },
     { name: "My Purchases", to: "/purchases" },

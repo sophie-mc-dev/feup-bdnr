@@ -4,6 +4,7 @@ import Loading from "../components/Loading";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
+import TicketCard from "../components/TicketCard";
 
 const TicketsPage = () => {
   const { user } = useContext(UserContext);
@@ -20,7 +21,9 @@ const TicketsPage = () => {
 
   const fetchTUpcomingTickets = async () => {
     try {
-      let res = await axios.get("http://localhost:3000/transactions/tickets/upcoming/"+user.user_id);
+      let res = await axios.get(
+        "http://localhost:3000/transactions/tickets/upcoming/" + user.user_id
+      );
       setUpcomingTickets(res.data);
       setIsLoadingUpcoming(false);
     } catch (error) {
@@ -31,7 +34,9 @@ const TicketsPage = () => {
 
   const fetchPastTickets = async () => {
     try {
-      let res = await axios.get("http://localhost:3000/transactions/tickets/past/"+user.user_id);
+      let res = await axios.get(
+        "http://localhost:3000/transactions/tickets/past/" + user.user_id
+      );
       setPastTickets(res.data);
       setIsLoadingPast(false);
     } catch (error) {
@@ -44,8 +49,8 @@ const TicketsPage = () => {
     <div className="flex-1 flex">
       <Sidebar profileType="user" />
 
-      <div className="flex-1 overflow-y-auto bg-gray-100 pl-10 pt-5">
-        <h2 className="text-2xl font-semibold mb-5">My Tickets</h2>
+      <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
+        <h2 className="text-2xl font-semibold mb-6">My Tickets</h2>
 
         <section className="grid">
           <h3 className="text-xl font-semibold mb-5">Upcoming Events</h3>

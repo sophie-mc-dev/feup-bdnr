@@ -15,12 +15,14 @@ const TicketCard = ({ event_ID, event_name, date, ticket_type, quantity }) => {
   const formattedDate = formatDate(date);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex max-w-xs">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[200px] w-[250px] flex flex-wrap max-w-sm">
       {/* Details container */}
       <div className="flex-grow p-4">
         <div className="text-xs text-gray-500">Event ID: {event_ID}</div>
 
-        <div className="text-lg font-bold mb-1">{event_name}</div>
+        <div className="text-lg font-bold mb-1">
+          <a href={`/events/${event_ID}`}>{event_name}</a>
+        </div>
         <div className="flex flex-wrap">
           <span className=" bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2 mb-2">
             {ticket_type}
