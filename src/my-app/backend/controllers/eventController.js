@@ -115,9 +115,51 @@ async function getLikedEventsByUserId(req, res) {
   }
 }
 
+async function getPastEventsByOrganizationId(req, res) {
+  const user_id = req.params.user_id;
+  const query = `
+    SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+    FROM events
+    WHERE organization_id=$1 AND MILLIS(date) < NOW_MILLIS()
+    ORDER BY MILLIS(date) DESC
+  `;
+  const options = {parameters: [user_id]}
+
+  try {
+      const { bucket } = await connectToCouchbase();
+      const result = await bucket.defaultScope().query(query, options);
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getUpcomingEventsByOrganizationId(req, res) {
+  const user_id = req.params.user_id;
+  const query = `
+    SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+    FROM events
+    WHERE organization_id=$1 AND MILLIS(date) >= NOW_MILLIS()
+    ORDER BY MILLIS(date) ASC
+  `;
+  const options = {parameters: [user_id]}
+
+  try {
+      const { bucket } = await connectToCouchbase();
+      const result = await bucket.defaultScope().query(query, options);
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+  }
+}
+
 module.exports = {
   getUpcomingEvents,
   getEventById,
   filter,
-  getLikedEventsByUserId
+  getLikedEventsByUserId,
+  getPastEventsByOrganizationId,
+  getUpcomingEventsByOrganizationId
 };
