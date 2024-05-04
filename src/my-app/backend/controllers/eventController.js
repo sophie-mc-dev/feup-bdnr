@@ -67,11 +67,11 @@ async function filter(req, res) {
   if (sortBy === "date") { 
     query += ' ORDER BY MILLIS(date) ASC';
   } else if (sortBy === "popularity") { 
-    query += ' ORDER BY num_likes DESC';
+    query += ' ORDER BY num_likes DESC, date ASC, event_name ASC';
   } else if (sortBy === "price_asc") {
-    query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) ASC';
+    query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) ASC, date ASC, event_name ASC';
   } else if (sortBy === "price_desc") {
-    query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) DESC';
+    query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) DESC, date ASC, event_name ASC';
   } 
 
   const options = { parameters: query_params };

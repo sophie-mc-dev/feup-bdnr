@@ -6,6 +6,7 @@ const locationRoute = require("./routes/locationRoutes")
 const artistRoute = require("./routes/artistRoutes")
 const userRoute = require("./routes/userRoutes")
 const transactionRoute = require("./routes/transactionRoutes")
+const commentRoute = require("./routes/commentRoutes")
 
 const app = express()
 app.use(cors())
@@ -28,5 +29,7 @@ app.use('/artists', artistRoute);
 app.use('/users', userRoute);
 
 app.use('/transactions', transactionRoute);
+
+app.use('/comments', commentRoute);
 
 module.exports.app = app;

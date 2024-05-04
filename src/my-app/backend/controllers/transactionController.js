@@ -7,7 +7,6 @@ async function getPurchasesByUserId(req, res) {
         FROM transactions AS t
         WHERE user_id = $1 AND t.transaction_status = $2
     `;
-
     const options = {parameters: [user_id, 'purchased']}
 
     try {
@@ -65,7 +64,7 @@ async function getPastTicketsByUserId(req, res) {
       UNNEST items AS i
       WHERE t.user_id=$1 AND t.transaction_status=$2 AND MILLIS(i.event_date) < NOW_MILLIS()
       GROUP BY i.event_id, i.ticket_type, i.event_name, i.event_date
-      ORDER BY i.event_date, i.event_name
+      ORDER BY i.event_date DESC, i.event_name ASC
     `;
     const options = {parameters: [user_id, 'purchased']}
   
