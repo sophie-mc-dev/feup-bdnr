@@ -37,14 +37,14 @@ const AllArtistsPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="flex flex-col ml-20 mr-20 pt-20">
       <h1 className="text-3xl font-bold mb-4">Artists</h1>
-      <div className="flex justify-center mb-4">
-        <button className={`mr-2 ${selectedLetter === "All" ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-800"} px-3 py-1 rounded-lg`} onClick={() => filterArtistsByLetter("All")}>
+      <div className="flex flex-wrap gap-y-2 pt-4 pb-5 justify-center">
+        <button className={`mr-2 ${selectedLetter === "All" ? "hover:bg-[#9395ec] bg-[#242565] text-white" : "bg-gray-200 hover:bg-[#9395ec] text-gray-800"} px-3 py-1 rounded-lg`} onClick={() => filterArtistsByLetter("All")}>
           All
         </button>
         {Array.from(Array(26)).map((_, index) => (
-          <button key={index} className={`mr-2 ${selectedLetter === String.fromCharCode(65 + index) ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-800"} px-3 py-1 rounded-lg`} onClick={() => filterArtistsByLetter(String.fromCharCode(65 + index))}>
+          <button key={index} className={`mr-2 ${selectedLetter === String.fromCharCode(65 + index) ? "bg-[#242565] text-white" : "bg-gray-200 hover:bg-[#9395ec] text-gray-800"} px-3 py-1 rounded-lg`} onClick={() => filterArtistsByLetter(String.fromCharCode(65 + index))}>
             {String.fromCharCode(65 + index)}
           </button>
         ))}

@@ -36,7 +36,7 @@ const Sidebar = ({ profileType, onItemClick }) => {
   };
 
   return (
-    <div className="w-[400px] min-h-screen bg-[#FDC27B] items-center justify-between p-5">
+    <div className="w-[400px] bg-[#FDC27B] items-center justify-between p-5">
       <div className="mb-4">
         {mainItems.map((item, index) => (
           <SidebarItem key={index} item={item.name} to={item.to} onItemClick={handleItemClick} />

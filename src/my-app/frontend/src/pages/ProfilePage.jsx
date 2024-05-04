@@ -41,7 +41,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex-1 flex">
       <Sidebar profileType={user.is_organization ? "organization" : "user"} />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">

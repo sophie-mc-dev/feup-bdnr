@@ -44,7 +44,7 @@ const FavoritesPage = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex-1 flex">
       <Sidebar profileType="user" />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">

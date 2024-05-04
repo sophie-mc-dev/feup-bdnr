@@ -116,7 +116,7 @@ function HomePage() {
 
         <div className="ml-20 mr-20 pt-20">
           {/* Container for heading and selects */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-10">
             {/* Heading container */}
             <div>
               <h1 className="text-3xl font-bold">Upcoming Events</h1>
@@ -149,7 +149,7 @@ function HomePage() {
                 <p>No upcoming events found.</p>
               ) : (
                 upcomingEvents.map((upcomingEvent, index) => (
-                  <div key={upcomingEvent.event_id} className="max-w-xs">
+                  <div key={upcomingEvent.event_id} className="flex flex-wrap gap-1 max-w-xs">
                     <EventCard
                       event={upcomingEvent}
                     ></EventCard>
@@ -159,8 +159,6 @@ function HomePage() {
             </div>
           </div>
         </div>
-
-        <Footer />
       </div>
     </>
   );

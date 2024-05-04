@@ -47,7 +47,7 @@ const ArtistCard = ({ artist }) => {
         </svg>
       </div>
       {isExpanded && (
-        <div className="mt-4">
+        <div className="mt-4 p-4">
           <p className="text-sm text-gray-600">{artist.artist_biography}</p>
           <h3 className="text-md font-semibold mt-2">Top 5 Music:</h3>
           <ul className="list-disc list-inside">

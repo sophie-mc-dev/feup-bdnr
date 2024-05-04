@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { UserProvider } from './contexts/UserContext';
 import AllArtistsPage from './pages/AllArtistsPage';
-import ArtistPage from './pages/ArtistPage';
 import EventPage from './pages/EventPage';
 import FavoritesPage from './pages/FavoritesPage';
 import HomePage from './pages/HomePage';
@@ -22,27 +21,26 @@ function App() {
   return (
     <BrowserRouter>
       <UserProvider>
-        <div>
+        <div className="min-h-screen flex flex-col">
           <TopBar />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/artists" element={<AllArtistsPage />} />
+            <Route path="/events/:id" element={<EventPage />} />
+            
+            <Route element={<PrivateRoute />} >
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/new_event" element={<NewEventPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/purchases" element={<PurchasesPage />} />
+              <Route path="/shopping-cart" element={<ShoppingCartPage />} />
+              <Route path="/tickets" element={<TicketsPage />} />
+            </Route>
+          </Routes>
+          <Footer />
         </div>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/artists" element={<AllArtistsPage />} />
-          <Route path="/artist/:id" element={<ArtistPage />} />
-          <Route path="/event/:id" element={<EventPage />} />
-          
-          <Route element={<PrivateRoute />} >
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/new_event" element={<NewEventPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/purchases" element={<PurchasesPage />} />
-            <Route path="/shopping-cart" element={<ShoppingCartPage />} />
-            <Route path="/tickets" element={<TicketsPage />} />
-          </Route>
-        </Routes>
-        <Footer />
       </UserProvider>
     </BrowserRouter>
   );
