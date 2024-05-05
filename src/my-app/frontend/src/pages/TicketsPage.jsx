@@ -50,7 +50,7 @@ const TicketsPage = () => {
       <Sidebar profileType="user" />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
-        <h2 className="text-2xl font-semibold mb-6">My Tickets</h2>
+        <h2 className="text-2xl font-bold mb-6">My Tickets</h2>
 
         <section className="grid">
           <h3 className="text-xl font-semibold mb-5">Upcoming Events</h3>

@@ -69,7 +69,7 @@ const PurchasesPage = () => {
       <Sidebar profileType="user" />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
-        <h2 className="text-2xl font-semibold mb-6">My Purchases</h2>
+        <h3 className="text-2xl font-bold mb-6">My Purchases</h3>
         <div className="flex flex-col gap-y-5">
           {isLoading ? (
             <Loading />

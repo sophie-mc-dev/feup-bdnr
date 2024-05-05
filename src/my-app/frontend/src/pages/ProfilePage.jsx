@@ -49,7 +49,7 @@ const ProfilePage = () => {
           <Loading />
         ) : (
           <>
-            <h2 className="text-2xl font-semibold mb-6">My Profile</h2>
+            <h3 className="text-2xl font-bold mb-6">My Profile</h3>
             {/* Name */}
             <div className="mb-4">
               <label

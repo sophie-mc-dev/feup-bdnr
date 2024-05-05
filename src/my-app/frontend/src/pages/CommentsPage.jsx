@@ -1,46 +1,40 @@
 import "../index.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
-
-// Placeholder data
-const placeholderComments = [
-  {
-    comment_id: "1",
-    user_id: "1367",
-    user_name: "Gary Ayala",
-    event_id: "2427",
-    text: "Personal arm space public shake culture will. To dream research move hospital try join. Ready almost reach speak shoulder land loss. Truth prepare focus improve whose also fact.",
-  },
-];
-
-// TODO: use login logic to set the following data
-const isLoggedIn = true;
-const userInfo = {
-  id: "11",
-  is_organization: false,
-};
+import { UserContext } from "../contexts/UserContext";
 
 const CommentsPage = () => {
+  const { user } = useContext(UserContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    setIsLoading(true);
-    // Simulate fetching comments
-    setTimeout(() => {
-      setComments(placeholderComments);
-      setIsLoading(false);
-    }, 1000); // Simulate 1 second delay
+    fetchComments();
   }, []);
+
+  const fetchComments = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/comments/users/" + user.user_id
+      );
+      setComments(response.data);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <div className="flex-1 flex">
       <Sidebar profileType="user" />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
-        <h2 className="text-2xl font-semibold mb-6">My Comments</h2>
+        <h3 className="text-2xl font-bold mb-6">My Comments</h3>
         {isLoading ? (
           <Loading />
         ) : (
@@ -60,7 +54,8 @@ const CommentsPage = () => {
                           {comment.text}
                         </div>
                         <div className="text-xs text-gray-400">
-                          {comment.createdAt}
+                          Event name: 
+                          {comment.event_name}
                         </div>
                       </div>
                     </div>
