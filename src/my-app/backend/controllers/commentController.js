@@ -31,7 +31,33 @@ async function getCommentsByUserId(req, res) {
     }
 }
 
+async function addComment(req, res) {
+
+    const { event_id, user_id, text } = req.body;
+    const id = uuid.v4();
+    const comment = {
+        "comment_id": id,
+        "event_id": event_id,
+        "user_id": user_id,
+        "text": text,
+        "date": new Date().toISOString()
+    }
+
+    try {
+        const { bucket } = await connectToCouchbase();
+        const commentsCollection = bucket.defaultScope().collection('comments');
+        await commentsCollection.upsert(id, comment);
+        res.json({comment});
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+}
+
+
 module.exports = {
     getCommentsByEventId, 
-    getCommentsByUserId
+    getCommentsByUserId,
+    addComment
 };
