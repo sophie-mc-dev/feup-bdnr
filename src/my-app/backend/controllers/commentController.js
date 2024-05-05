@@ -54,8 +54,11 @@ async function addComment(req, res) {
     }
 }
 
+
+
 module.exports = {
     getCommentsByEventId, 
     getCommentsByUserId,
-    addComment
+    addComment,
+
 };

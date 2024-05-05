@@ -78,6 +78,7 @@ const EventPage = () => {
             user_name: user.username,
             text: commentText
         });
+        console.log("My user:", user);
         console.log("Comment submitted:", response.data.comment);
         setCommentText("");
         await fetchCommentsInfo(id);
