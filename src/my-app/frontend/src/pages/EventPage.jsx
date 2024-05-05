@@ -28,7 +28,8 @@ const EventPage = () => {
   const [isCommentsLoading, setIsCommentsLoading] = useState(true);
   const [userComments, setUserComments] = useState([]);
   const [otherComments, setOtherComments] = useState([]);
-
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -49,45 +50,73 @@ const EventPage = () => {
 
   const fetchCommentsInfo = async (id) => {
     try {
-        const response = await axios.get("http://localhost:3000/comments/events/" + id);
-        const { user_id } = user;
-        const allComments = response.data;
-        
-        const userComments = allComments.filter(comment => comment.user_id === user_id);
-        const otherComments = allComments.filter(comment => comment.user_id !== user_id);
-        
-        setUserComments(userComments);
-        setOtherComments(otherComments);
-        setIsCommentsLoading(false);
-    } catch (error) {
-        setIsCommentsLoading(false);
-        console.error("Error fetching data:", error);
-    }
-};
+      const response = await axios.get(
+        "http://localhost:3000/comments/events/" + id
+      );
+      const { user_id } = user;
+      const allComments = response.data;
 
+      const userComments = allComments.filter(
+        (comment) => comment.user_id === user_id
+      );
+      const otherComments = allComments.filter(
+        (comment) => comment.user_id !== user_id
+      );
+
+      setUserComments(userComments);
+      setOtherComments(otherComments);
+      setIsCommentsLoading(false);
+    } catch (error) {
+      setIsCommentsLoading(false);
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const handleCommentSubmit = async () => {
     if (!user) {
-        return <Navigate to="/login" />;
+      return <Navigate to="/login" />;
     }
     try {
-        setIsSubmittingComment(true);
-        const response = await axios.post("http://localhost:3000/comments", {
-            event_id: id,
-            user_id: user.user_id,
-            user_name: user.username,
-            text: commentText
-        });
-        console.log("My user:", user);
-        console.log("Comment submitted:", response.data.comment);
-        setCommentText("");
-        await fetchCommentsInfo(id);
+      setIsSubmittingComment(true);
+      const response = await axios.post("http://localhost:3000/comments", {
+        event_id: id,
+        user_id: user.user_id,
+        user_name: user.username,
+        text: commentText,
+      });
+      console.log("My user:", user);
+      console.log("Comment submitted:", response.data.comment);
+      setCommentText("");
+      await fetchCommentsInfo(id);
     } catch (error) {
-        console.error("Error submitting comment:", error);
+      console.error("Error submitting comment:", error);
     } finally {
-        setIsSubmittingComment(false);
+      setIsSubmittingComment(false);
     }
-};
+  };
+
+  const handleDeleteButtonClick = (comment) => {
+    setCommentToDelete(comment);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/comments/${commentToDelete.comment_id}`
+      );
+      //update
+      await fetchCommentsInfo(id);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -195,18 +224,51 @@ const EventPage = () => {
           ) : (
             <div>
               {userComments.map((comment) => (
-                  <div key={comment.comment_id} className="p-4">
-                      <p>User name: {comment.user_name}</p>
-                      <p>Text: {comment.text}</p>
-                  </div>
+                <div
+                  key={comment.comment_id}
+                  className="p-4 relative hover:bg-gray-100"
+                >
+                  <p>User name: {comment.user_name}</p>
+                  <p>Text: {comment.text}</p>
+                  {user && user.user_id === comment.user_id && (
+                    <button
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1"
+                      onClick={() => handleDeleteButtonClick(comment)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               ))}
 
               {otherComments.map((comment) => (
-                  <div key={comment.comment_id} className="p-4">
-                      <p>User name: {comment.user_name}</p>
-                      <p>Text: {comment.text}</p>
-                  </div>
+                <div key={comment.comment_id} className="p-4 relative hover:bg-gray-100">
+                  <p>User name: {comment.user_name}</p>
+                  <p>Text: {comment.text}</p>
+                </div>
               ))}
+            </div>
+          )}
+
+          {isDeleteModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-8 rounded-lg">
+                <p className="mb-4">Are you sure you want to delete your comment?</p>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2"
+                    onClick={handleDeleteCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    onClick={handleDeleteConfirm}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -214,4 +276,5 @@ const EventPage = () => {
     </div>
   );
 };
+
 export default EventPage;
