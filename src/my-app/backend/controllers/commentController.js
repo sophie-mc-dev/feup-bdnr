@@ -1,4 +1,5 @@
 const { connectToCouchbase } = require('../db/connection');
+const uuid = require('uuid');
 
 
 async function getCommentsByEventId(req, res) {
@@ -32,29 +33,26 @@ async function getCommentsByUserId(req, res) {
 }
 
 async function addComment(req, res) {
-
-    const { event_id, user_id, text } = req.body;
+    const { event_id, user_id, user_name ,text } = req.body;
     const id = uuid.v4();
     const comment = {
         "comment_id": id,
         "event_id": event_id,
         "user_id": user_id,
+        "user_name": user_name,
         "text": text,
-        "date": new Date().toISOString()
     }
 
     try {
         const { bucket } = await connectToCouchbase();
-        const commentsCollection = bucket.defaultScope().collection('comments');
+        const commentsCollection = bucket.scope('_default').collection('comments');
         await commentsCollection.upsert(id, comment);
         res.json({comment});
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
-
 }
-
 
 module.exports = {
     getCommentsByEventId, 

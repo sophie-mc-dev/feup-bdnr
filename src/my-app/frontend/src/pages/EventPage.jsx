@@ -64,8 +64,12 @@ const EventPage = () => {
     }
     try {
         setIsSubmittingComment(true);
-        // TODO: Submit comment
-
+        const response = await axios.post("http://localhost:3000/comments", {
+            event_id: id,
+            user_id: user.id,
+            user_name: user.username,
+            text: commentText
+        });
         console.log("Comment submitted:", response.data.comment);
         setCommentText("");
         await fetchCommentsInfo(id);
