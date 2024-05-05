@@ -26,6 +26,9 @@ const EventPage = () => {
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isCommentsLoading, setIsCommentsLoading] = useState(true);
+  const [userComments, setUserComments] = useState([]);
+  const [otherComments, setOtherComments] = useState([]);
+
 
   useEffect(() => {
     if (id) {
@@ -46,17 +49,22 @@ const EventPage = () => {
 
   const fetchCommentsInfo = async (id) => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/comments/events/" + id
-      );
-      setComments(response.data);
-      setIsCommentsLoading(false);
-      console.log(response.data);
+        const response = await axios.get("http://localhost:3000/comments/events/" + id);
+        const { user_id } = user;
+        const allComments = response.data;
+        
+        const userComments = allComments.filter(comment => comment.user_id === user_id);
+        const otherComments = allComments.filter(comment => comment.user_id !== user_id);
+        
+        setUserComments(userComments);
+        setOtherComments(otherComments);
+        setIsCommentsLoading(false);
     } catch (error) {
-      setIsCommentsLoading(false);
-      console.error("Error fetching data:", error);
+        setIsCommentsLoading(false);
+        console.error("Error fetching data:", error);
     }
-  };
+};
+
 
   const handleCommentSubmit = async () => {
     if (!user) {
@@ -185,11 +193,18 @@ const EventPage = () => {
             <Loading />
           ) : (
             <div>
-              {comments.map((comment) => (
-                <div key={comment.comment_id} className="p-4">
-                  <p>User name: {comment.user_name}</p>
-                  <p>Text: {comment.text}</p>
-                </div>
+              {userComments.map((comment) => (
+                  <div key={comment.comment_id} className="p-4">
+                      <p>User name: {comment.user_name}</p>
+                      <p>Text: {comment.text}</p>
+                  </div>
+              ))}
+
+              {otherComments.map((comment) => (
+                  <div key={comment.comment_id} className="p-4">
+                      <p>User name: {comment.user_name}</p>
+                      <p>Text: {comment.text}</p>
+                  </div>
               ))}
             </div>
           )}
