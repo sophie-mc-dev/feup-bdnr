@@ -36,7 +36,9 @@ const CommentsPage = () => {
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
         <h3 className="text-2xl font-bold mb-6">My Comments</h3>
         {isLoading ? (
-          <Loading />
+          <div className="flex-1 h-full flex items-center justify-center">
+            <Loading/>
+          </div>
         ) : (
           <div>
             {comments.length === 0 ? (

@@ -51,7 +51,9 @@ const FavoritesPage = () => {
         <h3 className="text-2xl font-bold mb-6">My Favorites</h3>
         <div className="flex flex-col gap-y-5">
           {isLoading ? (
-            <Loading />
+            <div className="flex-1 h-full flex items-center justify-center">
+              <Loading/>
+            </div>
           ) : favorites.length === 0 ? (
             <p>No events found.</p>
           ) : (

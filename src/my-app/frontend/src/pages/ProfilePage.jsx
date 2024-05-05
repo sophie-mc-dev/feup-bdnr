@@ -46,7 +46,9 @@ const ProfilePage = () => {
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
         {isLoading ? (
-          <Loading />
+          <div className="flex-1 h-full flex items-center justify-center">
+            <Loading/>
+          </div>
         ) : (
           <>
             <h3 className="text-2xl font-bold mb-6">My Profile</h3>

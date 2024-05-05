@@ -32,25 +32,32 @@ const OrganizationOptions = () => {
 
   async function handleLogout() {
     await logout().then(() => {
-      navigate("/login");
+      navigate("/");
     });
   }
 
   return (
     <>
-      <a>MY EVENTS</a>
-      <Link to="/new_event">
-        <button className="py-1.5 px-3 rounded-lg border border-white hover:bg-white hover:bg-opacity-15">
-          CREATE EVENT
-        </button>
+      <a href="/my_events">MY EVENTS</a>
+      <Link to="/profile" className="inline-block">
+        <svg
+          className="h-6 w-6 text-white fill-current"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            stroke="currentColor"
+            fill="none"
+            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+          />
+          <circle cx={12} cy={7} r={4} fill="currentColor" />
+        </svg>
       </Link>
+
       <div className="fle flex-row">
-        <Link to="/profile">
-          <button className="py-1 px-3 rounded-bl-lg rounded-l-lg font-normal border border-white hover:bg-white hover:bg-opacity-15">
-            {" "}
-            My Account{" "}
-          </button>
-        </Link>
         <button
           onClick={handleLogout}
           className="bg-[#494391] text-white font-semibold  text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
@@ -69,7 +76,7 @@ const ConsumerOptions = () => {
 
   async function handleLogout() {
     await logout().then(() => {
-      navigate("/login");
+      navigate("/");
     });
   }
 
