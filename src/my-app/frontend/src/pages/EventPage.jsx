@@ -29,7 +29,7 @@ const EventPage = () => {
   const [userComments, setUserComments] = useState([]);
   const [otherComments, setOtherComments] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState(null);
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -50,73 +50,63 @@ const EventPage = () => {
 
   const fetchCommentsInfo = async (id) => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/comments/events/" + id
-      );
-      const { user_id } = user;
-      const allComments = response.data;
-
-      const userComments = allComments.filter(
-        (comment) => comment.user_id === user_id
-      );
-      const otherComments = allComments.filter(
-        (comment) => comment.user_id !== user_id
-      );
-
-      setUserComments(userComments);
-      setOtherComments(otherComments);
-      setIsCommentsLoading(false);
+        const response = await axios.get("http://localhost:3000/comments/events/" + id);
+        const allComments = response.data;
+        
+        const { user_id } = user || {};
+        const userComments = allComments.filter(comment => comment.user_id === user_id);
+        const otherComments = allComments.filter(comment => comment.user_id !== user_id);
+        
+        setUserComments(userComments);
+        setOtherComments(otherComments);
+        setIsCommentsLoading(false);
     } catch (error) {
-      setIsCommentsLoading(false);
-      console.error("Error fetching data:", error);
+        setIsCommentsLoading(false);
+        console.error("Error fetching data:", error);
     }
-  };
+};
 
   const handleCommentSubmit = async () => {
-    if (!user) {
-      return <Navigate to="/login" />;
-    }
-    try {
-      setIsSubmittingComment(true);
-      const response = await axios.post("http://localhost:3000/comments", {
-        event_id: id,
-        user_id: user.user_id,
-        user_name: user.username,
-        text: commentText,
-      });
-      console.log("My user:", user);
-      console.log("Comment submitted:", response.data.comment);
-      setCommentText("");
-      await fetchCommentsInfo(id);
-    } catch (error) {
-      console.error("Error submitting comment:", error);
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  };
 
-  const handleDeleteButtonClick = (comment) => {
-    setCommentToDelete(comment);
+    try {
+        setIsSubmittingComment(true);
+        const response = await axios.post("http://localhost:3000/comments", {
+            event_id: id,
+            user_id: user.user_id,
+            user_name: user.username,
+            text: commentText
+        });
+        console.log("My user:", user);
+        console.log("Comment submitted:", response.data.comment);
+        setCommentText("");
+        await fetchCommentsInfo(id);
+    } catch (error) {
+        console.error("Error submitting comment:", error);
+    } finally {
+        setIsSubmittingComment(false);
+    }
+};
+
+const handleDeleteButtonClick = (commentId) => {
+    setSelectedCommentId(commentId);
     setIsDeleteModalOpen(true);
-  };
+};
 
-  const handleDeleteConfirm = async () => {
-    try {
-      await axios.delete(
-        `http://localhost:3000/comments/${commentToDelete.comment_id}`
-      );
-      //update
-      await fetchCommentsInfo(id);
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-    } finally {
-      setIsDeleteModalOpen(false);
-    }
-  };
-
-  const handleDeleteCancel = () => {
+const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
-  };
+    setSelectedCommentId(null);
+};
+
+const handleDeleteConfirm = async () => {
+    try {
+        await axios.delete(`http://localhost:3000/comments/${selectedCommentId}`);
+        setIsDeleteModalOpen(false);
+        setSelectedCommentId(null);
+        await fetchCommentsInfo(id);
+    } catch (error) {
+        console.error("Error deleting comment:", error);
+    }
+};
 
   return (
     <div className="flex flex-col items-center">
@@ -233,7 +223,7 @@ const EventPage = () => {
                   {user && user.user_id === comment.user_id && (
                     <button
                       className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1"
-                      onClick={() => handleDeleteButtonClick(comment)}
+                      onClick={() => handleDeleteButtonClick(comment.comment_id)}
                     >
                       Delete
                     </button>
@@ -251,18 +241,18 @@ const EventPage = () => {
           )}
 
           {isDeleteModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-white p-8 rounded-lg">
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+              <div className="bg-white p-4 rounded-md shadow-md">
                 <p className="mb-4">Are you sure you want to delete your comment?</p>
                 <div className="flex justify-end">
                   <button
-                    className="bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2"
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2"
                     onClick={handleDeleteCancel}
                   >
                     Cancel
                   </button>
                   <button
-                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    className="bg-red-500 text-white px-4 py-2 rounded-md"
                     onClick={handleDeleteConfirm}
                   >
                     Delete
