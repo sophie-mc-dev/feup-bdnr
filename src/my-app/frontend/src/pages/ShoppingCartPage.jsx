@@ -18,8 +18,13 @@ const ShoppingCartPage = () => {
   const fetchShoppingCart = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/transactions/shopping_cart/" + user.user_id);
-      const cartItemsWithId = response.data.map((item, index) => ({ ...item, id: index }));
+      const response = await axios.get(
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}`
+      );
+      const cartItemsWithId = response.data.map((item, index) => ({
+        ...item,
+        id: index,
+      }));
       setCartItems(cartItemsWithId);
       setIsLoading(false);
     } catch (error) {
@@ -28,16 +33,48 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  const removeItem = async (id) => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${id}`
+      );
+      setCartItems(cartItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
   };
 
-  const updateQuantity = (id, quantity) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + quantity } : item
-      )
-    );
+  const updateQuantity = async (id, increment) => {
+    try {
+      const updatedCartItems = cartItems.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            quantity: item.quantity + increment,
+          };
+        }
+        return item;
+      });
+
+      await axios.put(
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${id}`,
+        { quantity: updatedCartItems.find((item) => item.id === id).quantity }
+      );
+      setCartItems(updatedCartItems);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
+  };
+
+  const emptyCart = async () => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}`
+      );
+      setCartItems([]);
+    } catch (error) {
+      console.error("Error emptying cart:", error);
+    }
   };
 
   const getTotal = () => {
@@ -50,7 +87,12 @@ const ShoppingCartPage = () => {
   const outputCartItems = () => {
     return (
       <>
-        <p className="mb-2">You have {cartItems.length} items in your cart</p>
+        <div className="flex justify-between ">
+          <p className="mb-2">You have {cartItems.length} items in your cart</p>
+          <p onClick={emptyCart} className="cursor-pointer underline">
+            Empty Cart
+          </p>
+        </div>
         <div className="grid grid-cols-1 gap-4">
           {cartItems.map((item, index) => (
             <ShoppingCartCard
