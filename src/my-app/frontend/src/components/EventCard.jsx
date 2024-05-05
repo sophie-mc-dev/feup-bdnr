@@ -8,7 +8,7 @@ const formatDate = (dateString) => {
   const hours = date.getHours();
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
-  return `${month} ${day}, ${year} at ${hours}:${minutes}`;
+  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
 };
 
 const EventCard = ({ event }) => {
