@@ -16,7 +16,8 @@ const Sidebar = ({ profileType, onItemClick }) => {
   ];
 
   const getOrganizationItems = () => [
-    { name: "My Events", to: "/events" },
+    { name: "My Profile", to: "/profile" },
+    { name: "My Events", to: "/my_events" },
     { name: "Analytics", to: "/analytics" },
     { name: "Log Out", to: "/" },
   ];
