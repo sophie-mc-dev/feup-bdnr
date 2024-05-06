@@ -21,5 +21,9 @@ router.get('/my_events/past/:user_id', EventController.getPastEventsByOrganizati
 router.get('/my_events/upcoming/:user_id', EventController.getUpcomingEventsByOrganizationId);
 
 
+// events of a specific artist
+router.get('/artists/:artist_id', EventController.getEventsByArtistId);
+
+
 module.exports = router;
 

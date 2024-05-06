@@ -155,11 +155,38 @@ async function getUpcomingEventsByOrganizationId(req, res) {
   }
 }
 
+async function getEventsByArtistId(req, res) {
+  const artistId = req.params.artist_id;
+  const query = `
+    SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+    FROM events
+    WHERE ARRAY_CONTAINS (
+      (SELECT RAW event_id 
+      FROM artists as a
+      UNNEST a.event_ids AS event_id
+      WHERE a.artist_id = $1), 
+      event_id    
+    )
+    ORDER BY date ASC`
+  ;
+  const options = {parameters: [artistId]}
+
+  try {
+      const { bucket } = await connectToCouchbase();
+      const result = await bucket.defaultScope().query(query, options);
+      res.json(result.rows);
+  } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+  }
+}
+
 module.exports = {
   getUpcomingEvents,
   getEventById,
   filter,
   getLikedEventsByUserId,
   getPastEventsByOrganizationId,
-  getUpcomingEventsByOrganizationId
+  getUpcomingEventsByOrganizationId,
+  getEventsByArtistId
 };
