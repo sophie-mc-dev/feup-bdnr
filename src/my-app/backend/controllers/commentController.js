@@ -67,9 +67,28 @@ async function deleteComment(req, res) {
     }
 }
 
+async function editComment(req, res) {
+    const comment_id = req.params.comment_id;
+    const text = req.body.text;
+    try {
+        const { bucket } = await connectToCouchbase();
+        const commentsCollection = bucket.scope('_default').collection('comments');
+        const result = await commentsCollection.get(comment_id);
+        const comment = result.value;
+        comment.text = text;
+        await commentsCollection.upsert(comment_id, comment);
+        res.json({ message: 'Comment updated' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+}
+
+
 module.exports = {
     getCommentsByEventId, 
     getCommentsByUserId,
     addComment,
-    deleteComment
+    deleteComment,
+    editComment
 };

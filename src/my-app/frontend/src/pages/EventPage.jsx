@@ -30,6 +30,8 @@ const EventPage = () => {
   const [otherComments, setOtherComments] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editCommentText, setEditCommentText] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -107,6 +109,31 @@ const handleDeleteConfirm = async () => {
         console.error("Error deleting comment:", error);
     }
 };
+
+const handleEditButtonClick = (comment) => {
+  setSelectedCommentId(comment.comment_id);
+  setEditCommentText(comment.text);
+  setIsEditModalOpen(true);
+};
+
+const handleEditCancel = () => {
+    setIsEditModalOpen(false);
+    setSelectedCommentId(null);
+}
+
+const handleEditConfirm = async (newText) => {
+    try {
+        setIsEditModalOpen(false);
+        await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
+            text: newText
+        });
+        setSelectedCommentId(null);
+        await fetchCommentsInfo(id);
+    } catch (error) {
+        console.error("Error editing comment:", error);
+    }
+}
+
 
   return (
     <div className="flex flex-col items-center">
@@ -195,7 +222,6 @@ const handleDeleteConfirm = async () => {
               <textarea
                 className="w-full h-24 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Write your comment here..."
-                value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
               ></textarea>
               <button
@@ -221,12 +247,19 @@ const handleDeleteConfirm = async () => {
                   <p>User name: {comment.user_name}</p>
                   <p>Text: {comment.text}</p>
                   {user && user.user_id === comment.user_id && (
-                    <button
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded px-2 py-1"
-                      onClick={() => handleDeleteButtonClick(comment.comment_id)}
-                    >
-                      Delete
-                    </button>
+                    <div className="absolute top-2 right-2">
+                      <button
+                        className="bg-gray-800 text-white px-2 py-1 rounded"
+                        onClick={() => handleEditButtonClick(comment)}>                    
+                        Edit
+                      </button>
+                      <button
+                        className="bg-red-800 text-white px-2 py-1 rounded ml-2"
+                        onClick={() => handleDeleteButtonClick(comment.comment_id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
@@ -237,6 +270,33 @@ const handleDeleteConfirm = async () => {
                   <p>Text: {comment.text}</p>
                 </div>
               ))}
+            </div>
+          )}
+
+          {isEditModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+              <div className="bg-white p-4 rounded-md shadow-md">
+                <p className="mb-4">Edit your comment:</p>
+                <textarea
+                  className="w-full h-24 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  value={editCommentText}
+                  onChange={(e) => setEditCommentText(e.target.value)}
+                ></textarea>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2"
+                    onClick={handleEditCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-gray-800 text-white px-4 py-2 rounded-md"
+                    onClick={() => handleEditConfirm(editCommentText)}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
