@@ -2,17 +2,23 @@ import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
 
 const CommentsPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    fetchComments();
+    if (user.is_organization) {
+      navigate('/');
+    } else {
+      fetchComments();
+    }
   }, []);
 
   const fetchComments = async () => {

@@ -2,18 +2,24 @@ import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import EventCard from "../components/EventCard";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
 
 const FavoritesPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    fetchFavorites();
+    if (user.is_organization) {
+      navigate('/');
+    } else {
+      fetchFavorites(); 
+    }
   }, []);
 
   const fetchFavorites = async () => {

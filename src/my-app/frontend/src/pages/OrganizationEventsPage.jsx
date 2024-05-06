@@ -2,11 +2,13 @@ import "../index.css";
 import React, { useState, useContext, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import EventCard from "../components/EventCard";
 import { UserContext } from "../contexts/UserContext";
 import Loading from "../components/Loading";
 
 const OrganizationEventsPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [isLoadingPast, setIsLoadingPast] = useState(true);
@@ -15,8 +17,12 @@ const OrganizationEventsPage = () => {
   const [upcomingEvents, setUpcomingEvents] = useState(null);
 
   useEffect(() => {
-    fetchPastEvents();
-    fetchUpcomingEvents();
+    if (!user.is_organization) {
+      navigate('/');
+    } else {
+      fetchPastEvents();
+      fetchUpcomingEvents();
+    }
   }, []);
 
   const fetchPastEvents = async () => {

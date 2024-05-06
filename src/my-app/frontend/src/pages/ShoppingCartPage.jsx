@@ -2,17 +2,23 @@ import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import ShoppingCartCard from "../components/ShoppingCartCard";
 
 const ShoppingCartPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchShoppingCart();
+    if (user.is_organization) {
+      navigate('/');
+    } else {
+      fetchShoppingCart();
+    }
   }, []);
 
   const fetchShoppingCart = async () => {

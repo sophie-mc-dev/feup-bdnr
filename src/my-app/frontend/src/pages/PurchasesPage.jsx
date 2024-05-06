@@ -2,6 +2,7 @@ import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
 import PurchaseCard from "../components/PurchaseCard";
@@ -18,13 +19,18 @@ const formatDate = (dateString) => {
 };
 
 const PurchasesPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(true);
   const [purchases, setPurchases] = useState([]);
 
   useEffect(() => {
-    fetchPurchases();
+    if (user.is_organization) {
+      navigate('/');
+    } else {
+      fetchPurchases(); 
+    }
   }, []);
 
   const fetchPurchases = async () => {

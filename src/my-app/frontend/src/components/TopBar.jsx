@@ -38,6 +38,8 @@ const OrganizationOptions = () => {
 
   return (
     <>
+      <a href="/">EVENTS</a>
+      <a href="/artists">ARTISTS</a>
       <a href="/my_events">MY EVENTS</a>
       <Link to="/profile" className="inline-block">
         <svg
