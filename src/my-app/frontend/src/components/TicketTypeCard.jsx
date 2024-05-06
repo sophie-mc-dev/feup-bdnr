@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
 
 const TicketTypeCard = ({ ticket }) => {
+  const { isLoggedIn, user } = useContext(UserContext);
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden flex max-w-full">
       <div className="flex-grow p-4 flex items-center justify-between">
@@ -24,9 +27,11 @@ const TicketTypeCard = ({ ticket }) => {
         </div>
 
         {/* Button to add to cart */}
-        <button className="bg-[#494391] text-white font-semibold text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105">
-          Add to Cart
-        </button>
+        {isLoggedIn && !user.is_organization && (
+          <button className="bg-[#494391] text-white font-semibold text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105">
+            Add to Cart
+          </button>
+        )}
       </div>
     </div>
   );

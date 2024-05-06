@@ -2,11 +2,13 @@ import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
 import TicketCard from "../components/TicketCard";
 
 const TicketsPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
 
   const [isLoadingUpcoming, setIsLoadingUpcoming] = useState(true);
@@ -15,8 +17,12 @@ const TicketsPage = () => {
   const [pastTickets, setPastTickets] = useState([]);
 
   useEffect(() => {
-    fetchTUpcomingTickets();
-    fetchPastTickets();
+    if (user.is_organization) {
+      navigate('/');
+    } else {
+      fetchTUpcomingTickets();
+      fetchPastTickets();
+    }
   }, []);
 
   const fetchTUpcomingTickets = async () => {

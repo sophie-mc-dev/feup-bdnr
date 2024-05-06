@@ -18,10 +18,12 @@ const ArtistCard = ({ artist }) => {
 
   const fetchEvents = async () => {
     try {
-      const response = await Promise.all(artist.event_ids.map(eventId => axios.get(`http://localhost:3000/events/${eventId}`)));
-      setEvents(response.map(res => res.data));
+      const response = await axios.get(
+        "http://localhost:3000/events/artists/" + artist.artist_id
+      );
+      setEvents(response.data);
     } catch (error) {
-      console.error("Error fetching events:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -56,11 +58,15 @@ const ArtistCard = ({ artist }) => {
             ))}
           </ul>
           <h3 className="text-md font-semibold mt-4">Events:</h3>
-          <div className="flex flex-wrap gap-4 mt-2">
-            {events.map((event, index) => (
-              <EventCard key={index} event={event} />
-            ))}
-          </div>
+          {events.length === 0 ? (
+            <p>No events available</p>
+          ) : (
+            <div className="flex flex-wrap gap-4 mt-2">
+              {events.map((event, index) => (
+                <EventCard key={index} event={event} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
