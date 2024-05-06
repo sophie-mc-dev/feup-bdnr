@@ -36,11 +36,11 @@ async function getShoppingCartByUserId(req, res) {
 }
 
 async function deleteItemFromCart(req, res) {
-  const { user_id, item_id } = req.params;
+  const { user_id, item_index } = req.params;
 
   const query = `
     UPDATE transactions 
-    SET items = ARRAY_REMOVE(items, items[${item_id}]) 
+    SET items = ARRAY_REMOVE(items, items[${item_index}]) 
     WHERE user_id = $1 AND transaction_status = $2 
     RETURNING items
   `;
@@ -58,12 +58,12 @@ async function deleteItemFromCart(req, res) {
 }
 
 async function updateCartItemQuantity(req, res) {
-  const { user_id, item_id } = req.params;
+  const { user_id, item_index } = req.params;
   const { quantity } = req.body;
 
   const query = `
     UPDATE transactions 
-    SET items[${item_id}].quantity = $1 
+    SET items[${item_index}].quantity = $1 
     WHERE user_id = $2 AND transaction_status = $3 
     RETURNING items
   `;

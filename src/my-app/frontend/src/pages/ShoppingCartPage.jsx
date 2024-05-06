@@ -15,7 +15,7 @@ const ShoppingCartPage = () => {
 
   useEffect(() => {
     if (user.is_organization) {
-      navigate('/');
+      navigate("/");
     } else {
       fetchShoppingCart();
     }
@@ -39,32 +39,25 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const removeItem = async (id) => {
+  const removeItem = async (index) => {
     try {
       await axios.delete(
-        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${id}`
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${index}`
       );
-      setCartItems(cartItems.filter((item) => item.id !== id));
+      setCartItems(cartItems.filter((_, i) => i !== index));
     } catch (error) {
       console.error("Error removing item:", error);
     }
   };
 
-  const updateQuantity = async (id, increment) => {
+  const updateQuantity = async (index, increment) => {
     try {
-      const updatedCartItems = cartItems.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            quantity: item.quantity + increment,
-          };
-        }
-        return item;
-      });
+      const updatedCartItems = [...cartItems];
+      updatedCartItems[index].quantity += increment;
 
       await axios.put(
-        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${id}`,
-        { quantity: updatedCartItems.find((item) => item.id === id).quantity }
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${index}`,
+        { quantity: updatedCartItems[index].quantity }
       );
       setCartItems(updatedCartItems);
     } catch (error) {
