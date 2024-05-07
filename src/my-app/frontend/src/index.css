@@ -1,3 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.half-screen {
+  height: 50vh; /* Set the height to 50% of the viewport height */
+}
+
+.profile-pic {
+  border-radius: 50%;
+  width: 3em;
+  height: 3em;
+  background: white;
+}
+
+body {
+  background-color: rgb(250, 250, 250);
+}
