@@ -1,16 +1,19 @@
 const { connectToCouchbase } = require('../db/connection');
 
 async function getUpcomingEvents(req, res) {
+  const offset = parseInt(req.query.offset);
   const query =  `
   SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
   FROM events
   WHERE MILLIS(date) >= NOW_MILLIS()
   ORDER BY MILLIS(date)
+  LIMIT 8
+  OFFSET $1
 `;
-  
+  const options = {parameters: [offset]};
   try {
     const { bucket } = await connectToCouchbase();
-    const result = await bucket.scope("_default").query(query);
+    const result = await bucket.scope("_default").query(query, options);
     res.json(result.rows.map(row => row));
   } catch (error) {
     console.error('Error:', error);
@@ -36,11 +39,9 @@ async function getEventById(req, res) {
 }
 
 async function filter(req, res) {
-  const {category, location, event_date, sortBy } = req.query;
-
+  const {category, location, event_date, sortBy, offset } = req.query;
   let query;
   let query_params = [];
-
   query = `
     SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
     FROM events
@@ -74,8 +75,11 @@ async function filter(req, res) {
     query += ' ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) DESC, date ASC, event_name ASC';
   } 
 
-  const options = { parameters: query_params };
+  // Limit the number of results to 8
+  query_params.push(parseInt(offset))
+  query += ' LIMIT 8 OFFSET $' + query_params.length;
 
+  const options = { parameters: query_params };
   try {
     const { bucket } = await connectToCouchbase();
     const result = await bucket.defaultScope().query(query, options);
