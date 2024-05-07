@@ -15,3 +15,8 @@ sleep 5
 
 echo; echo "Running commands on populate.sh"
 ./populate.sh
+
+sleep 5
+
+echo; echo "Running creating of the search index"
+./create-index.sh

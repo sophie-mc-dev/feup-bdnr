@@ -1,7 +1,13 @@
 const couchbase = require('couchbase')
 
 async function main() {
-  // For a secure cluster connection, use `couchbases://<your-cluster-ip>` instead.
+  // Example usage
+  const result = await ftsMatchWord('%health%');
+  console.log('RESULT', result)
+
+}
+
+async function ftsMatchWord(term) {
   const clusterConnStr = 'couchbase://localhost'
   const username = 'Administrator'
   const password = 'password'
@@ -12,54 +18,15 @@ async function main() {
     password: password,
   })
 
-  const bucket = cluster.bucket(bucketName)
-
-  // Get a reference to the default collection, required only for older Couchbase server versions
-  //const defaultCollection = bucket.defaultCollection()
-
-  console.log('Connected to Couchbase Server')
-
-
-  const collection = bucket.defaultScope().collection('events')
-
-  const event = {
-    event_id: 200000,
-    event_name: "Musical of my life",
-    date: "2024-02-22T03:46:46.749933",
-    address: "64375 Logan Springs\nSanchezfort, WI 17911",
-    description: "It was very cool :)",
-    organization_id: 1680,
-    categories: [
-        "Car Show",
-        "Business Summit"
-    ],
-    location: "Abu Dhabi",
-    ticket_types: [],
-    comments: [],
-    artists: [
-        "Ariana Grande",
-        "The Academy Is..."
-    ]
+  return await cluster.searchQuery('event_shop._default.eventsSearch', couchbase.SearchQuery.match(term),
+  {
+    limit: 10,
   }
-
-  await collection.upsert('cool_event', event)
-
-  let getResult = await collection.get('cool_event')
-    
-  console.log('Got Result:', getResult.value)
-
-  const queryResult = await bucket
-  .scope('_default')
-  .query('SELECT event_name FROM `events`', {
-    parameters: ['Ariana Grande'],
-  })
-
-  console.log('Query Result:')
-  queryResult.rows.forEach((row) => {
-    console.log(row)
-  })
+  )
 
 }
+
+
 
 // Run the main function
 main()
