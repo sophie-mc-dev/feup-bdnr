@@ -124,7 +124,7 @@ def generate_user_data(num_consumers, num_organizations):
             "name": fake.name(),
             "username": fake.unique.user_name(),
             "email": fake.unique.email(),
-            "password": fake.password(),
+            "password": "password",
             "is_organization": False,
             "liked_events": []
         }
@@ -152,7 +152,9 @@ def generate_comment_data(num_comments):
             "user_id": "",
             "user_name": "",
             "event_id": "",
-            "text": fake.text()
+            "event_name": "",
+            "text": fake.text(),
+            "date": generate_random_date()
         }
         comments.append(comment)
     return comments
@@ -197,6 +199,7 @@ def generate_document():
 
         random_event = random.choice(events)
         comment["event_id"] =  random_event["event_id"]
+        comment["event_name"] =  random_event["event_name"]
     
     # Assign list of events for each category
     for category in categories:
