@@ -86,7 +86,7 @@ const ConsumerOptions = () => {
     <>
       <a href="/">EVENTS</a>
       <a href="/artists">ARTISTS</a>
-      <Link to="/profile/favorites">
+      <Link to="/favorites">
         <img src="/favorites.svg" alt="Favorites" />
       </Link>
       <Link to="/shopping-cart">

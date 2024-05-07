@@ -1,4 +1,3 @@
-import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
@@ -12,10 +11,13 @@ const ShoppingCartPage = () => {
 
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleteItemModalOpen, setIsDeleteItemModalOpen] = useState(false);
+  const [isDeleteCartModalOpen, setIsDeleteCartModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   useEffect(() => {
     if (user.is_organization) {
-      navigate('/');
+      navigate("/");
     } else {
       fetchShoppingCart();
     }
@@ -39,36 +41,14 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const removeItem = async (id) => {
+  const removeItem = async (index) => {
     try {
       await axios.delete(
-        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${id}`
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${index}`
       );
-      setCartItems(cartItems.filter((item) => item.id !== id));
+      setCartItems(cartItems.filter((_, i) => i !== index));
     } catch (error) {
       console.error("Error removing item:", error);
-    }
-  };
-
-  const updateQuantity = async (id, increment) => {
-    try {
-      const updatedCartItems = cartItems.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            quantity: item.quantity + increment,
-          };
-        }
-        return item;
-      });
-
-      await axios.put(
-        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${id}`,
-        { quantity: updatedCartItems.find((item) => item.id === id).quantity }
-      );
-      setCartItems(updatedCartItems);
-    } catch (error) {
-      console.error("Error updating quantity:", error);
     }
   };
 
@@ -95,7 +75,10 @@ const ShoppingCartPage = () => {
       <>
         <div className="flex justify-between ">
           <p className="mb-2">You have {cartItems.length} items in your cart</p>
-          <p onClick={emptyCart} className="cursor-pointer underline">
+          <p
+            onClick={() => setIsDeleteCartModalOpen(true)}
+            className="cursor-pointer underline"
+          >
             Empty Cart
           </p>
         </div>
@@ -104,8 +87,10 @@ const ShoppingCartPage = () => {
             <ShoppingCartCard
               key={index}
               item={item}
-              removeItem={removeItem}
-              updateQuantity={updateQuantity}
+              removeItem={() => {
+                setItemToDelete(item);
+                setIsDeleteItemModalOpen(true);
+              }}
             />
           ))}
         </div>
@@ -136,6 +121,60 @@ const ShoppingCartPage = () => {
           outputCartItems()
         )}
       </div>
+
+      {isDeleteItemModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg">
+            <p className="mb-4">
+              Are you sure you want to delete this item from your cart?
+            </p>
+            <div className="flex justify-end">
+              <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2"
+                onClick={() => setIsDeleteItemModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded"
+                onClick={() => {
+                  removeItem(itemToDelete.id);
+                  setIsDeleteItemModalOpen(false);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteCartModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg">
+            <p className="mb-4">
+              Are you sure you want to empty your shopping cart?
+            </p>
+            <div className="flex justify-end">
+              <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2"
+                onClick={() => setIsDeleteCartModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded"
+                onClick={() => {
+                  emptyCart();
+                  setIsDeleteCartModalOpen(false);
+                }}
+              >
+                Empty Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

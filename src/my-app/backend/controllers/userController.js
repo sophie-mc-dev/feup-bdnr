@@ -52,7 +52,9 @@ async function registerUser(req, res) {
 
         const usersCollection = bucket.scope('_default').collection('users');
         await usersCollection.upsert(id , user);
-        res.json({user_id: id, is_organization: user.is_organization});
+        res.json({user_id: id, is_organization: user.is_organization, username: user.username,
+            name: user.name, email: user.email, liked_events: user.liked_events
+        });
     }
     catch (error) {
         console.error('Error:', error);

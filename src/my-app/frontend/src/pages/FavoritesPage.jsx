@@ -16,9 +16,9 @@ const FavoritesPage = () => {
 
   useEffect(() => {
     if (user.is_organization) {
-      navigate('/');
+      navigate("/");
     } else {
-      fetchFavorites(); 
+      fetchFavorites();
     }
   }, []);
 
@@ -55,10 +55,10 @@ const FavoritesPage = () => {
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
         <h3 className="text-2xl font-bold mb-6">My Favorites</h3>
-        <div className="flex flex-col gap-y-5">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {isLoading ? (
             <div className="flex-1 h-full flex items-center justify-center">
-              <Loading/>
+              <Loading />
             </div>
           ) : favorites.length === 0 ? (
             <p>No events found.</p>

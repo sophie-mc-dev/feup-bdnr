@@ -2,7 +2,7 @@ import "../index.css";
 import React, { useState, useEffect, useContext } from "react";
 import Loading from "../components/Loading";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import TicketTypeCard from "../components/TicketTypeCard";
 
@@ -19,10 +19,19 @@ const formatDate = (dateString) => {
 
 const EventPage = () => {
   const { id } = useParams();
+  const { user } = useContext(UserContext);
   const [isInfoLoading, setIsInfoLoading] = useState(true);
-  const [isCommentsLoading, setIsCommentsLoading] = useState(true);
   const [eventInfo, setEventInfo] = useState(null);
-  const [comments, setComments] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isCommentsLoading, setIsCommentsLoading] = useState(true);
+  const [userComments, setUserComments] = useState([]);
+  const [otherComments, setOtherComments] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editCommentText, setEditCommentText] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -46,11 +55,87 @@ const EventPage = () => {
       const response = await axios.get(
         "http://localhost:3000/comments/events/" + id
       );
-      setComments(response.data);
+      const allComments = response.data;
+
+      const { user_id } = user || {};
+      const userComments = allComments.filter(
+        (comment) => comment.user_id === user_id
+      );
+      const otherComments = allComments.filter(
+        (comment) => comment.user_id !== user_id
+      );
+
+      setUserComments(userComments);
+      setOtherComments(otherComments);
       setIsCommentsLoading(false);
     } catch (error) {
       setIsCommentsLoading(false);
       console.error("Error fetching data:", error);
+    }
+  };
+
+  const handleCommentSubmit = async () => {
+    try {
+      setIsSubmittingComment(true);
+      const response = await axios.post("http://localhost:3000/comments", {
+        event_id: id,
+        user_id: user.user_id,
+        user_name: user.username,
+        text: commentText,
+      });
+      console.log("My user:", user);
+      console.log("Comment submitted:", response.data.comment);
+      setCommentText("");
+      await fetchCommentsInfo(id);
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteButtonClick = (commentId) => {
+    setSelectedCommentId(commentId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedCommentId(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/comments/${selectedCommentId}`);
+      setIsDeleteModalOpen(false);
+      setSelectedCommentId(null);
+      await fetchCommentsInfo(id);
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+
+  const handleEditButtonClick = (comment) => {
+    setSelectedCommentId(comment.comment_id);
+    setEditCommentText(comment.text);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
+    setSelectedCommentId(null);
+  };
+
+  const handleEditConfirm = async (newText) => {
+    try {
+      setIsEditModalOpen(false);
+      await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
+        text: newText,
+      });
+      setSelectedCommentId(null);
+      await fetchCommentsInfo(id);
+    } catch (error) {
+      console.error("Error editing comment:", error);
     }
   };
 
@@ -60,17 +145,15 @@ const EventPage = () => {
         <Loading />
       ) : (
         <div className=" w-full p-20">
-          <div className="flex flex-row justify-between">
-            <div className="flex flex-row gap-5">
-              <h2 className="text-2xl font-semibold mb-6">
-                {eventInfo.event_name}
-              </h2>
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-row gap-5 items-center mb-5">
+              <h2 className="text-4xl font-semibold">{eventInfo.event_name}</h2>
 
-              <div className="">
+              <div>
                 {eventInfo.categories.map((category, index) => (
                   <span
                     key={index}
-                    className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2 mb-2"
+                    className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2"
                   >
                     {category}
                   </span>
@@ -88,16 +171,15 @@ const EventPage = () => {
                 <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
               </svg>
 
-              <p className="mb-4">{eventInfo.num_likes} likes</p>
+              <p className="mb-4 pr-4">{eventInfo.num_likes} likes</p>
             </div>
           </div>
-
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row text-sm gap-2 text-gray-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-6 h-6"
+              className="w-5 h-5"
             >
               <path
                 fillRule="evenodd"
@@ -109,13 +191,12 @@ const EventPage = () => {
               {eventInfo.location} | {eventInfo.address}
             </p>
           </div>
-
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row gap-2 text-sm text-gray-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-6 h-6"
+              className="w-5 h-5"
             >
               <path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM7.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM8.25 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9.75 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM12.75 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM14.25 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 17.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM15 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM16.5 13.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" />
               <path
@@ -126,27 +207,126 @@ const EventPage = () => {
             </svg>
             <p className="mb-4">{formatDate(eventInfo.date)}</p>
           </div>
-
           <p className="mb-4">{eventInfo.description}</p>
-
-          <h3 className="mt-5 mb-3 text-lg font-semibold">Ticket Types:</h3>
-          <div className="grid gap-4">
+          <h3 className="mt-10 mb-3 text-lg font-semibold">Ticket Types:</h3>
+          <div className="grid gap-4 p-4">
             {eventInfo.ticket_types.map((ticket, index) => (
               <TicketTypeCard key={index} ticket={ticket} />
             ))}
           </div>
-
-          <h3 className="mt-5 mb-3 text-lg font-semibold">Comments:</h3>
+          <h3 className="mt-10 text-lg font-semibold">Comments:</h3>{" "}
+          {user && (
+            <div className="mt-4">
+              <textarea
+                className="w-full h-24 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                placeholder="Write your comment here..."
+                onChange={(e) => setCommentText(e.target.value)}
+              ></textarea>
+              <button
+                className="bg-[#494391] text-white font-semibold text-base rounded-lg px-4 py-2 font-500 cursor-pointer hover:bg-[#242565] mt-2"
+                onClick={handleCommentSubmit}
+                disabled={isSubmittingComment}
+              >
+                {isSubmittingComment ? "Submitting..." : "Post Comment"}
+              </button>
+            </div>
+          )}
           {isCommentsLoading ? (
             <Loading />
           ) : (
-            <div>
-              {comments.map((comment) => (
-                <div key={comment.comment_id} className="p-4">
-                  <p>User name: {comment.user_name}</p>
-                  <p>Text: {comment.text}</p>
+            <div className="mt-4">
+              {userComments.map((comment) => (
+                <div
+                  key={comment.comment_id}
+                  className="p-4 relative hover:bg-gray-100"
+                >
+                  <p className="text-gray-800 font-semibold">
+                    {comment.user_name}
+                  </p>
+                  <p className="text-gray-700">{comment.text}</p>
+                  {user && user.user_id === comment.user_id && (
+                    <div className="absolute top-2 right-2 items-center">
+                      <button
+                        className="bg-gray-800 text-white px-2 py-1 rounded"
+                        onClick={() => handleEditButtonClick(comment)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="bg-red-800 text-white px-2 py-1 rounded ml-2"
+                        onClick={() =>
+                          handleDeleteButtonClick(comment.comment_id)
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
+              <hr className="my-4 border-t-2" />
+
+              {otherComments.map((comment) => (
+                <div
+                  key={comment.comment_id}
+                  className="p-4 relative hover:bg-gray-100"
+                >
+                  <p className="text-gray-800 font-semibold">
+                    {comment.user_name}
+                  </p>
+                  <p className="text-gray-700">{comment.text}</p>
+                </div>
+              ))}
+              <hr className="my-4 border-t-2" />
+            </div>
+          )}
+          {isEditModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+              <div className="bg-white p-4 rounded-md shadow-md">
+                <p className="mb-4">Edit your comment:</p>
+                <textarea
+                  className="w-full h-24 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  value={editCommentText}
+                  onChange={(e) => setEditCommentText(e.target.value)}
+                ></textarea>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2"
+                    onClick={handleEditCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-gray-800 text-white px-4 py-2 rounded-md"
+                    onClick={() => handleEditConfirm(editCommentText)}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {isDeleteModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+              <div className="bg-white p-4 rounded-md shadow-md">
+                <p className="mb-4">
+                  Are you sure you want to delete your comment?
+                </p>
+                <div className="flex justify-end">
+                  <button
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2"
+                    onClick={handleDeleteCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded-md"
+                    onClick={handleDeleteConfirm}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -154,4 +334,5 @@ const EventPage = () => {
     </div>
   );
 };
+
 export default EventPage;
