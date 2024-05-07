@@ -88,7 +88,7 @@ const OrganizationEventsPage = () => {
 
         <section className="grid">
           <h3 className="text-xl font-semibold mb-5">Upcoming Events</h3>
-          <div className="flex flex-col gap-y-5">
+          <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {isLoadingUpcoming ? (
               <Loading />
             ) : upcomingEvents.length === 0 ? (
@@ -103,7 +103,7 @@ const OrganizationEventsPage = () => {
 
         <section>
           <h3 className="text-xl font-semibold pt-20 mb-5">Past Events</h3>
-          <div className="flex flex-col gap-y-5">
+          <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {isLoadingPast ? (
               <Loading />
             ) : pastEvents.length === 0 ? (

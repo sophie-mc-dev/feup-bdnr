@@ -17,7 +17,7 @@ import ProfilePage from "./pages/ProfilePage";
 import Footer from "./components/Footer";
 import CommentsPage from "./pages/CommentsPage";
 import OrganizationEventsPage from "./pages/OrganizationEventsPage";
-
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 function App() {
   return (
@@ -42,8 +42,8 @@ function App() {
               <Route path="/comments" element={<CommentsPage />} />
 
               {/*Organization Pages*/}
-              <Route path="/my_events" element={<OrganizationEventsPage/>} />
-
+              <Route path="/my_events" element={<OrganizationEventsPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
             </Route>
           </Routes>
           <Footer />
