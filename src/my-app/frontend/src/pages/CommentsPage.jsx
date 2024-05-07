@@ -67,7 +67,9 @@ const CommentsPage = () => {
   const handleDeleteConfirm = async () => {
     try {
       setIsDeleteModalOpen(false);
-      await axios.delete("http://localhost:3000/comments/" + commentToDelete.comment_id);
+      await axios.delete(
+        "http://localhost:3000/comments/" + commentToDelete.comment_id
+      );
       fetchComments();
     } catch (error) {
       console.error("Error deleting comment:", error);
@@ -79,22 +81,22 @@ const CommentsPage = () => {
     setEditCommentText(comment.text);
     setIsEditModalOpen(true);
   };
-  
+
   const handleEditCancel = () => {
     setIsEditModalOpen(false);
     setSelectedCommentId(null);
   };
-  
+
   const handleEditConfirm = async (newText) => {
     try {
-        setIsEditModalOpen(false);
-        await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
-          text: newText
-        });
-        setSelectedCommentId(null);
-        fetchComments();
+      setIsEditModalOpen(false);
+      await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
+        text: newText,
+      });
+      setSelectedCommentId(null);
+      fetchComments();
     } catch (error) {
-        console.error("Error editing comment:", error);
+      console.error("Error editing comment:", error);
     }
   };
 
@@ -134,29 +136,29 @@ const CommentsPage = () => {
                     <p className="text-gray-500 text-sm mb-2">
                       COMMENT DATE HERE : {comment.date}
                     </p>
-                    <div className="bg-white rounded-lg shadow-lg p-4 max-w-s">
-                      <a
-                        href={`/events/${comment.event_id}`}
-                        className="text-l font-semibold mb-2"
-                      >
-                        EVENT NAME HERE : {comment.event_name}
-                      </a>
-                      <div className="text-gray-700 mb-2">
-                        <p className="text-sm font-medium">
-                          {comment.user_name}
-                        </p>
-                        <div className="text-sm text-gray-500">
-                          {comment.text}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          Event name: {comment.event_name}
+                    <div className="bg-white rounded-lg shadow-lg p-4 max-w-s flex items-start justify-between">
+                      <div>
+                        <a
+                          href={`/events/${comment.event_id}`}
+                          className="text-l font-semibold mb-2"
+                        >
+                          EVENT NAME HERE : {comment.event_name}
+                        </a>
+                        <div className="text-gray-700 mb-2">
+                          <p className="text-sm font-medium">
+                            {comment.user_name}
+                          </p>
+                          <div className="text-sm text-gray-500">
+                            {comment.text}
+                          </div>
                         </div>
                       </div>
                       {user && (
-                        <div className="top-2 right-2">
+                        <div className="flex">
                           <button
                             className="bg-gray-800 text-white px-2 py-1 rounded"
-                            onClick={() => handleEditButtonClick(comment)}>                    
+                            onClick={() => handleEditButtonClick(comment)}
+                          >
                             Edit
                           </button>
                           <button

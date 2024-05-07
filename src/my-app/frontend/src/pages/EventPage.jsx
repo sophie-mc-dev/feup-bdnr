@@ -52,88 +52,92 @@ const EventPage = () => {
 
   const fetchCommentsInfo = async (id) => {
     try {
-        const response = await axios.get("http://localhost:3000/comments/events/" + id);
-        const allComments = response.data;
-        
-        const { user_id } = user || {};
-        const userComments = allComments.filter(comment => comment.user_id === user_id);
-        const otherComments = allComments.filter(comment => comment.user_id !== user_id);
-        
-        setUserComments(userComments);
-        setOtherComments(otherComments);
-        setIsCommentsLoading(false);
+      const response = await axios.get(
+        "http://localhost:3000/comments/events/" + id
+      );
+      const allComments = response.data;
+
+      const { user_id } = user || {};
+      const userComments = allComments.filter(
+        (comment) => comment.user_id === user_id
+      );
+      const otherComments = allComments.filter(
+        (comment) => comment.user_id !== user_id
+      );
+
+      setUserComments(userComments);
+      setOtherComments(otherComments);
+      setIsCommentsLoading(false);
     } catch (error) {
-        setIsCommentsLoading(false);
-        console.error("Error fetching data:", error);
+      setIsCommentsLoading(false);
+      console.error("Error fetching data:", error);
     }
-};
+  };
 
   const handleCommentSubmit = async () => {
-
     try {
-        setIsSubmittingComment(true);
-        const response = await axios.post("http://localhost:3000/comments", {
-            event_id: id,
-            user_id: user.user_id,
-            user_name: user.username,
-            text: commentText
-        });
-        console.log("My user:", user);
-        console.log("Comment submitted:", response.data.comment);
-        setCommentText("");
-        await fetchCommentsInfo(id);
+      setIsSubmittingComment(true);
+      const response = await axios.post("http://localhost:3000/comments", {
+        event_id: id,
+        user_id: user.user_id,
+        user_name: user.username,
+        text: commentText,
+      });
+      console.log("My user:", user);
+      console.log("Comment submitted:", response.data.comment);
+      setCommentText("");
+      await fetchCommentsInfo(id);
     } catch (error) {
-        console.error("Error submitting comment:", error);
+      console.error("Error submitting comment:", error);
     } finally {
-        setIsSubmittingComment(false);
+      setIsSubmittingComment(false);
     }
-};
+  };
 
-const handleDeleteButtonClick = (commentId) => {
+  const handleDeleteButtonClick = (commentId) => {
     setSelectedCommentId(commentId);
     setIsDeleteModalOpen(true);
-};
+  };
 
-const handleDeleteCancel = () => {
+  const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
     setSelectedCommentId(null);
-};
+  };
 
-const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = async () => {
     try {
-        await axios.delete(`http://localhost:3000/comments/${selectedCommentId}`);
-        setIsDeleteModalOpen(false);
-        setSelectedCommentId(null);
-        await fetchCommentsInfo(id);
+      await axios.delete(`http://localhost:3000/comments/${selectedCommentId}`);
+      setIsDeleteModalOpen(false);
+      setSelectedCommentId(null);
+      await fetchCommentsInfo(id);
     } catch (error) {
-        console.error("Error deleting comment:", error);
+      console.error("Error deleting comment:", error);
     }
-};
+  };
 
-const handleEditButtonClick = (comment) => {
-  setSelectedCommentId(comment.comment_id);
-  setEditCommentText(comment.text);
-  setIsEditModalOpen(true);
-};
+  const handleEditButtonClick = (comment) => {
+    setSelectedCommentId(comment.comment_id);
+    setEditCommentText(comment.text);
+    setIsEditModalOpen(true);
+  };
 
-const handleEditCancel = () => {
+  const handleEditCancel = () => {
     setIsEditModalOpen(false);
     setSelectedCommentId(null);
-}
+  };
 
-const handleEditConfirm = async (newText) => {
+  const handleEditConfirm = async (newText) => {
     try {
-        setIsEditModalOpen(false);
-        await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
-            text: newText
-        });
-        setSelectedCommentId(null);
-        await fetchCommentsInfo(id);
+      setIsEditModalOpen(false);
+      await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
+        text: newText,
+      });
+      setSelectedCommentId(null);
+      await fetchCommentsInfo(id);
     } catch (error) {
-        console.error("Error editing comment:", error);
+      console.error("Error editing comment:", error);
     }
-}
-
+  };
 
   return (
     <div className="flex flex-col items-center">
@@ -170,7 +174,6 @@ const handleEditConfirm = async (newText) => {
               <p className="mb-4 pr-4">{eventInfo.num_likes} likes</p>
             </div>
           </div>
-
           <div className="flex flex-row text-sm gap-2 text-gray-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -188,7 +191,6 @@ const handleEditConfirm = async (newText) => {
               {eventInfo.location} | {eventInfo.address}
             </p>
           </div>
-
           <div className="flex flex-row gap-2 text-sm text-gray-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -205,25 +207,23 @@ const handleEditConfirm = async (newText) => {
             </svg>
             <p className="mb-4">{formatDate(eventInfo.date)}</p>
           </div>
-
           <p className="mb-4">{eventInfo.description}</p>
-
           <h3 className="mt-10 mb-3 text-lg font-semibold">Ticket Types:</h3>
           <div className="grid gap-4 p-4">
             {eventInfo.ticket_types.map((ticket, index) => (
               <TicketTypeCard key={index} ticket={ticket} />
             ))}
           </div>
-
+          <h3 className="mt-10 text-lg font-semibold">Comments:</h3>{" "}
           {user && (
-            <div className="mt-8">
+            <div className="mt-4">
               <textarea
                 className="w-full h-24 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Write your comment here..."
                 onChange={(e) => setCommentText(e.target.value)}
               ></textarea>
               <button
-                className="bg-[#494391] text-white font-semibold text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 mt-2"
+                className="bg-[#494391] text-white font-semibold text-base rounded-lg px-4 py-2 font-500 cursor-pointer hover:bg-[#242565] mt-2"
                 onClick={handleCommentSubmit}
                 disabled={isSubmittingComment}
               >
@@ -231,49 +231,55 @@ const handleEditConfirm = async (newText) => {
               </button>
             </div>
           )}
-
-          <h3 className="mt-5 mb-3 text-lg font-semibold">Comments:</h3>
           {isCommentsLoading ? (
             <Loading />
           ) : (
-            <div>
+            <div className="mt-4">
               {userComments.map((comment) => (
                 <div
                   key={comment.comment_id}
                   className="p-4 relative hover:bg-gray-100"
                 >
-                  <p className="text-gray-800 font-semibold">User name: {comment.user_name}</p>
-                  <p className="text-gray-700">Text: {comment.text}</p>
+                  <p className="text-gray-800 font-semibold">
+                    {comment.user_name}
+                  </p>
+                  <p className="text-gray-700">{comment.text}</p>
                   {user && user.user_id === comment.user_id && (
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2 items-center">
                       <button
                         className="bg-gray-800 text-white px-2 py-1 rounded"
-                        onClick={() => handleEditButtonClick(comment)}>                    
+                        onClick={() => handleEditButtonClick(comment)}
+                      >
                         Edit
                       </button>
                       <button
                         className="bg-red-800 text-white px-2 py-1 rounded ml-2"
-                        onClick={() => handleDeleteButtonClick(comment.comment_id)}
+                        onClick={() =>
+                          handleDeleteButtonClick(comment.comment_id)
+                        }
                       >
                         Delete
                       </button>
                     </div>
                   )}
-                  <hr className="my-4 border-t-2"/>
                 </div>
               ))}
+              <hr className="my-4 border-t-2" />
 
               {otherComments.map((comment) => (
-                <div key={comment.comment_id} className="p-4 relative hover:bg-gray-100">
-                  <p>User name: {comment.user_name}</p>
-                  <p>Text: {comment.text}</p>
-                  <hr className="my-4 border-t-2"/>
+                <div
+                  key={comment.comment_id}
+                  className="p-4 relative hover:bg-gray-100"
+                >
+                  <p className="text-gray-800 font-semibold">
+                    {comment.user_name}
+                  </p>
+                  <p className="text-gray-700">{comment.text}</p>
                 </div>
               ))}
-
+              <hr className="my-4 border-t-2" />
             </div>
           )}
-
           {isEditModalOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
               <div className="bg-white p-4 rounded-md shadow-md">
@@ -300,11 +306,12 @@ const handleEditConfirm = async (newText) => {
               </div>
             </div>
           )}
-
           {isDeleteModalOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
               <div className="bg-white p-4 rounded-md shadow-md">
-                <p className="mb-4">Are you sure you want to delete your comment?</p>
+                <p className="mb-4">
+                  Are you sure you want to delete your comment?
+                </p>
                 <div className="flex justify-end">
                   <button
                     className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2"
