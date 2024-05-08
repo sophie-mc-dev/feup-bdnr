@@ -14,13 +14,16 @@ function HomePage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
-  const [filters, setFilters] = useState({
+
+  const initialFilters = {
     category: "",
     location: "",
     event_date: "",
     sortBy: "date",
-    search: "", // Added search parameter
-  });
+    search: "", 
+  };
+
+  const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
     fetchUpcomingEvents();
@@ -30,20 +33,28 @@ function HomePage() {
 
   const handleFiltersChange = (event) => {
     const { name, value } = event.target;
-    setFilters({ ...filters, [name]: value });
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
+    let newFilters = filters;
+    newFilters[name] = value;
+    setFilters(newFilters);
     fetchUpcomingEvents();
   };
+
 
   const fetchUpcomingEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/events/filter", {
-        params: filters,
-      });
+      let response;
+      const hasFilters =
+        Object.values(filters).some((value) => value.trim().length > 0) &&
+        filters !== initialFilters;
+
+      if (hasFilters) {
+        response = await axios.get("http://localhost:3000/events/filter", {
+          params: filters,
+        });
+      } else {
+        response = await axios.get("http://localhost:3000/events", {});
+      }
       setUpcomingEvents(response.data);
       setIsLoading(false);
     } catch (error) {
@@ -51,6 +62,7 @@ function HomePage() {
       console.error("Error fetching data:", error);
     }
   };
+
 
   const fetchCategories = async () => {
     try {
@@ -76,7 +88,7 @@ function HomePage() {
         {/* bg image and search bar container */}
         <div className="half-screen bg-[#FDC27B] flex justify-center items-center">
           <div className="container mx-auto bg-[#242565] rounded-lg p-14">
-            <form onSubmit={handleSubmit}>
+            <form>
               <div className="sm:flex items-center bg-white rounded-lg overflow-hidden px-2 py-1 justify-between">
                 <input
                   className="text-base text-gray-400 flex-grow outline-none px-2"
@@ -98,9 +110,6 @@ function HomePage() {
                     name="event_date"
                     onChange={handleFiltersChange}
                   />
-                  <button type="submit" className="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500">
-                    Search
-                  </button>
                 </div>
               </div>
             </form>
