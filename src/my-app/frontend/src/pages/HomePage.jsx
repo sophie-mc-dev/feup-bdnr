@@ -14,6 +14,8 @@ function HomePage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
+  const [displayLoadMore, setDisplayLoadMore] = useState(false);
+  const offset_incr = 8;
 
   const initialFilters = {
     category: "",
@@ -35,7 +37,6 @@ function HomePage() {
     return () => fetchUpcomingEvents();
   }, []);  
 
-
   const fetchUpcomingEvents = async () => {
     const { offset: offset1, ...rest1 } = initialFilters;
     const { offset: offset2, ...rest2 } = filters;
@@ -53,7 +54,13 @@ function HomePage() {
       } else {
         response = await axios.get("http://localhost:3000/events", { params: { offset: filters.offset } });
       }
-      setUpcomingEvents(prev => [...prev, ...response.data]);
+
+      if (filters.offset === 0) {
+        setUpcomingEvents(response.data);
+      } else {
+        setUpcomingEvents(prev => [...prev, ...response.data]);
+      }
+      setDisplayLoadMore(response.data.length === offset_incr)
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -86,7 +93,6 @@ function HomePage() {
     newFilters[name] = value;
     newFilters.offset = 0;
 
-    setUpcomingEvents([]);
     setFilters(newFilters);
     setIsLoading(true);
 
@@ -95,7 +101,7 @@ function HomePage() {
 
   const handleLoadMore = () => {
     let newFilters = filters;
-    newFilters.offset += 8;
+    newFilters.offset += offset_incr;
     setFilters(newFilters);
     fetchUpcomingEvents();
   }
@@ -168,7 +174,7 @@ function HomePage() {
                 <p>No upcoming events found.</p>
               ) : (
                 <>
-                  <div className="flex flex-wrap gap-5">
+                  <div className="flex flex-wrap gap-5 mb-6">
                   {upcomingEvents.map((upcomingEvent, index) => (
                     <div key={upcomingEvent.event_id} className="flex flex-wrap gap-1 max-w-xs">
                       <EventCard
@@ -177,14 +183,16 @@ function HomePage() {
                     </div>
                   ))}
                   </div>
-                  <div className="flex justify-center my-6">
-                    <button 
-                      onClick={handleLoadMore} 
-                      className="bg-[#494391] text-white font-semibold  text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
-                    >
-                      Load More
-                    </button>
-                  </div>
+                  {displayLoadMore && (
+                    <div className="flex justify-center mb-6">
+                      <button 
+                        onClick={handleLoadMore} 
+                        className="bg-[#494391] text-white font-semibold  text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
+                      >
+                        Load More
+                      </button>
+                    </div>
+                  )}
                 </>
               )}
             </div>

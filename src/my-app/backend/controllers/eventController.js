@@ -85,7 +85,6 @@ async function filter(req, res) {
   if (category.trim().length !== 0) {
     query_params.push(category)
     query += ' AND $' + query_params.length + ' IN categories';
-    console.log('QUERY', query);
   }
 
   if (location.trim().length !== 0) { 
@@ -110,7 +109,6 @@ async function filter(req, res) {
         query += ` event_id = $` + query_params.length + ' OR';
       }
     }
-    console.log('QUERY', query);
   }
 
   if (sortBy === "date") { 
