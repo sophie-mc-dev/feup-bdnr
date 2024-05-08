@@ -24,7 +24,18 @@ http://localhost:8094/api/bucket/"$COUCHBASE_BUCKET_NAME"/scope/_default/index/e
       "type_field": "type"
     },
     "mapping": {
-      "analysis": {},
+      "analysis": {
+        "analyzers": {
+          "stemmer": {
+            "token_filters": [
+              "stemmer_en_plural",
+              "stemmer_en_snowball"
+            ],
+            "tokenizer": "unicode",
+            "type": "custom"
+          }
+        }
+      },
       "default_analyzer": "standard",
       "default_datetime_parser": "dateTimeOptional",
       "default_field": "_all",
@@ -47,8 +58,7 @@ http://localhost:8094/api/bucket/"$COUCHBASE_BUCKET_NAME"/scope/_default/index/e
               "enabled": true,
               "fields": [
                 {
-                  "analyzer": "en",
-                  "docvalues": true,
+                  "analyzer": "standard",
                   "include_in_all": true,
                   "include_term_vectors": true,
                   "index": true,
@@ -63,7 +73,7 @@ http://localhost:8094/api/bucket/"$COUCHBASE_BUCKET_NAME"/scope/_default/index/e
               "enabled": true,
               "fields": [
                 {
-                  "docvalues": true,
+                  "analyzer": "en",
                   "include_in_all": true,
                   "include_term_vectors": true,
                   "index": true,
@@ -79,7 +89,6 @@ http://localhost:8094/api/bucket/"$COUCHBASE_BUCKET_NAME"/scope/_default/index/e
               "fields": [
                 {
                   "analyzer": "en",
-                  "docvalues": true,
                   "include_in_all": true,
                   "include_term_vectors": true,
                   "index": true,
