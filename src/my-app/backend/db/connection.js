@@ -43,6 +43,7 @@ async function connectToCouchbase() {
   const usersCollection = bucket.defaultScope().collection('users');
 
   return {
+    couchbase,
     cluster,
     bucket,
     artistsCollection,

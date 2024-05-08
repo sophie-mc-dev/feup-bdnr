@@ -14,14 +14,13 @@ function HomePage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [categories, setCategoriesOptions] = useState([]);
   const [locations, setLocationsOptions] = useState([]);
-
-  const initialFilters = {
+  const [filters, setFilters] = useState({
     category: "",
     location: "",
     event_date: "",
     sortBy: "date",
-  };
-  const [filters, setFilters] = useState(initialFilters);
+    search: "", // Added search parameter
+  });
 
   useEffect(() => {
     fetchUpcomingEvents();
@@ -31,28 +30,20 @@ function HomePage() {
 
   const handleFiltersChange = (event) => {
     const { name, value } = event.target;
-    let newFilters = filters;
-    newFilters[name] = value;
-    setFilters(newFilters);
+    setFilters({ ...filters, [name]: value });
+  };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
     fetchUpcomingEvents();
   };
 
   const fetchUpcomingEvents = async () => {
     setIsLoading(true);
     try {
-      let response;
-      const hasFilters =
-        Object.values(filters).some((value) => value.trim().length > 0) &&
-        filters !== initialFilters;
-
-      if (hasFilters) {
-        response = await axios.get("http://localhost:3000/events/filter", {
-          params: filters,
-        });
-      } else {
-        response = await axios.get("http://localhost:3000/events", {});
-      }
+      const response = await axios.get("http://localhost:3000/events/filter", {
+        params: filters,
+      });
       setUpcomingEvents(response.data);
       setIsLoading(false);
     } catch (error) {
@@ -85,12 +76,15 @@ function HomePage() {
         {/* bg image and search bar container */}
         <div className="half-screen bg-[#FDC27B] flex justify-center items-center">
           <div className="container mx-auto bg-[#242565] rounded-lg p-14">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="sm:flex items-center bg-white rounded-lg overflow-hidden px-2 py-1 justify-between">
                 <input
-                  className="text-base text-gray-400 flex-grow outline-none px-2 "
+                  className="text-base text-gray-400 flex-grow outline-none px-2"
                   type="text"
                   placeholder="Search event or artist name"
+                  value={filters.search}
+                  onChange={handleFiltersChange}
+                  name="search"
                 />
                 <div className="ms:flex items-center px-2 rounded-lg space-x-4 mx-auto ">
                   {/* Locations and Date Select */}
@@ -104,9 +98,8 @@ function HomePage() {
                     name="event_date"
                     onChange={handleFiltersChange}
                   />
-                  <button className="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500">
-                    {" "}
-                    Search{" "}
+                  <button type="submit" className="bg-[#242565] text-white text-base rounded-lg px-4 py-2 font-500">
+                    Search
                   </button>
                 </div>
               </div>
@@ -139,7 +132,6 @@ function HomePage() {
           </div>
 
           <div className="flex justify-center">
-            {/* <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"> */}
             <div className="flex flex-wrap justify-between gap-5">
               {isLoading ? (
                 <div className="flex justify-center items-center w-full">

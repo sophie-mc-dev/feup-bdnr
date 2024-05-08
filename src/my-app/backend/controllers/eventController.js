@@ -35,33 +35,80 @@ async function getEventById(req, res) {
   }
 }
 
+async function ftsMatchWord(term) {
+  const { cluster, couchbase } = await connectToCouchbase()
+
+  const result = await cluster.searchQuery('event_shop._default.eventSearch', 
+                                            couchbase.SearchQuery.match(term));
+
+  /*
+  // Query the events collection for each document in the result
+  for (const row of result.rows) {
+    const docId = row.id;
+    query = `SELECT event_id, description, artists, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price 
+      FROM event_shop._default.events 
+      WHERE event_id = $1`
+    const queryResult = await cluster
+      .query(query, {
+        parameters: [docId],
+      })
+    console.log('QUERY RESULT', queryResult.rows)
+  }
+  */
+
+  return result
+
+}
+
 async function filter(req, res) {
-  const {category, location, event_date, sortBy } = req.query;
+  const {category, location, event_date, sortBy, search } = req.query;
 
   let query;
   let query_params = [];
 
   query = `
     SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
-    FROM events
+    FROM event_shop._default.events 
   `;
 
   if (event_date.trim().length !== 0) {
     query_params.push(event_date);
     query += ` WHERE DATE_FORMAT_STR(date, '1111-11-11') = $` + query_params.length;
   }
+
   else {
-    query += ` WHERE MILLIS(date) >= NOW_MILLIS()`;
+      query += ` WHERE MILLIS(date) >= NOW_MILLIS()`;
   }
   
   if (category.trim().length !== 0) {
     query_params.push(category)
     query += ' AND $' + query_params.length + ' IN categories';
+    console.log('QUERY', query);
   }
 
   if (location.trim().length !== 0) { 
     query_params.push(location)
     query += ' AND location = $' + query_params.length;
+  }
+
+  if(search.trim().length !== 0) {
+    const result = await ftsMatchWord(search);
+
+    for(const row of result.rows) {
+      const docId = row.id;
+      query_params.push(docId);
+      // if it's the last element, remove the OR
+      if (docId === result.rows[result.rows.length - 1].id) {
+        query += ` event_id = $` + query_params.length;
+      } // else if it's the first element, add the AND
+      else if (docId === result.rows[0].id) {
+        query += ` AND event_id = $` + query_params.length + ' OR';
+      } // else add the OR
+      else {
+        query += ` event_id = $` + query_params.length + ' OR';
+      }
+    }
+    console.log('QUERY', query);
   }
 
   if (sortBy === "date") { 
