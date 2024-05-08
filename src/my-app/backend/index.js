@@ -2,7 +2,7 @@ const couchbase = require('couchbase')
 const { connectToCouchbase } = require('./db/connection')
 async function main() {
   // Example usage
-  return await ftsMatchWord('green day');
+  return await ftsMatchWord('black');
 
 
 }

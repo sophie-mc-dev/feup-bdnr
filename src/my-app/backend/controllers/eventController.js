@@ -99,10 +99,10 @@ async function filter(req, res) {
       query_params.push(docId);
       // if it's the last element, remove the OR
       if (docId === result.rows[result.rows.length - 1].id) {
-        query += ` event_id = $` + query_params.length;
+        query += ` event_id = $` + query_params.length + ')';
       } // else if it's the first element, add the AND
       else if (docId === result.rows[0].id) {
-        query += ` AND event_id = $` + query_params.length + ' OR';
+        query += ` AND (event_id = $` + query_params.length + ' OR';
       } // else add the OR
       else {
         query += ` event_id = $` + query_params.length + ' OR';
