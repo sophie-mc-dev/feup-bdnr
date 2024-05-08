@@ -223,8 +223,7 @@ def generate_ticket_types(event_name):
     for ticket_type, price in ticket_prices.items():
         ticket_types.append({
             "ticket_type": ticket_type,
-            "price": price,
-            "available_tickets": random.randint(1, 100)  # Random number of available tickets
+            "price": price
         })
 
     return ticket_types
