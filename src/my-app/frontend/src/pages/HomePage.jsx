@@ -21,41 +21,39 @@ function HomePage() {
     event_date: "",
     sortBy: "date",
     search: "", 
+    offset: 0
   };
 
   const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
-    fetchUpcomingEvents();
     fetchCategories();
     fetchLocations();
   }, []);
 
-  const handleFiltersChange = (event) => {
-    const { name, value } = event.target;
-    let newFilters = filters;
-    newFilters[name] = value;
-    setFilters(newFilters);
-    fetchUpcomingEvents();
-  };
+  useEffect(() => {
+    return () => fetchUpcomingEvents();
+  }, []);  
 
 
   const fetchUpcomingEvents = async () => {
-    setIsLoading(true);
+    const { offset: offset1, ...rest1 } = initialFilters;
+    const { offset: offset2, ...rest2 } = filters;
+
+    const hasFilters =
+      Object.values(filters).some((value) => value.trim().length > 0) &&
+      JSON.stringify(rest1) !== JSON.stringify(rest2);
+
     try {
       let response;
-      const hasFilters =
-        Object.values(filters).some((value) => value.trim().length > 0) &&
-        filters !== initialFilters;
-
       if (hasFilters) {
         response = await axios.get("http://localhost:3000/events/filter", {
           params: filters,
         });
       } else {
-        response = await axios.get("http://localhost:3000/events", {});
+        response = await axios.get("http://localhost:3000/events", { params: { offset: filters.offset } });
       }
-      setUpcomingEvents(response.data);
+      setUpcomingEvents(prev => [...prev, ...response.data]);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -81,6 +79,26 @@ function HomePage() {
       console.error("Error fetching data:", error);
     }
   };
+
+  const handleFiltersChange = (event) => {
+    const { name, value } = event.target;
+    let newFilters = filters;
+    newFilters[name] = value;
+    newFilters.offset = 0;
+
+    setUpcomingEvents([]);
+    setFilters(newFilters);
+    setIsLoading(true);
+
+    fetchUpcomingEvents();
+  };
+
+  const handleLoadMore = () => {
+    let newFilters = filters;
+    newFilters.offset += 8;
+    setFilters(newFilters);
+    fetchUpcomingEvents();
+  }
 
   return (
     <>
@@ -140,8 +158,8 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="flex justify-center">
-            <div className="flex flex-wrap justify-between gap-5">
+          <div className="flex flex-col justify-center">
+            {/* <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"> */}
               {isLoading ? (
                 <div className="flex justify-center items-center w-full">
                   <Loading />
@@ -149,18 +167,29 @@ function HomePage() {
               ) : upcomingEvents.length === 0 ? (
                 <p>No upcoming events found.</p>
               ) : (
-                upcomingEvents.map((upcomingEvent, index) => (
-                  <div key={upcomingEvent.event_id} className="flex flex-wrap gap-1 max-w-xs">
-                    <EventCard
-                      event={upcomingEvent}
-                    ></EventCard>
+                <>
+                  <div className="flex flex-wrap gap-5">
+                  {upcomingEvents.map((upcomingEvent, index) => (
+                    <div key={upcomingEvent.event_id} className="flex flex-wrap gap-1 max-w-xs">
+                      <EventCard
+                        event={upcomingEvent}
+                      ></EventCard>
+                    </div>
+                  ))}
                   </div>
-                ))
+                  <div className="flex justify-center my-6">
+                    <button 
+                      onClick={handleLoadMore} 
+                      className="bg-[#494391] text-white font-semibold  text-base rounded-lg px-4 py-2 font-500 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105"
+                    >
+                      Load More
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
         </div>
-      </div>
     </>
   );
 }
