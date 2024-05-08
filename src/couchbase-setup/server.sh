@@ -21,7 +21,7 @@ curl -v -X POST http://127.0.0.1:8091/pools/default -d memoryQuota=512 -d indexM
 
 sleep 5
 
-curl -v http://127.0.0.1:8091/node/controller/setupServices -d services=kv%2Cn1ql%2Cindex%2Cfts
+curl -v http://127.0.0.1:8091/node/controller/setupServices -d services=kv%2Cn1ql%2Cindex%2Cfts%2Ccbas
 
 sleep 5
 
