@@ -3,7 +3,7 @@ const uuid = require('uuid');
 
 // login user
 async function loginUser(req, res) {
-    const query = 'SELECT * FROM users WHERE (username = $1 AND `password` = $2) OR (email = $1 AND `password` = $2)';
+    const query = 'SELECT user_id,  is_organization, username, name FROM users WHERE (username = $1 AND `password` = $2) OR (email = $1 AND `password` = $2)';
     const params = {parameters: [req.body.username, req.body.password]};
 
     try {
@@ -13,7 +13,7 @@ async function loginUser(req, res) {
             res.json({ "error": "Invalid username or password" });
         }
         else {
-            res.json(result.rows[0].users);
+            res.json(result.rows[0]);
         }
     }
     catch (error) {
@@ -48,12 +48,13 @@ async function registerUser(req, res) {
             "password": req.body.password,
             "is_organization": req.body.is_organization || false,
             "liked_events": [],
+            "comments": []
         }
 
         const usersCollection = bucket.scope('_default').collection('users');
         await usersCollection.upsert(id , user);
         res.json({user_id: id, is_organization: user.is_organization, username: user.username,
-            name: user.name, email: user.email, liked_events: user.liked_events
+            name: user.name
         });
     }
     catch (error) {

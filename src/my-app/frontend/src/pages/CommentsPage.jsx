@@ -47,7 +47,6 @@ const CommentsPage = () => {
 
       setComments(fetchedComments);
       setIsLoading(false);
-      console.log(fetchedComments);
     } catch (error) {
       setIsLoading(false);
       console.error("Error fetching data:", error);
@@ -67,9 +66,13 @@ const CommentsPage = () => {
   const handleDeleteConfirm = async () => {
     try {
       setIsDeleteModalOpen(false);
-      await axios.delete(
-        "http://localhost:3000/comments/" + commentToDelete.comment_id
-      );
+      const response = await axios.delete("http://localhost:3000/comments", {
+        params: {
+            comment_id: commentToDelete.comment_id,
+            user_id: user.user_id,
+        }
+      });
+      console.log(response.data)
       fetchComments();
     } catch (error) {
       console.error("Error deleting comment:", error);
@@ -90,9 +93,12 @@ const CommentsPage = () => {
   const handleEditConfirm = async (newText) => {
     try {
       setIsEditModalOpen(false);
-      await axios.put(`http://localhost:3000/comments/${selectedCommentId}`, {
+      const response = await axios.put("http://localhost:3000/comments", {
+        comment_id: selectedCommentId,
+        user_id: user.user_id,
         text: newText,
       });
+      console.log(response.data)
       setSelectedCommentId(null);
       fetchComments();
     } catch (error) {
@@ -134,7 +140,7 @@ const CommentsPage = () => {
                 {comments.map((comment) => (
                   <li key={comment.comment_id}>
                     <p className="text-gray-500 text-sm mb-2">
-                      COMMENT DATE HERE : {comment.date}
+                      {comment.date}
                     </p>
                     <div className="bg-white rounded-lg shadow-lg p-4 max-w-s flex items-start justify-between">
                       <div>
@@ -142,7 +148,7 @@ const CommentsPage = () => {
                           href={`/events/${comment.event_id}`}
                           className="text-l font-semibold mb-2"
                         >
-                          EVENT NAME HERE : {comment.event_name}
+                          {comment.event_name}
                         </a>
                         <div className="text-gray-700 mb-2">
                           <p className="text-sm font-medium">
@@ -156,7 +162,7 @@ const CommentsPage = () => {
                       {user && (
                         <div className="flex">
                           <button
-                            className="bg-gray-800 text-white px-2 py-1 rounded"
+                            className="bg-[#494391] text-white px-2 py-1 rounded"
                             onClick={() => handleEditButtonClick(comment)}
                           >
                             Edit
@@ -181,7 +187,7 @@ const CommentsPage = () => {
       {isDeleteModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded-lg">
-            <p className="mb-4">
+            <p className="mb-6">
               Are you sure you want to delete your comment?
             </p>
             <div className="flex justify-end">
@@ -204,14 +210,14 @@ const CommentsPage = () => {
 
       {isEditModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-4 rounded-md shadow-md">
-            <p className="mb-4">Edit your comment:</p>
+           <div className="bg-white p-6 w-1/3 h-auto rounded-md shadow-md">
+            <p className="mb-4 font-medium">Edit your comment:</p>
             <textarea
-              className="w-full h-24 px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              className="w-full h-24 px-3 text-neutral-600 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
               value={editCommentText}
               onChange={(e) => setEditCommentText(e.target.value)}
             ></textarea>
-            <div className="flex justify-end">
+            <div className="flex mt-2 justify-end">
               <button
                 className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2"
                 onClick={handleEditCancel}
@@ -219,7 +225,7 @@ const CommentsPage = () => {
                 Cancel
               </button>
               <button
-                className="bg-gray-800 text-white px-4 py-2 rounded-md"
+                className="bg-[#494391] text-white px-4 py-2 rounded-md"
                 onClick={() => handleEditConfirm(editCommentText)}
               >
                 Save

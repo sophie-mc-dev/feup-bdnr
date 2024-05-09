@@ -6,7 +6,7 @@ const TicketTypeCard = ({ ticket }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden flex max-w-full">
-      <div className="flex-grow p-4 flex items-center justify-between">
+      <div className="flex-grow py-4 px-6 flex items-center justify-between">
         {/* Ticket Type */}
         <div className="flex items-center">
           <p className="text-sm text-gray-600 font-semibold">
@@ -17,13 +17,6 @@ const TicketTypeCard = ({ ticket }) => {
         {/* Price */}
         <div className="flex items-center">
           <p className="text-sm text-gray-600">${ticket.price}</p>
-        </div>
-
-        {/* Available Tickets */}
-        <div className="flex items-center">
-          <p className="text-sm text-gray-600">
-            Available Tickets: {ticket.available_tickets}
-          </p>
         </div>
 
         {/* Button to add to cart */}
