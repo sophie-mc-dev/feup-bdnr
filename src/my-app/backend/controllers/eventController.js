@@ -43,6 +43,20 @@ async function getEventById(req, res) {
       const { cluster } = await connectToCouchbase();
       const revenue = await cluster.query(query, options);
       result.value.total_income = revenue.rows[0].total_income;
+
+      //get the revenue by ticket type
+      const query2 = `
+        SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS total_income
+        FROM event_shop._default.transactions AS txn
+        UNNEST txn.items AS item
+        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+        WHERE event.event_id = $1
+        GROUP BY item.ticket_type
+        ORDER BY total_income DESC
+      `
+      const revenueByTicketType = await cluster.query(query2, options);
+      result.value.revenueByTicketType = revenueByTicketType.rows;
+      console.log("MY ROWS: ", result.value.revenueByTicketType);
       res.json(result.value);
     }
   } catch (error) {

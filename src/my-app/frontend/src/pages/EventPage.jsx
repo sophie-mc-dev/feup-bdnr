@@ -32,12 +32,14 @@ const EventPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editCommentText, setEditCommentText] = useState("");
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [revenuePerType, setRevenuePerType] = useState([]);
 
   useEffect(() => {
     if (id) {
       fetchEventInfo(id);
       fetchCommentsInfo(id);
       fetchTotalRevenue(id);
+      fetchRevenuePerType(id);
     }
   }, [id]);
 
@@ -59,6 +61,17 @@ const EventPage = () => {
       console.error("Error fetching data:", error);
     }
   };
+
+  const fetchRevenuePerType = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" +id);
+      // get the top 3 ticket types
+      setRevenuePerType(response.data.revenueByTicketType.slice(0, 3));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
 
   const fetchCommentsInfo = async (id) => {
     try {
@@ -156,7 +169,10 @@ const EventPage = () => {
 
           {/* (testing) Event Analytics Card | add parameters to card later */}
           <div className="mb-20">
-            <EventAnalyticsCard totalEventRevenue={totalRevenue}/>
+            <EventAnalyticsCard 
+              totalEventRevenue={totalRevenue}
+              revenueByTicketType={revenuePerType}
+            />
           </div>
 
           <div className="flex flex-row justify-between items-center">

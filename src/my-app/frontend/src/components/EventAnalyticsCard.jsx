@@ -1,13 +1,8 @@
 import React from "react";
 
-const EventAnalyticsCard = ({totalEventRevenue}) => {
+const EventAnalyticsCard = ({totalEventRevenue, revenueByTicketType}) => {
   // Sample analytics data (replace with actual data)
   const analyticsData = {
-    revenueByTicketType: [
-      { ticketType: "VIP", revenue: 1500 },
-      { ticketType: "General Admission", revenue: 2500 },
-      { ticketType: "Early Bird", revenue: 1000 },
-    ],
     totalTicketsSold: 300,
     ticketsSoldByTicketType: [
       { ticketType: "VIP", quantity: 100 },
@@ -39,10 +34,10 @@ const EventAnalyticsCard = ({totalEventRevenue}) => {
                 Revenue by Ticket Type
               </p>
               <ul>
-                {analyticsData.revenueByTicketType.map((data, index) => (
+                {revenueByTicketType.map((data, index) => (
                   <li key={index} className="flex justify-between">
-                    <span>{data.ticketType}</span>
-                    <span className="font-semibold">${data.revenue}</span>
+                    <span>{data.ticket_type}</span>
+                    <span className="font-semibold">${data.total_income}</span>
                   </li>
                 ))}
               </ul>
