@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams, Navigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import TicketTypeCard from "../components/TicketTypeCard";
+import EventAnalyticsCard from "../components/EventAnalyticsCard";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -22,7 +23,6 @@ const EventPage = () => {
   const { user } = useContext(UserContext);
   const [isInfoLoading, setIsInfoLoading] = useState(true);
   const [eventInfo, setEventInfo] = useState(null);
-  const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isCommentsLoading, setIsCommentsLoading] = useState(true);
@@ -145,6 +145,12 @@ const EventPage = () => {
         <Loading />
       ) : (
         <div className=" w-full p-20">
+
+          {/* (testing) Event Analytics Card | add parameters to card later */}
+          <div className="mb-20">
+            <EventAnalyticsCard></EventAnalyticsCard>
+          </div>
+
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row gap-5 items-center mb-5">
               <h2 className="text-4xl font-semibold">{eventInfo.event_name}</h2>
