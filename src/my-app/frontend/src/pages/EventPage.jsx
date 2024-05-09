@@ -33,6 +33,7 @@ const EventPage = () => {
   const [editCommentText, setEditCommentText] = useState("");
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [revenuePerType, setRevenuePerType] = useState([]);
+  const [totalTicketsSold, setTotalTicketsSold] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +41,7 @@ const EventPage = () => {
       fetchCommentsInfo(id);
       fetchTotalRevenue(id);
       fetchRevenuePerType(id);
+      fetchTotalTicketsSold(id);
     }
   }, [id]);
 
@@ -72,6 +74,14 @@ const EventPage = () => {
     }
   };
 
+  const fetchTotalTicketsSold = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" +id);
+      setTotalTicketsSold(response.data.totalTicketsSold);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const fetchCommentsInfo = async (id) => {
     try {
@@ -172,6 +182,7 @@ const EventPage = () => {
             <EventAnalyticsCard 
               totalEventRevenue={totalRevenue}
               revenueByTicketType={revenuePerType}
+              totalTicketsSold={totalTicketsSold}
             />
           </div>
 

@@ -56,7 +56,18 @@ async function getEventById(req, res) {
       `
       const revenueByTicketType = await cluster.query(query2, options);
       result.value.revenueByTicketType = revenueByTicketType.rows;
-      console.log("MY ROWS: ", result.value.revenueByTicketType);
+
+      //get the total number of tickets sold
+      const query3 = `
+        SELECT SUM(item.quantity) AS totalTicketsSold
+        FROM event_shop._default.transactions AS txn
+        UNNEST txn.items AS item
+        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+        WHERE event.event_id = $1
+      `
+      const totalTicketsSold = await cluster.query(query3, options);
+      result.value.totalTicketsSold = totalTicketsSold.rows[0].totalTicketsSold;
+
       res.json(result.value);
     }
   } catch (error) {
@@ -70,21 +81,6 @@ async function ftsMatchWord(term) {
 
   const result = await cluster.searchQuery('event_shop._default.eventSearch', 
                                             couchbase.SearchQuery.match(term));
-
-  /*
-  // Query the events collection for each document in the result
-  for (const row of result.rows) {
-    const docId = row.id;
-    query = `SELECT event_id, description, artists, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price 
-      FROM event_shop._default.events 
-      WHERE event_id = $1`
-    const queryResult = await cluster
-      .query(query, {
-        parameters: [docId],
-      })
-    console.log('QUERY RESULT', queryResult.rows)
-  }
-  */
 
   return result
 

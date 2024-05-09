@@ -1,9 +1,8 @@
 import React from "react";
 
-const EventAnalyticsCard = ({totalEventRevenue, revenueByTicketType}) => {
+const EventAnalyticsCard = ({totalEventRevenue, revenueByTicketType, totalTicketsSold}) => {
   // Sample analytics data (replace with actual data)
   const analyticsData = {
-    totalTicketsSold: 300,
     ticketsSoldByTicketType: [
       { ticketType: "VIP", quantity: 100 },
       { ticketType: "General Admission", quantity: 150 },
@@ -53,7 +52,7 @@ const EventAnalyticsCard = ({totalEventRevenue, revenueByTicketType}) => {
             </p>
             <div className="flex justify-center items-center flex-grow">
               <p className="text-4xl font-bold">
-                {analyticsData.totalTicketsSold}
+                {totalTicketsSold}
               </p>
             </div>
           </div>
