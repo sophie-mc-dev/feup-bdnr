@@ -1,16 +1,19 @@
 import "../index.css";
 import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
 import { UserContext } from "../contexts/UserContext";
 import Loading from "../components/Loading";
 
 const ProfilePage = () => {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({name: "", username: "", email: "", password: ""});
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     fetchUserInfo();
@@ -68,6 +71,39 @@ const ProfilePage = () => {
     }
   };
 
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  }
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+  }
+
+  const handleDeleteConfirm = async () => {  
+    setIsDeleteModalOpen(false);
+    setIsLoading(true);
+
+    try {
+      await axios.delete(
+        "http://localhost:3000/users/", {
+          data: {
+            user_id: user.user_id
+          }
+        }
+      );
+      console.log("Account deleted successfully.");
+      
+      await logout().then(() => {
+        navigate("/");
+      });
+
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error deleting user:", error);
+    }
+  }
+  
   return (
     <div className="flex-1 flex">
       <Sidebar profileType={user.is_organization ? "organization" : "user"} />
@@ -151,10 +187,43 @@ const ProfilePage = () => {
             {/* Error Message */}
             {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 
-            {/* Save Button */}
-            <button onClick={handleSave} className="bg-[#242565] hover:bg-[#494391] text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-              Save Changes
-            </button>
+            {/* Save and Delete Buttons */}
+            <div className="flex flex-row gap-x-2">
+              <button onClick={handleSave} className="bg-[#242565] hover:bg-[#494391] text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Save Changes
+              </button>
+
+              {!user.is_organization && 
+                <button onClick={handleDeleteClick} className="bg-red-500 hover:bg-red-400 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                  Delete Account
+                </button>
+              }
+            </div>
+            
+            {/* Delete Modal */}
+            {isDeleteModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white p-8 rounded-lg">
+                  <p className="mb-6">
+                    Are you sure you want to delete your comment?
+                  </p>
+                  <div className="flex justify-end">
+                    <button
+                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2"
+                      onClick={handleDeleteCancel}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                      onClick={handleDeleteConfirm}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

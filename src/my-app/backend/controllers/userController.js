@@ -131,9 +131,29 @@ async function getUserById(req, res) {
     }
 }
 
+// delete user by id
+async function deleteUser(req, res) {
+    let user_id = req.body.user_id;
+    const query_delete_user = 'DELETE FROM users WHERE user_id = $1'; 
+    const query_delete_transactions = 'DELETE FROM transactions WHERE user_id = $1';
+    const params = {parameters: [user_id]};
+
+    try {
+        const { bucket } = await connectToCouchbase();
+        const result1 = await bucket.scope('_default').query(query_delete_transactions, params);
+        const result2 = await bucket.scope('_default').query(query_delete_user, params);
+        res.json({ "message": "User deleted successfully" });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+
 module.exports = {
     loginUser,
     registerUser,
     getUserById, 
-    updateUser
+    updateUser, 
+    deleteUser
 };

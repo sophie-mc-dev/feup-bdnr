@@ -8,6 +8,9 @@ router.post('/register', UserController.registerUser);
 // Update user
 router.put('/', UserController.updateUser);
 
+// Delete user
+router.delete('/', UserController.deleteUser);
+
 // Verify user credentials
 router.post('/login', UserController.loginUser);
 
