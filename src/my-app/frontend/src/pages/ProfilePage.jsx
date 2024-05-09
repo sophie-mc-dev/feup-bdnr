@@ -10,6 +10,7 @@ const ProfilePage = () => {
 
   const [formData, setFormData] = useState({name: "", username: "", email: "", password: ""});
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchUserInfo();
@@ -29,15 +30,42 @@ const ProfilePage = () => {
     }
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    let newFormData = formData;
-    newFormData[name] = value;
-    setFormData(newFormData);
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    setErrorMessage("");
   };
 
-  const handleSave = () => { //TODO: [backend] send changes to the backend
+  const handleSave = async () => { 
+    if (!formData.name || !formData.username || !formData.email) {
+      setErrorMessage("Name, username and email fields cannot be empty");
+      return;
+    } 
+
     console.log("Saving changes...");   
+    setIsLoading(true);
+    try {
+      const response = await axios.put(
+        "http://localhost:3000/users/" , {
+          user_id: user.user_id,
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          password: formData.password
+        }
+      );
+      if (response.data.error) {
+        setErrorMessage(response.data.error);
+      } else {
+        console.log(response.data);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error saving changes:", error);
+    }
   };
 
   return (
@@ -63,6 +91,7 @@ const ProfilePage = () => {
               <input
                 type="text"
                 id="name"
+                name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
@@ -79,6 +108,7 @@ const ProfilePage = () => {
               <input
                 type="text"
                 id="username"
+                name="username"
                 value={formData.username}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
@@ -95,6 +125,7 @@ const ProfilePage = () => {
               <input
                 type="email"
                 id="email"
+                name="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
@@ -111,16 +142,17 @@ const ProfilePage = () => {
               <input
                 type="password"
                 id="password"
+                name="password"
                 value={formData.password}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
               />
             </div>
+            {/* Error Message */}
+            {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+
             {/* Save Button */}
-            <button
-              onClick={handleSave}
-              className="bg-[#242565] hover:bg-[#494391] text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
+            <button onClick={handleSave} className="bg-[#242565] hover:bg-[#494391] text-white font-semibold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
               Save Changes
             </button>
           </>
