@@ -68,6 +68,21 @@ async function getEventById(req, res) {
       const totalTicketsSold = await cluster.query(query3, options);
       result.value.totalTicketsSold = totalTicketsSold.rows[0].totalTicketsSold;
 
+      //get the number of tickets sold by ticket type
+      const query4 = `
+        SELECT item.ticket_type, SUM(item.quantity) AS quantity
+        FROM event_shop._default.transactions AS txn
+        UNNEST txn.items AS item
+        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+        WHERE event.event_id = $1
+        GROUP BY item.ticket_type
+        ORDER BY quantity DESC
+        `
+
+      const ticketsSoldByTicketType = await cluster.query(query4, options);
+      result.value.ticketsSoldByTicketType = ticketsSoldByTicketType.rows;
+
+
       res.json(result.value);
     }
   } catch (error) {
