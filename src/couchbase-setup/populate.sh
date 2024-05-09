@@ -32,13 +32,6 @@ docker cp "$EVENTS_JSON_PATH" "$CONTAINER_NAME":/tmp/events.json
 docker exec "$CONTAINER_NAME" cbimport json --format list -c "http://$COUCHBASE_HOST:$COUCHBASE_PORT" -u "$COUCHBASE_USERNAME" -p "$COUCHBASE_PASSWORD" -d 'file:///tmp/events.json' -b "$COUCHBASE_BUCKET_NAME" --scope-collection-exp "$COUCHBASE_SCOPE_NAME.events" -g %event_id%
 docker exec "$CONTAINER_NAME" rm /tmp/events.json
 
-# Import comments
-echo; echo "Step 5: Importing 'comments' collection ..."
-
-docker cp "$COMMENTS_JSON_PATH" "$CONTAINER_NAME":/tmp/comments.json
-docker exec "$CONTAINER_NAME" cbimport json --format list -c "http://$COUCHBASE_HOST:$COUCHBASE_PORT" -u "$COUCHBASE_USERNAME" -p "$COUCHBASE_PASSWORD" -d 'file:///tmp/comments.json' -b "$COUCHBASE_BUCKET_NAME" --scope-collection-exp "$COUCHBASE_SCOPE_NAME.comments" -g %comment_id%
-docker exec "$CONTAINER_NAME" rm /tmp/comments.json
-
 # Import artists
 echo; echo "Step 5: Importing 'artists' collection ..."
 

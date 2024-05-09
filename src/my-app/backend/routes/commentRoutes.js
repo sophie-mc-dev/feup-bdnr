@@ -12,10 +12,10 @@ router.get('/users/:user_id', CommentsController.getCommentsByUserId);
 router.post('/', CommentsController.addComment);
 
 // Delete a comment
-router.delete('/:comment_id', CommentsController.deleteComment);
+router.delete('/', CommentsController.deleteComment);
 
 // Update a comment
-router.put('/:comment_id', CommentsController.editComment);
+router.put('/', CommentsController.editComment);
 
 
 module.exports = router;
