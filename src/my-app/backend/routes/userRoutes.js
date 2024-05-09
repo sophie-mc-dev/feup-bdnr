@@ -2,11 +2,18 @@ const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/userController');
 
-router.post('/login', UserController.loginUser);
-
+// Add new user
 router.post('/register', UserController.registerUser);
+
+// Update user
+router.put('/', UserController.updateUser);
+
+// Verify user credentials
+router.post('/login', UserController.loginUser);
 
 // profile route
 router.get('/:user_id', UserController.getUserById);
+
+
 
 module.exports = router;

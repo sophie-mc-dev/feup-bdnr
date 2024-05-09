@@ -217,7 +217,7 @@ async function getEventsByArtistId(req, res) {
       WHERE a.artist_id = $1), 
       event_id    
     )
-    ORDER BY date ASC`
+    ORDER BY MILLIS(date) ASC`
   ;
   const options = {parameters: [artistId]}
 

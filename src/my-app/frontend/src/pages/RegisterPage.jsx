@@ -71,7 +71,6 @@ function RegisterPage() {
                                     placeholder="Name"
                                     {...register("name")}
                                     className="w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-700 rounded-md focus:outline-none focus:ring-blue-900 focus:border-blue-900 sm:text-sm" />
-                                {errors.name && <p className="mt-2 text-sm text-red-600">Name is required</p>}
                             </div>
                             {/* Email */}
                             <div>

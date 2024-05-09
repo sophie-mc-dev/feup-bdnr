@@ -41,6 +41,21 @@ const ShoppingCartPage = () => {
     }
   };
 
+  const updateQuantity = async (index, increment) => {
+    try {
+      const updatedCartItems = [...cartItems];
+      updatedCartItems[index].quantity += increment;
+
+      await axios.put(
+        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${index}`,
+        { quantity: updatedCartItems[index].quantity }
+      );
+      setCartItems(updatedCartItems);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+    }
+  };
+
   const removeItem = async (index) => {
     try {
       await axios.delete(
@@ -91,6 +106,7 @@ const ShoppingCartPage = () => {
                 setItemToDelete(item);
                 setIsDeleteItemModalOpen(true);
               }}
+              updateQuantity={updateQuantity}
             />
           ))}
         </div>
