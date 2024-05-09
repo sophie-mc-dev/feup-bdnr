@@ -19,6 +19,29 @@ def generate_random_date():
 
     return random_date.isoformat()
 
+def generate_comment_date():
+    current_date = datetime.now()
+    start_date = current_date - timedelta(days=180)
+    end_date = current_date
+
+    random_date = fake.date_time_between_dates(datetime_start=start_date, datetime_end=end_date)
+
+    return random_date.isoformat()
+
+def generate_transaction_date(earliest_event_date):
+    current_date = datetime.now()
+        
+    if earliest_event_date > current_date:
+        upper_bound = current_date
+        lower_bound = current_date - timedelta(days=120)
+    else:
+        upper_bound = earliest_event_date - timedelta(days=1) 
+        lower_bound = earliest_event_date - timedelta(days=60)
+    
+    # Generate the purchase date within the range between the upper and lower bounds
+    transaction_date = fake.date_time_between_dates(datetime_start=lower_bound, datetime_end=upper_bound)
+    return transaction_date.strftime("%Y-%m-%dT%H:%M:%S")
+
 # don't forget that a user can have at most one transaction with the status shoppingCart
 def generate_transaction_data(num_purchases, num_shopping_cart):
     transactions = []
@@ -119,14 +142,19 @@ def generate_event_data(file_path):
 def generate_user_data(num_consumers, num_organizations):
     users = []
     for _ in range(num_consumers):
+        name = fake.unique.name()
+        username = name.lower().replace(" ", "_")
+        email = username + "@example.com"
+        
         user = {
             "user_id": fake.unique.random_number(digits=6),
-            "name": fake.name(),
-            "username": fake.unique.user_name(),
-            "email": fake.unique.email(),
+            "name": name,
+            "username": username,
+            "email": email,
             "password": "password",
             "is_organization": False,
-            "liked_events": []
+            "liked_events": [],
+            "comments": []
         }
         users.append(user)
 
@@ -149,12 +177,10 @@ def generate_comment_data(num_comments):
     for _ in range(num_comments):
         comment = {
             "comment_id": fake.unique.random_number(digits=6),
-            "user_id": "",
-            "user_name": "",
+            "date": generate_comment_date(),
+            "text": fake.text(),
             "event_id": "",
             "event_name": "",
-            "text": fake.text(),
-            "date": generate_random_date()
         }
         comments.append(comment)
     return comments
@@ -193,13 +219,12 @@ def generate_document():
 
     # Assign a random consumer and event to each comment
     for comment in comments:
-        random_consumer = random.choice(consumers)
-        comment["user_id"] = random_consumer["user_id"]
-        comment["user_name"] = random_consumer["name"]
-
         random_event = random.choice(events)
         comment["event_id"] =  random_event["event_id"]
         comment["event_name"] =  random_event["event_name"]
+
+        random_consumer = random.choice(consumers)
+        random_consumer["comments"].append(comment)
     
     # Assign list of events for each category
     for category in categories:
@@ -254,20 +279,15 @@ def generate_document():
             transaction["items"].append(new_item)
             transaction_event_dates.append(datetime.strptime(random_event["date"], "%Y-%m-%dT%H:%M:%S"))
         
-        # assign the transaction date, considering that the event
+        # assign the transaction date
         earliest_event_date = min(transaction_event_dates)
-        upper_bound = earliest_event_date - timedelta(days=1)  # Corrected here
-        lower_bound = earliest_event_date - timedelta(days=60)
-        
-        # Generate the purchase date within the range between the upper and lower bounds
-        transaction_date = fake.date_time_between_dates(datetime_start=lower_bound, datetime_end=upper_bound)
-        transaction["transaction_date"] = transaction_date.strftime("%Y-%m-%dT%H:%M:%S")
+        transaction["transaction_date"] = generate_transaction_date(earliest_event_date)
 
-    return categories, locations, artists, events, users, transactions, comments
+    return categories, locations, artists, events, users, transactions
 
 
 if __name__ == "__main__":
-    categories, locations, artists, events, users, transactions, comments = generate_document()
+    categories, locations, artists, events, users, transactions = generate_document()
 
     with open("./generated_data/categories.json", "w") as file:
         json.dump(categories, file, indent=4)
@@ -287,13 +307,9 @@ if __name__ == "__main__":
     with open("./generated_data/transactions.json", "w") as file:
         json.dump(transactions, file, indent=4)
 
-    with open("./generated_data/comments.json", "w") as file:
-        json.dump(comments, file, indent=4)
-
     print("JSON documents generated and saved to the generated_data folder.")
     print("Num categories: ", len(categories))
     print("Num locations: ", len(locations))
     print("Num artists: ", len(artists))
     print("Num events: ", len(events))
     print("Num users: ", len(users))
-    print("Num comments: ", len(comments))
