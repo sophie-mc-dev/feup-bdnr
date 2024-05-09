@@ -30,6 +30,19 @@ async function getEventById(req, res) {
     if (!result) {
       res.status(404).send('Event not found');
     } else {
+      // get the total revenue from the event too
+      const query = `
+        SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income
+        FROM event_shop._default.transactions AS txn
+        UNNEST txn.items AS item
+        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+        WHERE event.event_id = $1
+        GROUP BY event.event_id, event.event_name
+      `
+      const options = { parameters: [eventId] };
+      const { cluster } = await connectToCouchbase();
+      const revenue = await cluster.query(query, options);
+      result.value.total_income = revenue.rows[0].total_income;
       res.json(result.value);
     }
   } catch (error) {

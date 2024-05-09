@@ -31,11 +31,13 @@ const EventPage = () => {
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editCommentText, setEditCommentText] = useState("");
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     if (id) {
       fetchEventInfo(id);
       fetchCommentsInfo(id);
+      fetchTotalRevenue(id);
     }
   }, [id]);
 
@@ -46,6 +48,15 @@ const EventPage = () => {
       setIsInfoLoading(false);
     } catch (error) {
       setIsInfoLoading(false);
+    }
+  };
+
+  const fetchTotalRevenue = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" +id);
+      setTotalRevenue(response.data.total_income);
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -145,7 +156,7 @@ const EventPage = () => {
 
           {/* (testing) Event Analytics Card | add parameters to card later */}
           <div className="mb-20">
-            <EventAnalyticsCard></EventAnalyticsCard>
+            <EventAnalyticsCard totalEventRevenue={totalRevenue}/>
           </div>
 
           <div className="flex flex-row justify-between items-center">
