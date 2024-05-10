@@ -177,6 +177,19 @@ async function getUserById(req, res) {
                 `
                 const tickets_sold_by_ticket_type = await cluster.query(query5, options);
                 result.rows[0].tickets_sold_by_ticket_type = tickets_sold_by_ticket_type.rows;
+
+                //get the total revenue by ticket type
+                const query6 = `
+                    SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS total_income
+                    FROM event_shop._default.transactions AS txn
+                    UNNEST txn.items AS item
+                    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+                    WHERE event.organization_id = $1
+                    GROUP BY item.ticket_type
+                    ORDER BY total_income DESC
+                `
+                const revenue_by_ticket_type = await cluster.query(query6, options);
+                result.rows[0].revenue_by_ticket_type = revenue_by_ticket_type.rows;
             }
             res.json(result.rows[0]);
         }

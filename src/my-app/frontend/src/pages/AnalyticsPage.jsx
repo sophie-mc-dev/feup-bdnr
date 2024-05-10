@@ -20,6 +20,7 @@ const AnalyticsPage = () => {
   const [totalEventsHosted, setTotalEventsHosted] = useState(0);
   const [totalTicketsSold, setTotalTicketsSold] = useState(0);
   const [ticketsByType, setTicketsByType] = useState([]);
+  const [revenueByTicketType, setRevenueByTicketType] = useState([]);
 
   // get the user id from the user context
   const userId = user.user_id;
@@ -43,6 +44,7 @@ const AnalyticsPage = () => {
       fetchTotalEventsHosted(userId);
       fetchTotalTicketsSold(userId);
       fetchTicketsByType(userId);
+      fetchRevenueByTicketType(userId);
     }
   }, [userId]);
 
@@ -99,6 +101,18 @@ const AnalyticsPage = () => {
       setIsLoading(true);
       const response = await axios.get("http://localhost:3000/users/" +userId);
       setTicketsByType(response.data.tickets_sold_by_ticket_type);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
+  const fetchRevenueByTicketType = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setRevenueByTicketType(response.data.revenue_by_ticket_type);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -205,10 +219,6 @@ const AnalyticsPage = () => {
               <h3 className="text-lg font-semibold mb-2">
                 Ticket Sales by Event Type
               </h3>
-              <p className="text-gray-600">
-                Display ticket sales by event type here (show total number of
-                tickets)
-              </p>
               <div>
                 <canvas ref={chartContainer} width="400" height="400"></canvas>
               </div>
@@ -240,16 +250,16 @@ const AnalyticsPage = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {revenueData.map((data, index) => (
+                    {revenueByTicketType.map((data, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {data.ticketType}
+                            {data.ticket_type}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            ${data.revenue}
+                            ${data.total_income}
                           </div>
                         </td>
                       </tr>
@@ -259,6 +269,7 @@ const AnalyticsPage = () => {
               </div>
             </div>
           </div>
+
         </section>
       </div>
     </div>
