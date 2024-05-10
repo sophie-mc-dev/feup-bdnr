@@ -177,6 +177,10 @@ const AnalyticsPage = () => {
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
         <h3 className="text-2xl font-bold mb-6">My Analytics</h3>
 
+      {isLoading ? (
+        <Loading />
+      ):
+      
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Total Income */}
           <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-3">
@@ -271,6 +275,7 @@ const AnalyticsPage = () => {
           </div>
 
         </section>
+      }
       </div>
     </div>
   );
