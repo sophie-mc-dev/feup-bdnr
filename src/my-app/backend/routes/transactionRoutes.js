@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const TransactionController = require('../controllers/transactionController')
 
+// Purchase tickets
+router.post('/purchase', TransactionController.purchaseTickets);
+
 // Purchase history of a specific user
 router.get('/purchases/:user_id', TransactionController.getPurchasesByUserId);
 

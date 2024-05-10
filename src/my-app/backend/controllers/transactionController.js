@@ -20,6 +20,46 @@ async function getPurchasesByUserId(req, res) {
   }
 }
 
+async function purchaseTickets(req, res) {  
+  const { user_id } = req.body;
+
+  const query_shopping_cart = `
+    SELECT RAW items FROM transactions WHERE user_id = $1 AND transaction_status = $2
+  `;
+  const options = { parameters: [user_id, "shopping_cart"] };
+
+  try {
+    // Retrieve Shopping cart
+    const { bucket } = await connectToCouchbase();
+    const result = await bucket.defaultScope().query(query_shopping_cart, options);
+    const items = result.rows[0];
+
+    if (items.length === 0) {
+      return res.json({ message: "Error: Shopping cart is empty" });
+    }
+    
+    // Check if all tickets are for upcoming events
+    const pastEvents = items.every((item) => new Date(item.event_date) < new Date());
+    if (pastEvents) { 
+      return res.json({ message: "Error: Cannot purchase tickets for past events" });
+    }
+    
+    // Buy tickets
+    const query_update_status = `
+      UPDATE transactions 
+      SET transaction_status = $1 AND transaction_date = $2 
+      WHERE user_id = $3 AND transaction_status = $4
+    `;
+    const updateOptions = { parameters: ["purchased", new Date().toISOString().slice(0, 19), user_id, "shopping_cart"] };
+
+    await bucket.defaultScope().query(query_update_status, updateOptions);
+    res.json({ message: "Tickets successfully purchased" });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
 async function getShoppingCartByUserId(req, res) {
   const user_id = req.params.user_id;
   const query =
@@ -196,6 +236,7 @@ async function getPastTicketsByUserId(req, res) {
 
 module.exports = {
   getPurchasesByUserId,
+  purchaseTickets,
   getShoppingCartByUserId,
   deleteItemFromCart,
   updateCartItemQuantity,

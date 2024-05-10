@@ -62,26 +62,22 @@ const TicketTypeCard = ({ ticket, event_date, event_id, event_name }) => {
     {isLoadingOpen && (
       <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
         <div className="bg-white w-1/4 py-8 items-center rounded-md shadow-md">
-          <p className="w-full text-center">
             <Loading/>
-          </p>
         </div>
       </div>
     )}
 
     {isConfirmationOpen && (
       <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
-      <div className="flex flex-col justify-center w-1/4 gap-y-8 bg-white py-6 rounded-md shadow-md">
-        <p className="text-center">Item added to cart</p>
-        <div className="flex justify-center">
-          <button onClick={handleCloseModalClick} className="w-1/4 bg-[#242565] hover:bg-[#494391] text-white font-medium text-sm rounded-lg px-4 py-2 cursor-pointer items-center">
-            Close
-          </button>
-        </div>
+        <div className="flex flex-col justify-center w-1/4 gap-y-8 bg-white py-6 rounded-md shadow-md">
+          <p className="text-center">Item added to cart</p>
+          <div className="flex justify-center">
+            <button onClick={handleCloseModalClick} className="w-1/4 bg-[#242565] hover:bg-[#494391] text-white font-medium text-sm rounded-lg px-4 py-2 cursor-pointer items-center">
+              Close
+            </button>
+          </div>
       </div>
     </div>
-    
-    
     )}
     
     </>
