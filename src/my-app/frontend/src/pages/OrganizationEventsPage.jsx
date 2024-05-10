@@ -68,9 +68,9 @@ const OrganizationEventsPage = () => {
 
   const outputUpcomingInfo = (event, index) => {
     return (
-      <div key={index} className="flex-1 flex">
+      <div key={index} className="flex flex-wrap gap-5 mb-6">
         <div
-          className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          className="flex flex-wrap gap-1 max-w-xs"
         >
           <EventCard event={event}></EventCard>
         </div>

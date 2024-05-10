@@ -51,11 +51,13 @@ const ShoppingCartPage = () => {
       const updatedCartItems = [...cartItems];
       updatedCartItems[index].quantity += increment;
 
-      await axios.put(
-        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${index}`,
-        { quantity: updatedCartItems[index].quantity }
-      );
+      await axios.put(`http://localhost:3000/transactions/shopping_cart/`, {
+        user_id: user.user_id,
+        item_index: index,
+        quantity: updatedCartItems[index].quantity,
+      });
       setCartItems(updatedCartItems);
+      await fetchShoppingCart();
     } catch (error) {
       console.error("Error updating quantity:", error);
     }
@@ -63,10 +65,14 @@ const ShoppingCartPage = () => {
 
   const removeItem = async (index) => {
     try {
-      await axios.delete(
-        `http://localhost:3000/transactions/shopping_cart/${user.user_id}/${index}`
-      );
+      await axios.delete(`http://localhost:3000/transactions/shopping_cart/`, {
+        params: {
+          user_id: user.user_id,
+          item_index: index,
+        },
+      });
       setCartItems(cartItems.filter((_, i) => i !== index));
+      await fetchShoppingCart();
     } catch (error) {
       console.error("Error removing item:", error);
     }
@@ -78,6 +84,7 @@ const ShoppingCartPage = () => {
         `http://localhost:3000/transactions/shopping_cart/${user.user_id}`
       );
       setCartItems([]);
+      await fetchShoppingCart();
     } catch (error) {
       console.error("Error emptying cart:", error);
     }

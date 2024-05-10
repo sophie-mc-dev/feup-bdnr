@@ -126,16 +126,17 @@ async function addItemToCart(req, res) {
 }
 
 async function deleteItemFromCart(req, res) {
-  const { user_id, item_index } = req.params;
+  const { user_id, item_index } = req.query;
+  console.log(req.query);
 
   const query = `
     UPDATE transactions 
-    SET items = ARRAY_REMOVE(items, items[${item_index}]) 
-    WHERE user_id = $1 AND transaction_status = $2 
+    SET items = ARRAY_REMOVE(items, items[$1]) 
+    WHERE user_id = $2 AND transaction_status = $3 
     RETURNING items
   `;
 
-  const options = { parameters: [user_id, "shopping_cart"] };
+  const options = { parameters: [parseInt(item_index), user_id, "shopping_cart"] };
 
   try {
     const { bucket } = await connectToCouchbase();
@@ -148,16 +149,15 @@ async function deleteItemFromCart(req, res) {
 }
 
 async function updateCartItemQuantity(req, res) {
-  const { user_id, item_index } = req.params;
-  const { quantity } = req.body;
+  const { user_id, item_index, quantity } = req.body;
 
   const query = `
     UPDATE transactions 
-    SET items[${item_index}].quantity = $1 
-    WHERE user_id = $2 AND transaction_status = $3 
+    SET items[$1].quantity = $2 
+    WHERE user_id = $3 AND transaction_status = $4 
     RETURNING items
   `;
-  const options = { parameters: [quantity, user_id, "shopping_cart"] };
+  const options = { parameters: [parseInt(item_index), quantity, user_id, "shopping_cart"] };
 
   try {
     const { bucket } = await connectToCouchbase();

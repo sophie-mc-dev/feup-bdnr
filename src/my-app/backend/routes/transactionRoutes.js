@@ -15,10 +15,10 @@ router.get('/shopping_cart/:user_id', TransactionController.getShoppingCartByUse
 router.post('/shopping_cart/', TransactionController.addItemToCart);
 
 // Delete item from shopping cart
-router.delete('/shopping_cart/:user_id/:item_id', TransactionController.deleteItemFromCart);
+router.delete('/shopping_cart/', TransactionController.deleteItemFromCart);
 
 // Update shopping cart item quantity
-router.put('/shopping_cart/:user_id/:item_id', TransactionController.updateCartItemQuantity);
+router.put('/shopping_cart/', TransactionController.updateCartItemQuantity);
 
 // Delete all items from shopping cart
 router.delete('/shopping_cart/:user_id', TransactionController.deleteShoppingCart);
