@@ -14,13 +14,22 @@ const AnalyticsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const chartContainer = useRef(null);
   const chartInstance = useRef(null);
+  const [chartColors, setChartColors] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [bestSellingEvent, setBestSellingEvent] = useState(null);
   const [totalEventsHosted, setTotalEventsHosted] = useState(0);
   const [totalTicketsSold, setTotalTicketsSold] = useState(0);
+  const [ticketsByType, setTicketsByType] = useState([]);
 
   // get the user id from the user context
   const userId = user.user_id;
+
+  // SAMPLE DATA FOR REVENUE DATA OF TICKET TYPES
+  const revenueData = [
+    { ticketType: "VIP", revenue: 1500 },
+    { ticketType: "General Admission", revenue: 2500 },
+    { ticketType: "Early Bird", revenue: 1000 },
+  ];
 
   useEffect(() => {
     if (!user.is_organization) {
@@ -33,61 +42,9 @@ const AnalyticsPage = () => {
       fetchBestSellingEvent(userId);
       fetchTotalEventsHosted(userId);
       fetchTotalTicketsSold(userId);
+      fetchTicketsByType(userId);
     }
   }, [userId]);
-
-  // SAMPLE DATA FOR REVENUE DATA OF TICKET TYPES
-  const revenueData = [
-    { ticketType: "VIP", revenue: 1500 },
-    { ticketType: "General Admission", revenue: 2500 },
-    { ticketType: "Early Bird", revenue: 1000 },
-  ];
-
-  // PIE CHART WITH SAMPLE DATA
-  useEffect(() => {
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
-    
-
-    if (chartContainer && chartContainer.current) {
-      const ctx = chartContainer.current.getContext("2d");
-      chartInstance.current = new Chart(ctx, {
-        type: "pie",
-        data: {
-          labels: ["Concerts", "Sports Events", "Conferences"],
-          datasets: [
-            {
-              label: "Ticket Sales",
-              data: [300, 200, 150],
-              backgroundColor: [
-                "rgba(255, 99, 132, 0.6)",
-                "rgba(54, 162, 235, 0.6)",
-                "rgba(255, 206, 86, 0.6)",
-              ],
-              borderColor: [
-                "rgba(255, 99, 132, 1)",
-                "rgba(54, 162, 235, 1)",
-                "rgba(255, 206, 86, 1)",
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-        },
-      });
-    }
-
-    // Cleanup function
-    return () => {
-      if (chartInstance.current) {
-        chartInstance.current.destroy();
-      }
-    };
-  }, []);
 
   const fetchTotalIncome = async (userId) => {
     try {
@@ -137,6 +94,68 @@ const AnalyticsPage = () => {
     }
   }
 
+  const fetchTicketsByType = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setTicketsByType(response.data.tickets_sold_by_ticket_type);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
+  // Generate chart colors
+  useEffect(() => {
+    if (ticketsByType.length > 0) {
+      const numColors = ticketsByType.length;
+      const colors = generateColors(numColors);
+      setChartColors(colors);
+    }
+  }, [ticketsByType]);
+
+  // Function to generate distinct colors
+  const generateColors = (numColors) => {
+    const colors = [];
+    const goldenRatioConjugate = 0.618033988749895;
+
+    for (let i = 0; i < numColors; i++) {
+      const hue = (i * goldenRatioConjugate) % 1;
+      const color = `hsl(${hue * 360}, 70%, 50%)`; // HSL color model
+      colors.push(color);
+    }
+
+    return colors;
+  };
+
+  useEffect(() => {
+    if (chartContainer.current && ticketsByType.length > 0 && chartColors.length > 0) {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+
+      const ctx = chartContainer.current.getContext('2d');
+      chartInstance.current = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ticketsByType.map(ticket => ticket.ticket_type),
+          datasets: [{
+            data: ticketsByType.map(ticket => ticket.quantity),
+            backgroundColor: chartColors,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        },
+      });
+    }
+  }, [ticketsByType, chartColors]);
+
+
+
+  
   return (
     <div className="flex-1 flex">
       <Sidebar profileType="organization" />
