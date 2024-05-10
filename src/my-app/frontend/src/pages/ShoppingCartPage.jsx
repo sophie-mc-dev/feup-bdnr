@@ -88,14 +88,11 @@ const ShoppingCartPage = () => {
   const outputCartItems = () => {
     return (
       <>
-        <div className="flex justify-between ">
+        <div className="flex justify-between items-center">
           <p className="mb-2">You have {cartItems.length} items in your cart</p>
-          <p
-            onClick={() => setIsDeleteCartModalOpen(true)}
-            className="cursor-pointer underline"
-          >
+          <button className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-md" onClick={() => setIsDeleteCartModalOpen(true)}>
             Empty Cart
-          </p>
+          </button>
         </div>
         <div className="grid grid-cols-1 gap-4">
           {cartItems.map((item, index) => (

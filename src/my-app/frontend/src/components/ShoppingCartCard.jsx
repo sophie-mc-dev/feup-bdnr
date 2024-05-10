@@ -1,10 +1,24 @@
 import React from "react";
 
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
+};
+
 const ShoppingCartCard = ({ item, removeItem, updateQuantity }) => {
   return (
-    <div className="flex flex-col gap-y-2 mt-3 bg-gray-100 rounded-lg shadow-lg p-4">
+    <div className="flex flex-col gap-y-2 mt-3 bg-white rounded-lg shadow-lg p-4">
       <div className="flex flex-row justify-between">
-        <p className="text-md font-bold">{item.event_name}</p>
+        <div className="flex items-center gap-x-2">
+          <a href={`/events/${item.event_id}`} className="text-md font-bold">{item.event_name}</a>
+          <p className="text-sm text-gray-500">{formatDate(item.event_date)}</p>
+        </div>
         <button onClick={() => removeItem(item.id)} className="text-red-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"

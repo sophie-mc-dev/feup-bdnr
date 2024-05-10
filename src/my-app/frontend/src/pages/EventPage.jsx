@@ -207,7 +207,7 @@ const EventPage = () => {
           <h3 className="mt-10 mb-3 text-lg font-semibold">Ticket Types:</h3>
           <div className="grid gap-4 p-4">
             {eventInfo.ticket_types.map((ticket, index) => (
-              <TicketTypeCard key={index} ticket={ticket} />
+              <TicketTypeCard key={index} ticket={ticket} event_date={eventInfo.date} event_id={eventInfo.event_id} event_name={eventInfo.event_name}/>
             ))}
           </div>
           <h3 className="mt-10 text-lg font-semibold">Comments:</h3>{" "}
