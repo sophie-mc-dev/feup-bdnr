@@ -151,7 +151,7 @@ async function deleteUser(req, res) {
 async function likeEvent(req, res) {
     const { user_id, event_id } = req.body;
 
-    const query_user = 'UPDATE users SET liked_events = ARRAY_APPEND(liked_events, $1) WHERE user_id = $2 RETURNING RAW liked_events';
+    const query_user = 'UPDATE users SET liked_events = ARRAY_CONCAT([$1], liked_events) WHERE user_id = $2 RETURNING RAW liked_events';
     const query_user_options = {parameters: [event_id, user_id]};
 
     const query_event = 'UPDATE events SET num_likes = num_likes + 1 WHERE event_id = $1';

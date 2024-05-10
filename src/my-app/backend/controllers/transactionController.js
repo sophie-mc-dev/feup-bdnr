@@ -7,6 +7,7 @@ async function getPurchasesByUserId(req, res) {
         SELECT t.*, ARRAY_SUM(ARRAY item.quantity * item.ticket_price FOR item IN t.items END) AS total_price
         FROM transactions AS t
         WHERE user_id = $1 AND t.transaction_status = $2
+        ORDER BY MILLIS(transaction_date) DESC
     `;
   const options = { parameters: [user_id, "purchased"] };
 
@@ -127,7 +128,6 @@ async function addItemToCart(req, res) {
 
 async function deleteItemFromCart(req, res) {
   const { user_id, item_index } = req.query;
-  console.log(req.query);
 
   const query = `
     UPDATE transactions 
