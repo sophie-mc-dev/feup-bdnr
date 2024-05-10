@@ -17,6 +17,10 @@ router.post('/login', UserController.loginUser);
 // profile route
 router.get('/:user_id', UserController.getUserById);
 
+// like event
+router.put('/like/', UserController.likeEvent);
 
+// dislike event
+router.delete('/dislike/', UserController.dislikeEvent);
 
 module.exports = router;

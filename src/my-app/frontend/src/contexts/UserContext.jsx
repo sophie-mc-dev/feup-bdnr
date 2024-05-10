@@ -32,6 +32,14 @@ export const UserProvider = ({ children }) => {
         setUser(null);
         setIsLoggedIn(false);
     }
+
+    const updateLikedEvents = async (newLikedEvents) => {
+        const userInfo = JSON.parse(localStorage.getItem('user'));
+
+        userInfo.liked_events = newLikedEvents;
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        setUser(userInfo);
+    }
     
     return (
         loading ? <Loading /> : (
@@ -40,6 +48,7 @@ export const UserProvider = ({ children }) => {
                 setUser,  
                 login,
                 logout,
+                updateLikedEvents,
                 isLoggedIn,
             }}>
                 {children}

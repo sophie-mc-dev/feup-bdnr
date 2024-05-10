@@ -3,7 +3,7 @@ const uuid = require('uuid');
 
 // login user
 async function loginUser(req, res) {
-    const query = 'SELECT user_id,  is_organization, username, name FROM users WHERE (username = $1 AND `password` = $2) OR (email = $1 AND `password` = $2)';
+    const query = 'SELECT user_id,  is_organization, liked_events FROM users WHERE (username = $1 AND `password` = $2) OR (email = $1 AND `password` = $2)';
     const params = {parameters: [req.body.username.toLowerCase(), req.body.password]};
 
     try {
@@ -57,8 +57,7 @@ async function registerUser(req, res) {
 
         const usersCollection = bucket.scope('_default').collection('users');
         await usersCollection.upsert(id , user);
-        res.json({user_id: id, is_organization: user.is_organization, username: user.username,
-            name: user.name
+        res.json({user_id: id, is_organization: user.is_organization, liked_events: user.liked_events
         });
     }
     catch (error) {
@@ -149,11 +148,55 @@ async function deleteUser(req, res) {
     }
 }
 
+async function likeEvent(req, res) {
+    const { user_id, event_id } = req.body;
+
+    const query_user = 'UPDATE users SET liked_events = ARRAY_APPEND(liked_events, $1) WHERE user_id = $2 RETURNING RAW liked_events';
+    const query_user_options = {parameters: [event_id, user_id]};
+
+    const query_event = 'UPDATE events SET num_likes = num_likes + 1 WHERE event_id = $1';
+    const query_event_options = {parameters: [event_id]};
+
+    try {
+        const { bucket } = await connectToCouchbase();
+        const response = await bucket.scope('_default').query(query_user, query_user_options);
+        await bucket.scope('_default').query(query_event, query_event_options);
+        res.json(response.rows[0]);
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function dislikeEvent(req, res) {
+    const { user_id, event_id } = req.body;
+
+    console.log(user_id, event_id);
+    const query_user = 'UPDATE users SET liked_events = ARRAY_REMOVE(liked_events, $1) WHERE user_id = $2 RETURNING RAW liked_events';
+    const query_user_options = {parameters: [event_id, user_id]};
+
+    const query_event = 'UPDATE events SET num_likes = num_likes - 1 WHERE event_id = $1';
+    const query_event_options = {parameters: [event_id]};
+
+    try {
+        const { bucket } = await connectToCouchbase();
+        const response = await bucket.scope('_default').query(query_user, query_user_options);
+        await bucket.scope('_default').query(query_event, query_event_options);
+        res.json(response.rows[0]);
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+} 
 
 module.exports = {
     loginUser,
     registerUser,
     getUserById, 
     updateUser, 
-    deleteUser
+    deleteUser,
+    likeEvent,
+    dislikeEvent
 };

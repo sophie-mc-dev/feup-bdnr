@@ -38,7 +38,7 @@ const FavoritesPage = () => {
 
   const outputFavoritesInfo = (event, index) => {
     return (
-      <div className="flex-1 flex">
+      <div className="flex-1 flex" key={index}>
         <div
           key={index}
           className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"

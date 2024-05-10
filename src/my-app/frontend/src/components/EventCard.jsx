@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
+import axios from "axios";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -12,12 +14,32 @@ const formatDate = (dateString) => {
 };
 
 const EventCard = ({ event }) => {
-  const [liked, setLiked] = useState(false);
+  const { user, isLoggedIn, updateLikedEvents } = useContext(UserContext);
+  const [liked, setLiked] = useState(isLoggedIn && user.liked_events.includes(event.event_id));
   const [numLikes, setNumLikes] = useState(event.num_likes);
   const formattedDate = formatDate(event.date);
 
-  const handleLikeClick = () => {
-    // TODO: handle like click so it adds event to favorites list
+  const handleLikeClick = async () => {
+    let response;
+    if (liked) {
+      response = await axios.delete(
+        "http://localhost:3000/users/dislike", {
+          data: {
+            user_id: user.user_id,
+            event_id: event.event_id
+          }
+        }
+      );
+    } else {
+      response = await axios.put(
+        "http://localhost:3000/users/like",{
+          user_id: user.user_id,
+          event_id: event.event_id
+        }
+      );
+    }
+
+    await updateLikedEvents(response.data);
     setLiked(!liked);
     setNumLikes((prev) => (liked ? prev - 1 : prev + 1));
   };
@@ -35,21 +57,23 @@ const EventCard = ({ event }) => {
             {event.event_name}
           </a>
           {/* Heart button */}
-          <button
-            onClick={handleLikeClick}
-            className={`text-gray-500 focus:outline-none ${
-              liked ? "text-red-500" : ""
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-6 h-6"
+          {user && !user.is_organization && (
+            <button
+              onClick={handleLikeClick}
+              className={`text-gray-500 focus:outline-none ${
+                liked ? "text-red-500" : ""
+              }`}
             >
-              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-6 h-6"
+              >
+                <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Location and Date */}
