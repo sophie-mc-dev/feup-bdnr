@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
+import FormatDate from "../utils/FormattedDate"
 
 const CommentsPage = () => {
   const navigate = useNavigate();
@@ -16,7 +17,6 @@ const CommentsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editCommentText, setEditCommentText] = useState("");
   const [selectedCommentId, setSelectedCommentId] = useState(null);
-
   const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
@@ -140,7 +140,7 @@ const CommentsPage = () => {
                 {comments.map((comment) => (
                   <li key={comment.comment_id}>
                     <p className="text-gray-500 text-sm mb-2">
-                      {comment.date}
+                      {FormatDate(comment.date)}
                     </p>
                     <div className="bg-white rounded-lg shadow-lg p-4 max-w-s flex items-start justify-between">
                       <div>

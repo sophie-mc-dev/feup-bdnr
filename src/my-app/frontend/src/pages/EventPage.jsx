@@ -5,17 +5,7 @@ import axios from "axios";
 import { useParams, Navigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import TicketTypeCard from "../components/TicketTypeCard";
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "long" });
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
-};
+import FormatDate from "../utils/FormattedDate"
 
 const EventPage = () => {
   const { id } = useParams();
@@ -201,7 +191,7 @@ const EventPage = () => {
                 clipRule="evenodd"
               />
             </svg>
-            <p className="mb-4">Date: {formatDate(eventInfo.date)}</p>
+            <p className="mb-4">Date: {FormatDate(eventInfo.date)}</p>
           </div>
           <p className="text-justify mb-4">{eventInfo.description}</p>
           <h3 className="mt-10 mb-3 text-lg font-semibold">Ticket Types:</h3>
@@ -235,7 +225,7 @@ const EventPage = () => {
                 <div key={comment.comment_id} className="relative p-4 hover:bg-gray-100">
                   <div className="flex items-center gap-x-2">
                     <p className="font-semibold"> {comment.user_name}</p>
-                    <p className="text-gray-500 text-sm font-light"> {formatDate(comment.date)}</p>
+                    <p className="text-gray-500 text-sm font-light"> {FormatDate(comment.date)}</p>
                   </div>  
 
                   <p className="text-gray-500 mt-1">{comment.text}</p>

@@ -6,17 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { UserContext } from "../contexts/UserContext";
 import PurchaseCard from "../components/PurchaseCard";
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "long" });
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
-};
+import FormatDate from "../utils/FormattedDate"
 
 const PurchasesPage = () => {
   const navigate = useNavigate();
@@ -48,13 +38,11 @@ const PurchasesPage = () => {
   };
 
   const outputPurchaseInfo = (purchase, index) => {
-    const formattedDate = formatDate(purchase.transaction_date);
-
     return (
       <div key={index} className="flex flex-col rounded-lg ">
         {/* Purchase Date and Total Price */}
         <div className="flex justify-between">
-          <p className="text-lg font-bold">{formattedDate}</p>
+          <p className="text-lg font-bold">{FormatDate(purchase.transaction_date)}</p>
           <p className="text-lg font-bold">Total: €{purchase.total_price}</p>
         </div>
 

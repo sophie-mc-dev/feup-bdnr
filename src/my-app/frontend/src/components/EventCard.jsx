@@ -2,24 +2,13 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 import LikeStateLoading from "../components/LikeStateLoading";
 import axios from "axios";
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "long" });
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
-};
+import FormatDate from "../utils/FormattedDate"
 
 const EventCard = ({ event }) => {
   const { user, isLoggedIn, updateLikedEvents } = useContext(UserContext);
   const [likeStateLoading, setLikeStateLoading] = useState(false);
   const [liked, setLiked] = useState(isLoggedIn && user.liked_events.includes(event.event_id));
   const [numLikes, setNumLikes] = useState(event.num_likes);
-  const formattedDate = formatDate(event.date);
 
   const handleLikeClick = async () => {
     let response;
@@ -121,7 +110,7 @@ const EventCard = ({ event }) => {
             <line x1="11" y1="15" x2="12" y2="15" />
             <line x1="12" y1="15" x2="12" y2="18" />
           </svg>
-          {formattedDate}
+          {FormatDate(event.date)}
         </div>
 
         {/* Likes and Price */}

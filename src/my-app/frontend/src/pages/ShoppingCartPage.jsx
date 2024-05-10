@@ -32,12 +32,13 @@ const ShoppingCartPage = () => {
       const response = await axios.get(
         `http://localhost:3000/transactions/shopping_cart/${user.user_id}`
       );
-      const cartItemsWithId =  response.data.length === 0 ? 
-        [] :
-        response.data.map((item, index) => ({
-          ...item,
-          id: index,
-        }));
+      const cartItemsWithId =
+        response.data.length === 0
+          ? []
+          : response.data.map((item, index) => ({
+              ...item,
+              id: index,
+            }));
       setCartItems(cartItemsWithId);
       setIsLoading(false);
     } catch (error) {
@@ -49,12 +50,15 @@ const ShoppingCartPage = () => {
   const updateQuantity = async (index, increment) => {
     try {
       const updatedCartItems = [...cartItems];
-      updatedCartItems[index].quantity += increment;
+      const currentItem = updatedCartItems[index];
+      const newQuantity = currentItem.quantity + increment;
+
+      currentItem.quantity = newQuantity < 1 ? 1 : newQuantity;
 
       await axios.put(`http://localhost:3000/transactions/shopping_cart/`, {
         user_id: user.user_id,
         item_index: index,
-        quantity: updatedCartItems[index].quantity,
+        quantity: currentItem.quantity,
       });
       setCartItems(updatedCartItems);
       await fetchShoppingCart();
@@ -104,7 +108,7 @@ const ShoppingCartPage = () => {
         "http://localhost:3000/transactions/purchase/",
         { user_id: user.user_id }
       );
-      console.log(response.data)
+      console.log(response.data);
       setPurchaseResponse(response.data.message);
       setIsLoadingPurchase(false);
       setIsResponseModalOpen(true);
@@ -112,21 +116,24 @@ const ShoppingCartPage = () => {
       setIsLoadingPurchase(false);
       console.error("Error purchasing items:", error);
     }
-  }
+  };
 
   const handleCloseResponseModal = () => {
     setIsResponseModalOpen(false);
     if (purchaseResponse && !purchaseResponse.includes("Error")) {
-      navigate("/purchases")
+      navigate("/purchases");
     }
-  }
+  };
 
   const outputCartItems = () => {
     return (
       <>
         <div className="flex justify-between items-center">
           <p className="mb-2">You have {cartItems.length} items in your cart</p>
-          <button className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-md" onClick={() => setIsDeleteCartModalOpen(true)}>
+          <button
+            className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-md"
+            onClick={() => setIsDeleteCartModalOpen(true)}
+          >
             Empty Cart
           </button>
         </div>
@@ -148,7 +155,10 @@ const ShoppingCartPage = () => {
             <h2 className="text-xl font-bold">Summary</h2>
             <p>Total: ${getTotal()}</p>
           </div>
-          <button onClick={handlePurchaseClick} className="bg-[#242565] hover:bg-[#494391] text-white font-normal py-1.5 px-3 rounded">
+          <button
+            onClick={handlePurchaseClick}
+            className="bg-[#242565] hover:bg-[#494391] text-white font-normal py-1.5 px-3 rounded"
+          >
             Purchase Tickets
           </button>
         </div>
@@ -226,7 +236,7 @@ const ShoppingCartPage = () => {
       {isLoadingPurchase && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
           <div className="bg-white w-1/4 py-8 items-center rounded-md shadow-md">
-              <Loading/>
+            <Loading />
           </div>
         </div>
       )}
@@ -236,7 +246,10 @@ const ShoppingCartPage = () => {
           <div className="flex flex-col justify-center w-1/4 gap-y-8 bg-white py-6 rounded-md shadow-md">
             <p className="text-center">{purchaseResponse}</p>
             <div className="flex justify-center">
-              <button onClick={handleCloseResponseModal} className="w-1/4 bg-[#242565] hover:bg-[#494391] text-white font-medium text-sm rounded-lg px-4 py-2 cursor-pointer items-center">
+              <button
+                onClick={handleCloseResponseModal}
+                className="w-1/4 bg-[#242565] hover:bg-[#494391] text-white font-medium text-sm rounded-lg px-4 py-2 cursor-pointer items-center"
+              >
                 Close
               </button>
             </div>

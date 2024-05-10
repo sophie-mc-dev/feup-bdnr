@@ -38,13 +38,8 @@ const FavoritesPage = () => {
 
   const outputFavoritesInfo = (event, index) => {
     return (
-      <div className="flex-1 flex" key={index}>
-        <div
-          key={index}
-          className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-        >
-          <EventCard event={event}></EventCard>
-        </div>
+      <div key={index} className="flex flex-wrap gap-5 mb-6 max-w-xs">
+        <EventCard event={event}></EventCard>
       </div>
     );
   };
@@ -55,9 +50,9 @@ const FavoritesPage = () => {
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
         <h3 className="text-2xl font-bold mb-6">My Favorites</h3>
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+        <div className="flex flex-wrap gap-5 mb-6">
           {isLoading ? (
-            <div className="flex-1 h-full flex items-center justify-center">
+            <div className="flex justify-center items-center w-full">
               <Loading />
             </div>
           ) : favorites.length === 0 ? (

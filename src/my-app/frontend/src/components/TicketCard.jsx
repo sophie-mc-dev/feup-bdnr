@@ -1,19 +1,7 @@
 import React from "react";
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "long" });
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
-};
+import FormatDate from "../utils/FormattedDate"
 
 const TicketCard = ({ event_ID, event_name, date, ticket_type, quantity }) => {
-  const formattedDate = formatDate(date);
-
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[180px] w-[250px] flex flex-wrap max-w-sm">
       {/* Details container */}
@@ -47,7 +35,7 @@ const TicketCard = ({ event_ID, event_name, date, ticket_type, quantity }) => {
             <line x1="11" y1="15" x2="12" y2="15" />
             <line x1="12" y1="15" x2="12" y2="18" />
           </svg>
-          {formattedDate}
+          {FormatDate(date)}
         </div>
 
         {/* Quantity and Price */}
