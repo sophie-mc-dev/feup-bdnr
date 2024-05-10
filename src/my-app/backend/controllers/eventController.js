@@ -1,5 +1,86 @@
 const { connectToCouchbase } = require('../db/connection');
 
+async function getAnalytics(result, eventId) {
+  // get the total revenue from the event too
+  const query = `
+    SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income
+    FROM event_shop._default.transactions AS txn
+    UNNEST txn.items AS item
+    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+    WHERE event.event_id = $1
+    GROUP BY event.event_id, event.event_name
+  `
+  const options = { parameters: [eventId] };
+  const { cluster } = await connectToCouchbase();
+  const revenue = await cluster.query(query, options);
+  result.value.total_income = revenue.rows[0].total_income;
+
+  //get the revenue by ticket type
+  const query2 = `
+    SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS revenue
+    FROM event_shop._default.transactions AS txn
+    UNNEST txn.items AS item
+    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+    WHERE event.event_id = $1
+    GROUP BY item.ticket_type
+  `
+
+  const revenueByTicketType = await cluster.query(query2, options);
+
+
+  const ticketTypes = result.value.ticket_types;
+
+  // get the ticket types not in the revenueByTicketType
+  const ticketTypesNotInRevenueByTicketType = ticketTypes.filter(ticketType => !revenueByTicketType.rows.map(row => row.ticket_type).includes(ticketType.ticket_type));
+
+  ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
+    revenueByTicketType.rows.push({revenue: 0, ticket_type: ticketType.ticket_type});
+  }
+  );
+
+  //sort rows by revenue
+  revenueByTicketType.rows.sort((a, b) => b.revenue - a.revenue);
+  result.value.revenueByTicketType = revenueByTicketType.rows;
+
+
+  //get the total number of tickets sold
+  const query3 = `
+    SELECT SUM(item.quantity) AS totalTicketsSold
+    FROM event_shop._default.transactions AS txn
+    UNNEST txn.items AS item
+    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+    WHERE event.event_id = $1
+  `
+  const totalTicketsSold = await cluster.query(query3, options);
+  result.value.totalTicketsSold = totalTicketsSold.rows[0].totalTicketsSold;
+
+  //get the number of tickets sold by ticket type
+  const query4 = `
+    SELECT item.ticket_type, SUM(item.quantity) AS quantity
+    FROM event_shop._default.transactions AS txn
+    UNNEST txn.items AS item
+    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+    WHERE event.event_id = $1
+    GROUP BY item.ticket_type
+    ORDER BY quantity DESC
+    `
+
+  const ticketsSoldByTicketType = await cluster.query(query4, options);
+
+  ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
+    ticketsSoldByTicketType.rows.push({quantity: 0, ticket_type: ticketType.ticket_type});
+  }
+  );
+
+  //sort rows by quantity
+  ticketsSoldByTicketType.rows.sort((a, b) => b.quantity - a.quantity);
+
+  result.value.ticketsSoldByTicketType = ticketsSoldByTicketType.rows;
+
+  return result;
+}
+
+
 async function getUpcomingEvents(req, res) {
   const offset = parseInt(req.query.offset);
   const query =  `
@@ -26,85 +107,11 @@ async function getEventById(req, res) {
 
   try {
     const { eventsCollection } = await connectToCouchbase();
-    const result = await eventsCollection.get(eventId);
+    let result = await eventsCollection.get(eventId);
     if (!result) {
       res.status(404).send('Event not found');
     } else {
-      // TODO: put this inside a function
-      // get the total revenue from the event too
-      const query = `
-        SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income
-        FROM event_shop._default.transactions AS txn
-        UNNEST txn.items AS item
-        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-        WHERE event.event_id = $1
-        GROUP BY event.event_id, event.event_name
-      `
-      const options = { parameters: [eventId] };
-      const { cluster } = await connectToCouchbase();
-      const revenue = await cluster.query(query, options);
-      result.value.total_income = revenue.rows[0].total_income;
-
-      //get the revenue by ticket type
-      const query2 = `
-        SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS revenue
-        FROM event_shop._default.transactions AS txn
-        UNNEST txn.items AS item
-        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-        WHERE event.event_id = $1
-        GROUP BY item.ticket_type
-      `
-
-      const revenueByTicketType = await cluster.query(query2, options);
-
-
-      const ticketTypes = result.value.ticket_types;
-
-      // get the ticket types not in the revenueByTicketType
-      const ticketTypesNotInRevenueByTicketType = ticketTypes.filter(ticketType => !revenueByTicketType.rows.map(row => row.ticket_type).includes(ticketType.ticket_type));
-
-      ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
-        revenueByTicketType.rows.push({revenue: 0, ticket_type: ticketType.ticket_type});
-      }
-      );
-
-      result.value.revenueByTicketType = revenueByTicketType.rows;
-
-
-      //get the total number of tickets sold
-      const query3 = `
-        SELECT SUM(item.quantity) AS totalTicketsSold
-        FROM event_shop._default.transactions AS txn
-        UNNEST txn.items AS item
-        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-        WHERE event.event_id = $1
-      `
-      const totalTicketsSold = await cluster.query(query3, options);
-      result.value.totalTicketsSold = totalTicketsSold.rows[0].totalTicketsSold;
-
-      //get the number of tickets sold by ticket type
-      const query4 = `
-        SELECT item.ticket_type, SUM(item.quantity) AS quantity
-        FROM event_shop._default.transactions AS txn
-        UNNEST txn.items AS item
-        JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-        WHERE event.event_id = $1
-        GROUP BY item.ticket_type
-        ORDER BY quantity DESC
-        `
-
-      const ticketsSoldByTicketType = await cluster.query(query4, options);
-
-      ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
-        ticketsSoldByTicketType.rows.push({quantity: 0, ticket_type: ticketType.ticket_type});
-      }
-      );
-
-      result.value.ticketsSoldByTicketType = ticketsSoldByTicketType.rows;
-
-
-
-
+      result = await getAnalytics(result, eventId);
       res.json(result.value);
     }
   } catch (error) {
