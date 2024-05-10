@@ -5,11 +5,12 @@ import axios from "axios";
 import { useParams, Navigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import TicketTypeCard from "../components/TicketTypeCard";
-import FormatDate from "../utils/FormattedDate"
+import FormatDate from "../utils/FormattedDate";
+import LikeStateLoading from "../components/LikeStateLoading";
 
 const EventPage = () => {
   const { id } = useParams();
-  const { user } = useContext(UserContext);
+  const { user, isLoggedIn, updateLikedEvents } = useContext(UserContext);
   const [isInfoLoading, setIsInfoLoading] = useState(true);
   const [eventInfo, setEventInfo] = useState(null);
   const [comments, setComments] = useState([]);
@@ -20,6 +21,10 @@ const EventPage = () => {
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editCommentText, setEditCommentText] = useState("");
+  const [liked, setLiked] = useState(false);
+  const [numLikes, setNumLikes] = useState(0);
+  const [likeStateLoading, setLikeStateLoading] = useState(false);
+
 
   useEffect(() => {
     if (id) {
@@ -33,6 +38,8 @@ const EventPage = () => {
       const response = await axios.get("http://localhost:3000/events/" + id);
       setEventInfo(response.data);
       setIsInfoLoading(false);
+      setNumLikes(response.data.num_likes);
+      setLiked(isLoggedIn && user.liked_events.includes(response.data.event_id))
     } catch (error) {
       setIsInfoLoading(false);
     }
@@ -125,6 +132,33 @@ const EventPage = () => {
     }
   };
 
+  const handleLikeClick = async () => {
+    let response;
+    setLikeStateLoading(true);
+    if (liked) {
+      response = await axios.delete(
+        "http://localhost:3000/users/dislike", {
+          data: {
+            user_id: user.user_id,
+            event_id: eventInfo.event_id
+          }
+        }
+      );
+    } else {
+      response = await axios.put(
+        "http://localhost:3000/users/like",{
+          user_id: user.user_id,
+          event_id: eventInfo.event_id
+        }
+      );
+    }
+
+    await updateLikedEvents(response.data);
+    setLiked(!liked);
+    setNumLikes((prev) => (liked ? prev - 1 : prev + 1));
+    setLikeStateLoading(false);
+  };
+
   return (
     <div className="flex flex-col items-center">
       {isInfoLoading ? (
@@ -147,17 +181,47 @@ const EventPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-row gap-2">
-          <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="red"
-          className="w-6 h-6"
-          >
-          <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-          </svg>
+        {/* Like Button */}
+        <div className="flex flex-row gap-2 items-center">
+        {(!isLoggedIn || user.is_organization) && (
+            <>
+            <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="gray"
+            className="w-6 h-6"
+            >
+            <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+            </svg>
 
-          <p className="mb-4 pr-4">{eventInfo.num_likes} likes</p>
+            <p className="pr-4">{eventInfo.num_likes} likes</p>
+            </>
+        )}
+
+        {user && !user.is_organization && !likeStateLoading && (
+          <>
+          <button
+            onClick={handleLikeClick}
+            className={`text-gray-500 focus:outline-none ${
+              liked ? "text-red-500" : ""
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+            </svg>
+          </button>
+          <p className="pr-4">{numLikes} likes</p>
+          </>
+        )}
+
+        {user && !user.is_organization && likeStateLoading && (
+          <LikeStateLoading/>
+        )}
         </div>
         </div>
         <div className="flex flex-row text-sm gap-2 text-gray-600">
