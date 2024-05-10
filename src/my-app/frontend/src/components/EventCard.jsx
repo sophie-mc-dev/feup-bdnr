@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
+import LikeStateLoading from "../components/LikeStateLoading";
 import axios from "axios";
 
 const formatDate = (dateString) => {
@@ -15,12 +16,14 @@ const formatDate = (dateString) => {
 
 const EventCard = ({ event }) => {
   const { user, isLoggedIn, updateLikedEvents } = useContext(UserContext);
+  const [likeStateLoading, setLikeStateLoading] = useState(false);
   const [liked, setLiked] = useState(isLoggedIn && user.liked_events.includes(event.event_id));
   const [numLikes, setNumLikes] = useState(event.num_likes);
   const formattedDate = formatDate(event.date);
 
   const handleLikeClick = async () => {
     let response;
+    setLikeStateLoading(true);
     if (liked) {
       response = await axios.delete(
         "http://localhost:3000/users/dislike", {
@@ -42,6 +45,7 @@ const EventCard = ({ event }) => {
     await updateLikedEvents(response.data);
     setLiked(!liked);
     setNumLikes((prev) => (liked ? prev - 1 : prev + 1));
+    setLikeStateLoading(false);
   };
 
   return (
@@ -57,7 +61,7 @@ const EventCard = ({ event }) => {
             {event.event_name}
           </a>
           {/* Heart button */}
-          {user && !user.is_organization && (
+          {user && !user.is_organization && !likeStateLoading && (
             <button
               onClick={handleLikeClick}
               className={`text-gray-500 focus:outline-none ${
@@ -73,6 +77,10 @@ const EventCard = ({ event }) => {
                 <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
               </svg>
             </button>
+          )}
+
+          {user && !user.is_organization && likeStateLoading && (
+            <LikeStateLoading/>
           )}
         </div>
 
