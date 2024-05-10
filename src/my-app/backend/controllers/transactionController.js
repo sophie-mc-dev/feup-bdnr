@@ -1,4 +1,5 @@
 const { connectToCouchbase } = require("../db/connection");
+const uuid = require('uuid');
 
 async function getPurchasesByUserId(req, res) {
   const user_id = req.params.user_id;
@@ -29,6 +30,55 @@ async function getShoppingCartByUserId(req, res) {
     const { bucket } = await connectToCouchbase();
     const result = await bucket.defaultScope().query(query, options);
     res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+async function addItemToCart(req, res) {
+  const { user_id, item } = req.body;
+  item.quantity = 1;
+
+  // Check if user has a shoppingCart
+  const checkQuery = `
+      SELECT RAW transactions FROM transactions WHERE user_id = $1 AND transaction_status = $2
+  `;
+  const checkOptions = { parameters: [user_id, "shopping_cart"] };
+
+  try {
+    const { bucket } = await connectToCouchbase();
+    const result = await bucket.defaultScope().query(checkQuery, checkOptions);
+
+    if (result.rows.length === 0) { // create new cart for the user
+      const id = uuid.v4();
+      const shopping_cart_doc = {
+        transaction_id: id,
+        transaction_date: new Date().toISOString().slice(0, 19),
+        transaction_status: "shopping_cart",
+        user_id: user_id,
+        items: [item],
+      };
+
+      const transactionsCollection = bucket.scope('_default').collection('transactions');
+      await transactionsCollection.upsert(id, shopping_cart_doc);
+    }
+    else {
+      // verify if items has the new item
+      const cart = result.rows[0];
+      const items = cart.items;
+      const itemIndex = items.findIndex((i) => i.event_id === item.event_id && i.ticket_type === item.ticket_type);
+
+      if (itemIndex === -1) {
+        items.push(item);
+      } else {
+        items[itemIndex].quantity += 1;
+      }
+      const updateQuery = `UPDATE transactions SET items = $1 WHERE transaction_id = $2`;
+      await bucket.defaultScope().query(updateQuery, {parameters: [items, cart.transaction_id]});
+    }
+    return res.json({message: "Added item"});
+
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
@@ -152,4 +202,5 @@ module.exports = {
   deleteShoppingCart,
   getUpcomingTicketsByUserId,
   getPastTicketsByUserId,
+  addItemToCart
 };

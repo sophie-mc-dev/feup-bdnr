@@ -1,16 +1,22 @@
 import React, { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
+import axios from "axios";
 
 const TicketTypeCard = ({ ticket, event_date, event_id, event_name }) => {
   const { isLoggedIn, user } = useContext(UserContext);
 
-  const handleAddToCartClick = () => {
-    if (isLoggedIn) {
-      // Add to cart logic here...
-      console.log("add to cart");
-    } else {
-      alert("Please log in first!");
-    }
+  const handleAddToCartClick = async() => {
+    await axios.post(`http://localhost:3000/transactions/shopping_cart/`, 
+    {
+      user_id: user.user_id, 
+      item: {
+        event_id: event_id,
+        event_name: event_name,
+        event_date: event_date,
+        ticket_type: ticket.ticket_type,
+        ticket_price: ticket.price
+      }
+    });
   };
 
   return (

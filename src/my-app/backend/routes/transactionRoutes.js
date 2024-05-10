@@ -8,6 +8,9 @@ router.get('/purchases/:user_id', TransactionController.getPurchasesByUserId);
 // Shopping cart of a specific user
 router.get('/shopping_cart/:user_id', TransactionController.getShoppingCartByUserId);
 
+// Add item to shopping cart
+router.post('/shopping_cart/', TransactionController.addItemToCart);
+
 // Delete item from shopping cart
 router.delete('/shopping_cart/:user_id/:item_id', TransactionController.deleteItemFromCart);
 

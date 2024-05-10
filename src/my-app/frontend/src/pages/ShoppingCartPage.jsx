@@ -29,10 +29,12 @@ const ShoppingCartPage = () => {
       const response = await axios.get(
         `http://localhost:3000/transactions/shopping_cart/${user.user_id}`
       );
-      const cartItemsWithId = response.data.map((item, index) => ({
-        ...item,
-        id: index,
-      }));
+      const cartItemsWithId =  response.data.length === 0 ? 
+        [] :
+        response.data.map((item, index) => ({
+          ...item,
+          id: index,
+        }));
       setCartItems(cartItemsWithId);
       setIsLoading(false);
     } catch (error) {

@@ -172,7 +172,6 @@ async function likeEvent(req, res) {
 async function dislikeEvent(req, res) {
     const { user_id, event_id } = req.body;
 
-    console.log(user_id, event_id);
     const query_user = 'UPDATE users SET liked_events = ARRAY_REMOVE(liked_events, $1) WHERE user_id = $2 RETURNING RAW liked_events';
     const query_user_options = {parameters: [event_id, user_id]};
 
