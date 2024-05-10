@@ -16,6 +16,8 @@ const AnalyticsPage = () => {
   const chartInstance = useRef(null);
   const [totalIncome, setTotalIncome] = useState(0);
   const [bestSellingEvent, setBestSellingEvent] = useState(null);
+  const [totalEventsHosted, setTotalEventsHosted] = useState(0);
+  const [totalTicketsSold, setTotalTicketsSold] = useState(0);
 
   // get the user id from the user context
   const userId = user.user_id;
@@ -29,9 +31,9 @@ const AnalyticsPage = () => {
     if(userId){
       fetchTotalIncome(userId);
       fetchBestSellingEvent(userId);
+      fetchTotalEventsHosted(userId);
+      fetchTotalTicketsSold(userId);
     }
-
-
   }, [userId]);
 
   // SAMPLE DATA FOR REVENUE DATA OF TICKET TYPES
@@ -111,6 +113,30 @@ const AnalyticsPage = () => {
     }
   }
 
+  const fetchTotalEventsHosted = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setTotalEventsHosted(response.data.total_events_hosted);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
+  const fetchTotalTicketsSold = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setTotalTicketsSold(response.data.total_tickets_sold);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="flex-1 flex">
       <Sidebar profileType="organization" />
@@ -149,10 +175,8 @@ const AnalyticsPage = () => {
               <h3 className="text-lg font-semibold mb-2">
                 Total Events Hosted
               </h3>
-              <p className="text-gray-600">Total Number of Events:</p>
-              <p className="text-gray-600">
-                (get events by organization ID and display event cards here)
-              </p>
+              <p className="text-gray-600">Total Number of Events: {totalEventsHosted}</p>
+              <p className="text-gray-600">Total Number of Tickets Sold: {totalTicketsSold}</p>
             </div>
           </div>
 

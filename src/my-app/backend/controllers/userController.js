@@ -125,6 +125,7 @@ async function getUserById(req, res) {
         } else {
             // check if user is organization
             if (result.rows[0].is_organization){
+                //TODO: put this in a separate function
                 //get the total income of the organization
                 const query2 = `
                     SELECT SUM(item.ticket_price * item.quantity) AS total_income
@@ -151,7 +152,18 @@ async function getUserById(req, res) {
                 `
                 const best_selling_event = await cluster.query(query3, options);
                 result.rows[0].best_selling_event = best_selling_event.rows[0];
-                console.log("BEST SELLING EVENT", best_selling_event.rows[0]);
+
+                // get total number of tickets sold and total number of events hosted
+                const query4 = `
+                    SELECT COUNT(DISTINCT event.event_id) AS total_events_hosted, SUM(item.quantity) AS total_tickets_sold
+                    FROM event_shop._default.transactions AS txn
+                    UNNEST txn.items AS item
+                    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+                    WHERE event.organization_id = $1
+                `
+                const total_tickets = await cluster.query(query4, options);
+                result.rows[0].total_events_hosted = total_tickets.rows[0].total_events_hosted;
+                result.rows[0].total_tickets_sold = total_tickets.rows[0].total_tickets_sold;
             }
             res.json(result.rows[0]);
         }
