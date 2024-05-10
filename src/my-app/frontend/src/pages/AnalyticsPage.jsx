@@ -14,6 +14,11 @@ const AnalyticsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const chartContainer = useRef(null);
   const chartInstance = useRef(null);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [bestSellingEvent, setBestSellingEvent] = useState(null);
+
+  // get the user id from the user context
+  const userId = user.user_id;
 
   useEffect(() => {
     if (!user.is_organization) {
@@ -21,7 +26,13 @@ const AnalyticsPage = () => {
     } else {
       // fetch
     }
-  }, []);
+    if(userId){
+      fetchTotalIncome(userId);
+      fetchBestSellingEvent(userId);
+    }
+
+
+  }, [userId]);
 
   // SAMPLE DATA FOR REVENUE DATA OF TICKET TYPES
   const revenueData = [
@@ -35,6 +46,7 @@ const AnalyticsPage = () => {
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
+    
 
     if (chartContainer && chartContainer.current) {
       const ctx = chartContainer.current.getContext("2d");
@@ -75,6 +87,30 @@ const AnalyticsPage = () => {
     };
   }, []);
 
+  const fetchTotalIncome = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setTotalIncome(response.data.total_income);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
+  const fetchBestSellingEvent = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setBestSellingEvent(response.data.best_selling_event);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="flex-1 flex">
       <Sidebar profileType="organization" />
@@ -87,7 +123,7 @@ const AnalyticsPage = () => {
           <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-3">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg font-semibold mb-2">Total Income</h3>
-              <p className="text-gray-600">Display total income here</p>
+              <p className="text-gray-600">${totalIncome}</p>
             </div>
           </div>
 
@@ -95,11 +131,17 @@ const AnalyticsPage = () => {
           <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-1">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg font-semibold mb-2">Best Selling Event</h3>
-              <p className="text-gray-600">
-                Display best selling event here with event card
-              </p>
+              {bestSellingEvent ? (
+                <div>
+                  <p className="text-gray-600">Name: {bestSellingEvent.event_name}</p>
+                  <p className="text-gray-600">Total Tickets Sold: {bestSellingEvent.total_tickets_sold}</p>
+                </div>
+              ) : (
+                <p className="text-gray-600">No data</p>
+              )}
             </div>
           </div>
+
 
           {/* Total Events Hosted */}
           <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-2">

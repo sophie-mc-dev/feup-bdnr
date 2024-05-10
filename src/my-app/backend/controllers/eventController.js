@@ -30,6 +30,7 @@ async function getEventById(req, res) {
     if (!result) {
       res.status(404).send('Event not found');
     } else {
+      // TODO: put this inside a function
       // get the total revenue from the event too
       const query = `
         SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income

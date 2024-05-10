@@ -114,7 +114,7 @@ async function updateUser(req, res) {
 // get user profile
 async function getUserById(req, res) {
     let userId = req.params.user_id;
-    const query = 'SELECT name, username, email FROM users WHERE user_id = $1';
+    const query = 'SELECT name, username, is_organization, email FROM users WHERE user_id = $1';
     const params = {parameters: [userId]};
 
     try {
@@ -123,6 +123,36 @@ async function getUserById(req, res) {
         if (!result) {
             res.status(404).send('User not found');
         } else {
+            // check if user is organization
+            if (result.rows[0].is_organization){
+                //get the total income of the organization
+                const query2 = `
+                    SELECT SUM(item.ticket_price * item.quantity) AS total_income
+                    FROM event_shop._default.transactions AS txn
+                    UNNEST txn.items AS item
+                    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+                    WHERE event.organization_id = $1
+                `
+                const options = { parameters: [userId] };
+                const { cluster } = await connectToCouchbase();
+                const revenue = await cluster.query(query2, options);
+                result.rows[0].total_income = revenue.rows[0].total_income;
+
+                //get the best selling event
+                const query3 = `
+                    SELECT event.event_name, SUM(item.quantity) AS total_tickets_sold
+                    FROM event_shop._default.transactions AS txn
+                    UNNEST txn.items AS item
+                    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+                    WHERE event.organization_id = $1
+                    GROUP BY event.event_name
+                    ORDER BY total_tickets_sold DESC
+                    LIMIT 1    
+                `
+                const best_selling_event = await cluster.query(query3, options);
+                result.rows[0].best_selling_event = best_selling_event.rows[0];
+                console.log("BEST SELLING EVENT", best_selling_event.rows[0]);
+            }
             res.json(result.rows[0]);
         }
     } catch (error) {
