@@ -29,7 +29,7 @@ const EventAnalyticsCard = ({totalEventRevenue, revenueByTicketType, totalTicket
                 {revenueByTicketType.map((data, index) => (
                   <li key={index} className="flex justify-between">
                     <span>{data.ticket_type}</span>
-                    <span className="font-semibold">${data.total_income}</span>
+                    <span className="font-semibold">${data.revenue}</span>
                   </li>
                 ))}
               </ul>

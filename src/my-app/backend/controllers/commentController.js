@@ -1,6 +1,5 @@
 const { connectToCouchbase } = require('../db/connection');
 const uuid = require('uuid');
-const { use } = require('../routes/commentRoutes');
 
 
 async function getCommentsByEventId(req, res) {

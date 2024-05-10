@@ -70,7 +70,7 @@ const EventPage = () => {
     try {
       const response = await axios.get("http://localhost:3000/events/" + id);
       // get the top 3 ticket types
-      setRevenuePerType(response.data.revenueByTicketType.slice(0, 3));
+      setRevenuePerType(response.data.revenueByTicketType);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -89,7 +89,7 @@ const EventPage = () => {
     try {
       const response = await axios.get("http://localhost:3000/events/" + id);
       setTotalTicketsSoldType(
-        response.data.ticketsSoldByTicketType.slice(0, 3)
+        response.data.ticketsSoldByTicketType
       );
     } catch (error) {
       console.error("Error fetching data:", error);
