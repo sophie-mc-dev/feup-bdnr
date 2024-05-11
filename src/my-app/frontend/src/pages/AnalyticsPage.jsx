@@ -21,16 +21,14 @@ const AnalyticsPage = () => {
   const [totalTicketsSold, setTotalTicketsSold] = useState(0);
   const [ticketsByType, setTicketsByType] = useState([]);
   const [revenueByTicketType, setRevenueByTicketType] = useState([]);
+  const [totalIncomeByDate, setTotalIncomeByDate] = useState([]);
+  const [totalTicketsSoldByDate, setTotalTicketsSoldByDate] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isLoadingDate, setIsLoadingDate] = useState(false);
 
   // get the user id from the user context
   const userId = user.user_id;
-
-  // SAMPLE DATA FOR REVENUE DATA OF TICKET TYPES
-  const revenueData = [
-    { ticketType: "VIP", revenue: 1500 },
-    { ticketType: "General Admission", revenue: 2500 },
-    { ticketType: "Early Bird", revenue: 1000 },
-  ];
 
   useEffect(() => {
     if (!user.is_organization) {
@@ -45,8 +43,35 @@ const AnalyticsPage = () => {
       fetchTotalTicketsSold(userId);
       fetchTicketsByType(userId);
       fetchRevenueByTicketType(userId);
+      fetchTotalIncomeByDate(userId);
+      fetchTotalTicketsSoldByDate(userId);
     }
   }, [userId]);
+
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    setIsLoadingDate(true);
+  
+    // Construct the formatted start and end dates
+    const formattedStartDate = `${startDate}T00:00:00`;
+    const formattedEndDate = `${endDate}T00:00:00`;
+  
+    try {
+      const response = await axios.get(`http://localhost:3000/users/${userId}`, {
+        params: {
+          startDate: formattedStartDate,
+          endDate: formattedEndDate
+        }
+      });
+      // Update the state variables for totalIncomeByDate and totalTicketsSoldByDate
+      setTotalIncomeByDate(response.data.income_from_date_range);
+      setTotalTicketsSoldByDate(response.data.tickets_sold_by_date_range);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingDate(false);
+    }
+  };
 
   const fetchTotalIncome = async (userId) => {
     try {
@@ -113,6 +138,30 @@ const AnalyticsPage = () => {
       setIsLoading(true);
       const response = await axios.get("http://localhost:3000/users/" +userId);
       setRevenueByTicketType(response.data.revenue_by_ticket_type);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
+  const fetchTotalIncomeByDate = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setTotalIncomeByDate(response.data.income_from_date_range);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  }
+
+  const fetchTotalTicketsSoldByDate = async (userId) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/users/" +userId);
+      setTotalTicketsSoldByDate(response.data.tickets_sold_by_date_range);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -214,6 +263,41 @@ const AnalyticsPage = () => {
               </h3>
               <p className="text-gray-600">Total Number of Events: {totalEventsHosted}</p>
               <p className="text-gray-600">Total Number of Tickets Sold: {totalTicketsSold}</p>
+            </div>
+          </div>
+
+          {/* Data from [Start Date] to [End Date] */}
+          <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-2">
+            <div className="px-4 py-5 sm:px-6">
+              <h3 className="text-lg font-semibold mb-2">
+                Ticket Sales in a time interval
+              </h3>
+
+              <form onSubmit={handleFormSubmit}>
+                <input
+                  type="text"
+                  placeholder="Start Date (YYYY-MM-DD)"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="End Date (YYYY-MM-DD)"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+                <button type="submit">Submit</button>
+              </form>
+              {isLoadingDate ? (
+                <Loading />
+              ):              
+                <section>
+                  <p className="text-gray-600">Total Tickets Sold: {totalTicketsSoldByDate}</p>
+                  <p className="text-gray-600">Total Income: ${totalIncomeByDate}</p>
+                </section>
+              }
+
+
             </div>
           </div>
 
