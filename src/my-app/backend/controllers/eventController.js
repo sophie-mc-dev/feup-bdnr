@@ -8,12 +8,18 @@ async function getAnalytics(result, eventId) {
     UNNEST txn.items AS item
     JOIN event_shop._default.events AS event ON item.event_id = event.event_id
     WHERE event.event_id = $1
+    AND txn.transaction_status = "purchased"
     GROUP BY event.event_id, event.event_name
   `
   const options = { parameters: [eventId] };
   const { cluster } = await connectToCouchbase();
   const revenue = await cluster.query(query, options);
-  result.value.total_income = revenue.rows[0].total_income;
+  if(revenue.rows.length === 0) {
+    result.value.total_income = 0;
+  }
+  else {
+    result.value.total_income = revenue.rows[0].total_income;
+  }
 
   //get the revenue by ticket type
   const query2 = `
@@ -22,6 +28,7 @@ async function getAnalytics(result, eventId) {
     UNNEST txn.items AS item
     JOIN event_shop._default.events AS event ON item.event_id = event.event_id
     WHERE event.event_id = $1
+    AND txn.transaction_status = "purchased"
     GROUP BY item.ticket_type
   `
 
@@ -49,6 +56,7 @@ async function getAnalytics(result, eventId) {
     FROM event_shop._default.transactions AS txn
     UNNEST txn.items AS item
     JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+    AND txn.transaction_status = "purchased"
     WHERE event.event_id = $1
   `
   const totalTicketsSold = await cluster.query(query3, options);
@@ -61,6 +69,7 @@ async function getAnalytics(result, eventId) {
     UNNEST txn.items AS item
     JOIN event_shop._default.events AS event ON item.event_id = event.event_id
     WHERE event.event_id = $1
+    AND txn.transaction_status = "purchased"
     GROUP BY item.ticket_type
     ORDER BY quantity DESC
     `

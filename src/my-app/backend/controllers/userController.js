@@ -9,6 +9,7 @@ async function getAnalytics(result, userId, startDate, endDate) {
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
+        AND txn.transaction_status = "purchased"
     `
     const options = { parameters: [userId] };
     const { cluster } = await connectToCouchbase();
@@ -22,6 +23,7 @@ async function getAnalytics(result, userId, startDate, endDate) {
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
+        AND txn.transaction_status = "purchased"
         GROUP BY event.event_name
         ORDER BY total_tickets_sold DESC
         LIMIT 1    
@@ -36,6 +38,7 @@ async function getAnalytics(result, userId, startDate, endDate) {
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
+        AND txn.transaction_status = "purchased"
     `
     const total_tickets = await cluster.query(query4, options);
     result.rows[0].total_events_hosted = total_tickets.rows[0].total_events_hosted;
@@ -48,6 +51,7 @@ async function getAnalytics(result, userId, startDate, endDate) {
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
+        AND txn.transaction_status = "purchased"
         GROUP BY item.ticket_type
         ORDER BY quantity DESC
     `
@@ -61,6 +65,7 @@ async function getAnalytics(result, userId, startDate, endDate) {
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
+        AND txn.transaction_status = "purchased"
         GROUP BY item.ticket_type
         ORDER BY total_income DESC
     `
@@ -69,18 +74,17 @@ async function getAnalytics(result, userId, startDate, endDate) {
 
 
 
-    // income from date range but append a "Z"
+    // income from date range
     const query7 = `
         SELECT SUM(item.ticket_price * item.quantity) AS total_income
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
-        AND STR_TO_MILLIS(CONCAT(txn.transaction_date, 'Z')) BETWEEN STR_TO_MILLIS(CONCAT($2, 'Z')) AND STR_TO_MILLIS(CONCAT($3, 'Z'))
-        
+        AND txn.transaction_status = "purchased"
+        AND txn.transaction_date BETWEEN $2 AND $3  
     `
-    console.log("startDate", startDate)
-    console.log("endDate", endDate)
+
     const date = new Date();
 
     const options2 = { parameters: [userId, startDate, endDate] };
@@ -89,12 +93,13 @@ async function getAnalytics(result, userId, startDate, endDate) {
 
     // get the total number of tickets sold by date range
     const query8 = `
-        SELECT COUNT(*) AS total_tickets_sold
+        SELECT COUNT(DISTINCT event.event_id) AS total_events_hosted, SUM(item.quantity) AS total_tickets_sold
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
-        AND STR_TO_MILLIS(CONCAT(txn.transaction_date, 'Z')) BETWEEN STR_TO_MILLIS(CONCAT($2 , 'Z')) AND STR_TO_MILLIS(CONCAT($3 , 'Z'))
+        AND txn.transaction_status = "purchased"
+        AND txn.transaction_date BETWEEN $2 AND $3
     `
     const tickets_sold_by_date_range = await cluster.query(query8, options2);
     result.rows[0].tickets_sold_by_date_range = tickets_sold_by_date_range.rows[0].total_tickets_sold;
