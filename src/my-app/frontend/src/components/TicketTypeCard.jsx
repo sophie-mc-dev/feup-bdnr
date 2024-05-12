@@ -51,7 +51,7 @@ const TicketTypeCard = ({ ticket, event_date, event_id, event_name }) => {
           <p className=" text-gray-600">${ticket.price}</p>
 
           {/* Button to add to cart */}
-          {isLoggedIn && !user.is_organization && (
+          {isLoggedIn && !user.is_organization && event_date >= new Date().toISOString().slice(0, 19) && (
             <button onClick={handleAddToCartClick} className="bg-[#494391] text-white font-medium text-base rounded-lg px-4 py-2 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105">
               Add to Cart
             </button>

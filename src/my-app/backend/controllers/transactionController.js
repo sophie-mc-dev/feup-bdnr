@@ -40,7 +40,7 @@ async function purchaseTickets(req, res) {
     }
     
     // Check if all tickets are for upcoming events
-    const pastEvents = items.every((item) => new Date(item.event_date) < new Date());
+    const pastEvents = items.every((item) => item.event_date < new Date().toISOString().slice(0, 19));
     if (pastEvents) { 
       return res.json({ message: "Error: Cannot purchase tickets for past events" });
     }
