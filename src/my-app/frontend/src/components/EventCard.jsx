@@ -7,7 +7,7 @@ import FormatDate from "../utils/FormattedDate"
 const EventCard = ({ event }) => {
   const { user, isLoggedIn, updateLikedEvents } = useContext(UserContext);
   const [likeStateLoading, setLikeStateLoading] = useState(false);
-  const [liked, setLiked] = useState(isLoggedIn && user.liked_events.includes(event.event_id));
+  const [liked, setLiked] = useState(isLoggedIn && !user.is_organization &&user.liked_events.includes(event.event_id));
   const [numLikes, setNumLikes] = useState(event.num_likes);
 
   const handleLikeClick = async () => {

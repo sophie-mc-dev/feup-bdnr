@@ -39,7 +39,7 @@ const EventPage = () => {
       setEventInfo(response.data);
       setIsInfoLoading(false);
       setNumLikes(response.data.num_likes);
-      setLiked(isLoggedIn && user.liked_events.includes(response.data.event_id))
+      setLiked(isLoggedIn && !user.is_organization && user.liked_events.includes(response.data.event_id))
     } catch (error) {
       setIsInfoLoading(false);
     }

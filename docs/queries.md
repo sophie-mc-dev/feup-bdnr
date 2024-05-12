@@ -175,6 +175,22 @@ FROM events
 WHERE event_id = "1"
 ```
 
+### Filter Events
+
+**Note**: in these queries, there is a condition searching for *event_id*. This happens because we are getting the ID's from a previously obtained array of results. Here is how we get this array, which can be seen in the **eventController.js** file:
+```js
+async function ftsMatchWord(term) {
+  const { cluster, couchbase } = await connectToCouchbase()
+
+  const result = await cluster.searchQuery('event_shop._default.eventSearch', 
+                                            couchbase.SearchQuery.match(term));
+
+  return result
+
+}
+```
+This uses the FTS (Full-Text Search) index we created, a feature made accessible on Couchbase, and returns the results which match the searched term. Then, we iterate over the different elements of the result and iterate over the obtained *event_id*'s.
+
 - **Filter events** according to location, category, date, search word and sort them by date
 ```n1ql
 SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
@@ -182,36 +198,40 @@ FROM event_shop._default.events
 WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
 AND "Music" IN categories
 AND location = "Porto"
+AND (event_id=1 OR event_id=2 OR event_id=3)
 ORDER BY MILLIS(date) ASC
 ```
 
-- Filter events according to location, category, date, search word and sort them by popularity
+- **Filter events** according to location, category, date, search word and sort them by popularity
 ```n1ql
 SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
 FROM event_shop._default.events 
 WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
 AND "Music" IN categories
 AND location = "Porto"
+AND (event_id=1 OR event_id=2 OR event_id=3)
 ORDER BY num_likes DESC, date ASC, event_name ASC
 ```
 
-- Filter events according to location, category, date, search word and sort them by price (ascending)
+- **Filter events** according to location, category, date, search word and sort them by price (ascending)
 ```n1ql
 SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
 FROM event_shop._default.events 
 WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
 AND "Music" IN categories
 AND location = "Porto"
+AND (event_id=1 OR event_id=2 OR event_id=3)
 ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) ASC, date ASC, event_name ASC
 ```
 
-- Filter events according to location, category, date, search word and sort them by price (descending)
+- **Filter events** according to location, category, date, search word and sort them by price (descending)
 ```n1ql
 SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
 FROM event_shop._default.events 
 WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
 AND "Music" IN categories
 AND location = "Porto"
+AND (event_id=1 OR event_id=2 OR event_id=3)
 ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) DESC, date ASC, event_name ASC
 ```
 
@@ -356,4 +376,118 @@ ORDER BY i.event_date DESC, i.event_name ASC
 ```n1ql
 DELETE FROM transactions 
 WHERE user_id = "123"
+```
+
+## Organization Analytics Queries
+- Get the total income of the organization by providing the *organization_id*
+```n1ql
+SELECT SUM(item.ticket_price * item.quantity) AS total_income
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.organization_id = $1
+AND txn.transaction_status = "purchased"
+```
+
+- Get the best selling event of the organization by providing the *organization_id*
+```n1ql
+SELECT event.event_name, SUM(item.quantity) AS total_tickets_sold
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.organization_id = $1
+AND txn.transaction_status = "purchased"
+GROUP BY event.event_name
+ORDER BY total_tickets_sold DESC
+LIMIT 1
+```
+
+- Get the total number of sold tickets, as well as the total number of events hosted by providing the *organization_id*
+```n1ql
+SELECT COUNT(DISTINCT event.event_id) AS total_events_hosted, SUM(item.quantity) AS total_tickets_sold
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.organization_id = $1
+AND txn.transaction_status = "purchased"
+```
+
+- Get the total number of sold tickets by ticket type by providing the *organization_id*
+```n1ql
+SELECT item.ticket_type, SUM(item.quantity) AS quantity
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.organization_id = $1
+AND txn.transaction_status = "purchased"
+GROUP BY item.ticket_type
+ORDER BY quantity DESC
+```
+
+- Get the total income by ticket type by providing the *organization_id*
+```n1ql
+SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS total_income
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.organization_id = $1
+AND txn.transaction_status = "purchased"
+GROUP BY item.ticket_type
+ORDER BY total_income DESC
+```
+
+- Get the total income in an interval of time by providing a *startDate*, *endDate* and the *organization_id*
+```n1ql
+SELECT SUM(item.ticket_price * item.quantity) AS total_income
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.organization_id = $1
+AND txn.transaction_status = "purchased"
+AND txn.transaction_date BETWEEN $2 AND $3
+```
+
+## Organized Events Queries
+- Get the total income from the event by providing the *event_id*
+```n1ql
+SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.event_id = $1
+AND txn.transaction_status = "purchased"
+GROUP BY event.event_id, event.event_name
+```
+
+- Get the total income from the event by ticket type by providing the *event_id*
+```n1ql
+SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS revenue
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.event_id = $1
+AND txn.transaction_status = "purchased"
+GROUP BY item.ticket_type
+```
+
+- Get the total number of sold tickets by providing the *event_id*
+```n1ql
+SELECT SUM(item.quantity) AS totalTicketsSold
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+AND txn.transaction_status = "purchased"
+WHERE event.event_id = $1
+```
+
+- Get the total number of sold tickets by ticket type by providing the *event_id*
+```n1ql
+SELECT item.ticket_type, SUM(item.quantity) AS quantity
+FROM event_shop._default.transactions AS txn
+UNNEST txn.items AS item
+JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+WHERE event.event_id = $1
+AND txn.transaction_status = "purchased"
+GROUP BY item.ticket_type
+ORDER BY quantity DESC
 ```
