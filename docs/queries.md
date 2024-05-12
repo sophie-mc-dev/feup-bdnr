@@ -54,9 +54,18 @@ WHERE username = LOWER("John_Doe") OR email = LOWER("John_Doe@example.com")
 ```
 
 - **Register** a new user
-
 ```n1ql
-
+INSERT INTO users (KEY, VALUE)
+VALUES ("new_user_id", { 
+    "user_id": "new_user_id",
+    "name": "John Doe",
+    "username": "john_doe",
+    "email": "john_doe@example.com",
+    "password": "my_password",
+    "is_organization": false,
+    "liked_events": [],
+    "comments": []
+})
 ```
 
 - Before updating the information of a specific user, verify if there is any user with the provided username or email
@@ -87,6 +96,28 @@ WHERE user_id = "123"
 ORDER BY MILLIS(c.date) DESC
 ```
 
+- **Delete user** by providing *user_id*
+```n1ql
+DELETE FROM users 
+WHERE user_id = "123"
+```
+
+- **Like an event** by providing the *user_id* and *event_id* 
+```n1ql
+UPDATE users 
+SET liked_events = ARRAY_CONCAT(["1"], liked_events) 
+WHERE user_id = "123" 
+RETURNING RAW liked_events
+```
+
+- **Dislike an event** by providing the *user_id* and *event_id* 
+```n1ql
+UPDATE users 
+SET liked_events = ARRAY_REMOVE(liked_events, "1") 
+WHERE user_id = "123" 
+RETURNING RAW liked_events
+```
+
 - Get **event comments** by providing *event_id*
 ```n1ql
 SELECT u.name as user_name, u.user_id, c.*
@@ -98,16 +129,25 @@ ORDER BY MILLIS(c.date) DESC
 
 - Add **new comment** to a specific event
 ```n1ql
+UPDATE users 
+SET comments = ARRAY_APPEND(comments, { 
+    "comment_id": "new_comment_id",
+    "date": "2024-05-12",
+    "text": "New comment text",
+    "event_id": "1",
+    "event_name": "Event Name"
+})
+WHERE user_id = "123";
 ```
 
-- Delete comment by providing comment_index and user_id
+- **Delete comment** by providing comment_index and user_id
 ```n1ql
 UPDATE users 
 SET comments = ARRAY_REMOVE(comments, comments[0]) 
 WHERE user_id = "123"
 ```
 
-- Edit a comment by providing comment_index and user_id
+- **Edit a comment** by providing comment_index and user_id
 ```n1ql
 UPDATE users 
 SET comments[1].text = "This is the new comment text"
@@ -118,7 +158,7 @@ RETURNING comments
 
 ## Events Collection Queries
 
-- Get upcoming events to display on Home page
+- Get **upcoming events** 
 ```n1ql
 SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
 FROM events
@@ -128,27 +168,51 @@ LIMIT 8
 OFFSET 0
 ```
 
-- Get event information by providing *event_id*
+- Get **event information** by providing *event_id*
 ```n1ql
 SELECT * 
 FROM events
 WHERE event_id = "1"
 ```
 
-- Filter events according to location, category, date, search word and sort them by date
+- **Filter events** according to location, category, date, search word and sort them by date
 ```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM event_shop._default.events 
+WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
+AND "Music" IN categories
+AND location = "Porto"
+ORDER BY MILLIS(date) ASC
 ```
 
 - Filter events according to location, category, date, search word and sort them by popularity
 ```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM event_shop._default.events 
+WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
+AND "Music" IN categories
+AND location = "Porto"
+ORDER BY num_likes DESC, date ASC, event_name ASC
 ```
 
 - Filter events according to location, category, date, search word and sort them by price (ascending)
 ```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM event_shop._default.events 
+WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
+AND "Music" IN categories
+AND location = "Porto"
+ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) ASC, date ASC, event_name ASC
 ```
 
 - Filter events according to location, category, date, search word and sort them by price (descending)
 ```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM event_shop._default.events 
+WHERE DATE_FORMAT_STR(date, '1111-11-11') = "2024-02-15" 
+AND "Music" IN categories
+AND location = "Porto"
+ORDER BY ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) DESC, date ASC, event_name ASC
 ```
 
 - Get a user's favorite events by providing the *user_id*
@@ -164,4 +228,132 @@ WHERE ARRAY_CONTAINS (
 )
 ```
 
+-  Get past events associated with a specific *organization_id*
+```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM events
+WHERE organization_id="124" AND MILLIS(date) < NOW_MILLIS()
+ORDER BY MILLIS(date) DESC
+```
 
+-  Get upcoming events associated with a specific *organization_id*
+```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM events
+WHERE organization_id="124" AND MILLIS(date) >= NOW_MILLIS()
+ORDER BY MILLIS(date) ASC
+```
+
+- Get events associated with a specific artist by providing their *artist_id*
+```n1ql
+SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
+FROM events
+WHERE ARRAY_CONTAINS (
+    (SELECT RAW event_id 
+    FROM artists as a
+    UNNEST a.event_ids AS event_id
+    WHERE a.artist_id = "1"), 
+    event_id    
+)
+ORDER BY MILLIS(date) ASC
+```
+
+- Increase the number of likes of an event when a user likes it
+```n1ql
+UPDATE events 
+SET num_likes = num_likes + 1 
+WHERE event_id = "1"
+```
+
+- Decrease the number of likes of an event when a user dislikes it
+```n1ql
+UPDATE events 
+SET num_likes = num_likes - 1 
+WHERE event_id = "1"
+```
+
+## Transactions Collection Queries
+- Get purchases of a user by providing the *user_id*
+```n1ql
+SELECT t.*, ARRAY_SUM(ARRAY item.quantity * item.ticket_price FOR item IN t.items END) AS total_price
+FROM transactions AS t
+WHERE user_id = "123" AND t.transaction_status = "purchased"
+```
+
+- Purchase tickets on the shopping cart by providing the *user_id*
+```n1ql
+UPDATE transactions 
+SET transaction_status = "purchased", transaction_date = "2024-05-12T12:50:00"
+WHERE user_id = "123" AND transaction_status = "shopping_cart"
+```
+
+- Get items on the shopping cart of a user by providing the *user_id*
+```n1ql
+SELECT RAW items 
+FROM transactions 
+WHERE user_id = "123" AND transaction_status = "shopping_cart"
+```
+
+- Add item to the shopping cart by providing the *user_id*
+```n1ql
+UPDATE transactions 
+SET items = ARRAY_APPEND(items, { 
+    "event_id": "91",
+    "event_name": "Whimsical Technology Seminar",
+    "event_date": "2024-10-06T18:00:00",
+    "ticket_type": "Regular Ticket",
+    "ticket_price": 50,
+    "quantity": 1
+})
+WHERE user_id = "123" and transaction_status="shopping_cart";
+```
+
+- Delete item from the shopping cart by providing the item index and *user_id*
+```n1ql
+UPDATE transactions 
+SET items = ARRAY_REMOVE(items, items[0]) 
+WHERE user_id = "123" AND transaction_status = "shopping_cart"
+RETURNING items
+```
+
+- Update cart item quantity by providing the *user_id*, quantity and item index
+```n1ql
+UPDATE transactions 
+SET items[0].quantity = 3 
+WHERE user_id = "123" AND transaction_status = "shopping_cart"
+RETURNING items
+```
+
+- Empty shopping cart of a specific user by providing the *user_id*
+```n1ql
+UPDATE transactions 
+SET items = [] 
+WHERE user_id = "123" AND transaction_status = "shopping_cart" 
+RETURNING items
+```
+
+- Get tickets for upcoming events by providing the *user_id*
+```n1ql
+SELECT i.event_id, i.event_name, i.event_date, i.ticket_type, SUM(i.quantity) AS quantity
+FROM transactions AS t 
+UNNEST items AS i
+WHERE t.user_id="123" AND t.transaction_status="purchased" AND MILLIS(i.event_date) >= NOW_MILLIS()
+GROUP BY i.event_id, i.ticket_type, i.event_name, i.event_date
+ORDER BY i.event_date, i.event_name
+```
+
+- Get tickets for past events by providing the *user_id*
+```n1ql
+SELECT i.event_id, i.event_name, i.event_date, i.ticket_type, SUM(i.quantity) AS quantity
+FROM transactions AS t 
+UNNEST items AS i
+WHERE t.user_id="123" AND t.transaction_status="purchased" AND MILLIS(i.event_date) < NOW_MILLIS()
+GROUP BY i.event_id, i.ticket_type, i.event_name, i.event_date
+ORDER BY i.event_date DESC, i.event_name ASC
+```
+
+- Delete transactions of a specific user by providing the *user_id*
+```n1ql
+DELETE FROM transactions 
+WHERE user_id = "123"
+```
