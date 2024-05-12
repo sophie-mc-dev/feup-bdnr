@@ -109,3 +109,17 @@ http://localhost:8094/api/bucket/"$COUCHBASE_BUCKET_NAME"/scope/_default/index/e
   },
   "sourceParams": {}
 }'
+
+
+# Step 9: Create secondary indexes
+echo; echo "Step 8: Creating index for 'users' collection"
+docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_event_comments ON event_shop._default.users((ALL ARRAY c.event_id FOR c IN comments END));"'
+docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_user_info ON event_shop._default.users(user_id, username, email);"'
+
+# Step 10: Create index for 'events' collection
+echo; echo "Step 9: Creating index for 'events' collection"
+docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_event_info ON event_shop._default.events(event_id, STR_TO_MILLIS(date), organization_id);"'
+
+# Step 11: Create index for 'transactions' collection
+echo; echo "Step 10: Creating index for 'transactions' collection"
+docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_transaction_info ON event_shop._default.transactions((ALL ARRAY STR_TO_MILLIS(i.event_date) FOR i IN items END), user_id, transaction_status);"'
