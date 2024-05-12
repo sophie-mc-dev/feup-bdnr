@@ -115,17 +115,19 @@ const CommentsPage = () => {
       <Sidebar profileType="user" />
 
       <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
-        <h3 className="text-2xl font-bold mb-6">My Comments</h3>
-        <div className="mb-4 flex justify-end">
-          <select
-            className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
-            value={sortOrder}
-            onChange={handleSortChange}
-          >
-            <option value="">Sort by</option>
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-          </select>
+        <div className="flex flex-wrap justify-between align-baseline">
+          <h3 className="text-2xl font-bold mb-6">My Comments</h3>
+          <div className="mb-4 flex justify-end flex-grow">
+            <select
+              className="select select-bordered max-w-xs text-base bg-gray-200 text-gray-800 outline-none border-2 px-4 py-2 rounded-lg"
+              value={sortOrder}
+              onChange={handleSortChange}
+            >
+              <option value="">Sort by</option>
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
         </div>
         {isLoading ? (
           <div className="flex items-center justify-center">

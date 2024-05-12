@@ -62,7 +62,9 @@ const TicketsPage = () => {
           <h3 className="text-xl font-semibold mb-5">Upcoming Events</h3>
           <div className="flex flex-wrap gap-5 mb-6">
             {isLoadingUpcoming ? (
+              <div className="flex w-full justify-center">
               <Loading />
+              </div>
             ) : upcomingTickets.length === 0 ? (
               <p>No tickets found.</p>
             ) : (
@@ -82,10 +84,12 @@ const TicketsPage = () => {
         </section>
 
         <section>
-          <h3 className="text-xl font-semibold pt-20 mb-5">Past Events</h3>
-          <div className="pr-10 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <h3 className="text-xl font-semibold mt-2 mb-5">Past Events</h3>
+          <div className="flex flex-wrap gap-5 mb-6">
             {isLoadingPast ? (
+               <div className="flex w-full justify-center">
               <Loading />
+              </div>
             ) : pastTickets.length === 0 ? (
               <p>No tickets found.</p>
             ) : (

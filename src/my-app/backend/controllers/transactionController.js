@@ -48,7 +48,7 @@ async function purchaseTickets(req, res) {
     // Buy tickets
     const query_update_status = `
       UPDATE transactions 
-      SET transaction_status = $1 AND transaction_date = $2 
+      SET transaction_status = $1, transaction_date = $2 
       WHERE user_id = $3 AND transaction_status = $4
     `;
     const updateOptions = { parameters: ["purchased", new Date().toISOString().slice(0, 19), user_id, "shopping_cart"] };

@@ -238,7 +238,7 @@ const EventPage = () => {
           />
         </svg>
         <p className="mb-4">
-          Location: {eventInfo.location} | {eventInfo.address}
+          <span className="font-medium"> Location: </span>{eventInfo.location} | {eventInfo.address}
         </p>
         </div>
         <div className="flex flex-row gap-2 text-sm text-gray-600">
@@ -255,7 +255,7 @@ const EventPage = () => {
                 clipRule="evenodd"
               />
             </svg>
-            <p className="mb-4">Date: {FormatDate(eventInfo.date)}</p>
+            <p className="mb-4"> <span className="font-medium">Date: </span> {FormatDate(eventInfo.date)}</p>
           </div>
           <p className="text-justify mb-4">{eventInfo.description}</p>
           <h3 className="mt-10 mb-3 text-lg font-semibold">Ticket Types:</h3>
