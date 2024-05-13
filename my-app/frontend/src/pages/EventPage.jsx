@@ -371,6 +371,11 @@ const EventPage = () => {
               </button>
             </div>
           )}
+
+          {!isCommentsLoading && comments.length === 0 && (
+            <p>No comments available.</p>
+          )}
+
           {isCommentsLoading ? (
             <Loading />
           ) : (

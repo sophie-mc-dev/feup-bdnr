@@ -124,3 +124,4 @@ docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Admin
 # Step 11: Create index for 'transactions' collection
 echo; echo "Step 10: Creating index for 'transactions' collection"
 docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_transaction_info ON event_shop._default.transactions((ALL ARRAY STR_TO_MILLIS(i.event_date) FOR i IN items END), user_id, transaction_status);"'
+docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_items_transaction_status ON event_shop._default.transactions(ALL items) WHERE transaction_status = 'purchased'"'
