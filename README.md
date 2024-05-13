@@ -1,5 +1,12 @@
 # feup-bdnr
 
+## Dependencies
+This project uses the following libraries:
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Node.js](https://nodejs.org/en/docs/)
+- [npm (Node Package Manager)](https://docs.npmjs.com/)
+
 ## Project setup
 
 Here are the full steps to get the project up and running:
