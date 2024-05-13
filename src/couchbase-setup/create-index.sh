@@ -88,7 +88,8 @@ http://localhost:8094/api/bucket/"$COUCHBASE_BUCKET_NAME"/scope/_default/index/e
               "enabled": true,
               "fields": [
                 {
-                  "analyzer": "en",
+                  "analyzer": "simple",
+                  "docvalues": true,
                   "include_in_all": true,
                   "include_term_vectors": true,
                   "index": true,
