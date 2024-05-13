@@ -1,7 +1,7 @@
 #!/bin/bash
 
-backend_dir="./my-app/backend"
-frontend_dir="./my-app/frontend"
+backend_dir="backend"
+frontend_dir="frontend"
 couchbase_dir="./couchbase-setup"
 
 cd $couchbase_dir || exit
@@ -40,4 +40,4 @@ cd ../..
 cd $frontend_dir || exit
 
 docker build -t couchbase/frontend .
-docker run -d -p 5173:5173 --name couchbase-frontend couchbase/frontend
+docker run -d -p 8080:8080 --name couchbase-frontend couchbase/frontend
