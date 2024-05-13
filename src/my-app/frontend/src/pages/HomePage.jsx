@@ -29,8 +29,10 @@ function HomePage() {
   const [filters, setFilters] = useState(initialFilters);
 
   useEffect(() => {
-    fetchCategories();
-    fetchLocations();
+    return () => {
+      fetchCategories();
+      fetchLocations();
+    }
   }, []);
 
   useEffect(() => {

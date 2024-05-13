@@ -25,7 +25,6 @@ function RegisterPage() {
     }, [user]);
 
     const onSubmit = async(data) => {
-        console.log(data);
         setErrorMessage("");
         if (!data.name || !data.email || !data.username || !data.password || !data.confirmPassword) {
             setErrorMessage("Please fill in all fields");

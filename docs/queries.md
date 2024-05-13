@@ -77,7 +77,7 @@ WHERE (username = "john_doe" OR email = "john_doe@gmail.com") AND user_id != "12
 - **Update** an existing user profile by providing *user_id*
 ```n1ql
 UPDATE users 
-SET name = "Mary Jane", username = "mary_jane", email = "mary_jane@example.com", password = "123456"
+SET name = "Mary Jane", username = "mary_jane", email = "mary_jane@example.com", `password` = "123456"
 WHERE user_id = "123";
 ```
 

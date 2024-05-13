@@ -199,7 +199,7 @@ async function updateUser(req, res) {
 
         if (password !== '') {
             params.push(password);
-            query_update += ', password = $' + params.length;
+            query_update += ', `password` = $' + params.length;
         }
 
         params.push(user_id);

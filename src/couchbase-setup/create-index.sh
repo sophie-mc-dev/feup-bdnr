@@ -119,7 +119,7 @@ docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Admin
 
 # Step 10: Create index for 'events' collection
 echo; echo "Step 9: Creating index for 'events' collection"
-docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_event_info ON event_shop._default.events(event_id, STR_TO_MILLIS(date), organization_id);"'
+docker exec -it "$CONTAINER_NAME" bash -c 'cbq -e http://localhost:8091 -u Administrator -p password -q=true -s="CREATE INDEX idx_event_info ON event_shop._default.events(event_id, location, STR_TO_MILLIS(date), organization_id);"'
 
 # Step 11: Create index for 'transactions' collection
 echo; echo "Step 10: Creating index for 'transactions' collection"

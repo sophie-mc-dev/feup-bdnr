@@ -219,16 +219,11 @@ async function filter(req, res) {
 async function getLikedEventsByUserId(req, res) {
   const user_id = req.params.user_id;
   const query = `
-    SELECT event_id, event_name, date, location, categories, num_likes, ARRAY_MIN(ARRAY ticket.price FOR ticket IN ticket_types END) AS min_price
-    FROM events
-    WHERE ARRAY_CONTAINS (
-      (SELECT RAW event_id 
-      FROM users as u
-      UNNEST liked_events AS event_id
-      WHERE u.user_id = $1), 
-      event_id    
-    )`
-  ;
+    SELECT e.event_id, e.event_name, e.date, e.location, e.categories, e.num_likes, ARRAY_MIN(ARRAY tt.price FOR tt IN e.ticket_types END) AS min_price
+    FROM events AS e
+    JOIN users AS u ON ARRAY_CONTAINS(u.liked_events, e.event_id) AND u.user_id = $1
+    ORDER BY ARRAY_POSITION(u.liked_events, e.event_id)
+  `;
   const options = {parameters: [user_id]}
 
   try {

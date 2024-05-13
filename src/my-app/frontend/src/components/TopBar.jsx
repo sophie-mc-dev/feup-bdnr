@@ -6,8 +6,8 @@ import { UserContext } from "../contexts/UserContext";
 const VisitorOptions = () => {
   return (
     <>
-      <a href="/">Events</a>
-      <a href="/artists">Artists</a>
+      <a href="/">EVENTS</a>
+      <a href="/artists">ARTISTS</a>
       <div className="fle flex-row">
         <Link to="/login">
           <button className="py-1 px-3 rounded-bl-lg rounded-l-lg font-normal border border-white hover:bg-white hover:bg-opacity-15">
@@ -38,9 +38,9 @@ const OrganizationOptions = () => {
 
   return (
     <>
-      <a className="font-semibold" href="/">EVENTS</a>
-      <a className="font-semibold" href="/artists">ARTISTS</a>
-      <a className="font-semibold" href="/my_events">MY EVENTS</a>
+      <a href="/">EVENTS</a>
+      <a href="/artists">ARTISTS</a>
+      <a href="/my_events">MY EVENTS</a>
       <Link to="/profile" className="inline-block">
         <svg
           className="h-6 w-6 text-white fill-current"
@@ -84,8 +84,8 @@ const ConsumerOptions = () => {
 
   return (
     <>
-      <a className="font-semibold" href="/">EVENTS</a>
-      <a className="font-semibold" href="/artists">ARTISTS</a>
+      <a href="/">EVENTS</a>
+      <a href="/artists">ARTISTS</a>
       <Link to="/favorites">
         <img src="/favorites.svg" alt="Favorites" />
       </Link>
