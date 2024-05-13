@@ -38,9 +38,9 @@ const OrganizationOptions = () => {
 
   return (
     <>
-      <a href="/">EVENTS</a>
-      <a href="/artists">ARTISTS</a>
-      <a href="/my_events">MY EVENTS</a>
+      <a className="font-semibold" href="/">EVENTS</a>
+      <a className="font-semibold" href="/artists">ARTISTS</a>
+      <a className="font-semibold" href="/my_events">MY EVENTS</a>
       <Link to="/profile" className="inline-block">
         <svg
           className="h-6 w-6 text-white fill-current"
@@ -84,8 +84,8 @@ const ConsumerOptions = () => {
 
   return (
     <>
-      <a href="/">EVENTS</a>
-      <a href="/artists">ARTISTS</a>
+      <a className="font-semibold" href="/">EVENTS</a>
+      <a className="font-semibold" href="/artists">ARTISTS</a>
       <Link to="/favorites">
         <img src="/favorites.svg" alt="Favorites" />
       </Link>

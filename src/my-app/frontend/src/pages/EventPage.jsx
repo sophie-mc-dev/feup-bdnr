@@ -7,14 +7,26 @@ import { UserContext } from "../contexts/UserContext";
 import TicketTypeCard from "../components/TicketTypeCard";
 import FormatDate from "../utils/FormattedDate";
 import LikeStateLoading from "../components/LikeStateLoading";
+import EventAnalyticsCard from "../components/EventAnalyticsCard";
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${month} ${day}, ${year} at ${hours}h${minutes}`;
+};
 
 const EventPage = () => {
   const { id } = useParams();
   const { user, isLoggedIn, updateLikedEvents } = useContext(UserContext);
   const [isInfoLoading, setIsInfoLoading] = useState(true);
   const [eventInfo, setEventInfo] = useState(null);
-  const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [isCommentsLoading, setIsCommentsLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -25,11 +37,19 @@ const EventPage = () => {
   const [numLikes, setNumLikes] = useState(0);
   const [likeStateLoading, setLikeStateLoading] = useState(false);
 
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [revenuePerType, setRevenuePerType] = useState([]);
+  const [totalTicketsSold, setTotalTicketsSold] = useState(0);
+  const [totalTicketsSoldType, setTotalTicketsSoldType] = useState([]);
 
   useEffect(() => {
     if (id) {
       fetchEventInfo(id);
       fetchCommentsInfo(id);
+      fetchTotalRevenue(id);
+      fetchRevenuePerType(id);
+      fetchTotalTicketsSold(id);
+      fetchTotalTicketsSoldType(id);
     }
   }, [id]);
 
@@ -42,6 +62,45 @@ const EventPage = () => {
       setLiked(isLoggedIn && !user.is_organization && user.liked_events.includes(response.data.event_id))
     } catch (error) {
       setIsInfoLoading(false);
+    }
+  };
+
+  const fetchTotalRevenue = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" + id);
+      setTotalRevenue(response.data.total_income);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchRevenuePerType = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" + id);
+      // get the top 3 ticket types
+      setRevenuePerType(response.data.revenueByTicketType);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchTotalTicketsSold = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" + id);
+      setTotalTicketsSold(response.data.totalTicketsSold);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchTotalTicketsSoldType = async (id) => {
+    try {
+      const response = await axios.get("http://localhost:3000/events/" + id);
+      setTotalTicketsSoldType(
+        response.data.ticketsSoldByTicketType
+      );
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -89,12 +148,12 @@ const EventPage = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    try {      
+    try {
       const response = await axios.delete("http://localhost:3000/comments", {
         params: {
-            comment_id: selectedCommentId,
-            user_id: user.user_id,
-        }
+          comment_id: selectedCommentId,
+          user_id: user.user_id,
+        },
       });
       console.log(response.data);
       setIsDeleteModalOpen(false);
@@ -162,67 +221,80 @@ const EventPage = () => {
   return (
     <div className="flex flex-col items-center">
       {isInfoLoading ? (
-      <Loading />
+        <Loading />
       ) : (
-      <div className=" w-full py-20 px-40">
-        <div className="flex flex-row justify-between items-center">
-        <div className="flex flex-row gap-5 items-center mb-5">
-          <h2 className="text-4xl font-semibold">{eventInfo.event_name}</h2>
+        <div className=" w-full p-20">
+          {user && user.user_id === eventInfo.organization_id && (
+            <div className="mb-20">
+              <EventAnalyticsCard
+                totalEventRevenue={totalRevenue}
+                revenueByTicketType={revenuePerType}
+                totalTicketsSold={totalTicketsSold}
+                ticketsSoldByTicketType={totalTicketsSoldType}
+              />
+            </div>
+          )}
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-row gap-5 items-center mb-5">
+              <h2 className="text-4xl font-semibold">{eventInfo.event_name}</h2>
 
-          <div>
-          {eventInfo.categories.map((category, index) => (
-            <span
-            key={index}
-            className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2"
-            >
-            {category}
-            </span>
-          ))}
+              <div>
+                {eventInfo.categories.map((category, index) => (
+                  <span
+                    key={index}
+                    className="inline-block bg-gray-200 rounded-full px-2 py-1 text-xs font-semibold text-gray-600 mr-2"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+              {/* Like Button */}
+              <div className="flex flex-row gap-2">
+              {(!isLoggedIn || user.is_organization) && (
+                  <>
+                  <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="gray"
+                  className="w-6 h-6"
+                  >
+                  <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>
+
+                  <p className="pr-4">{eventInfo.num_likes} likes</p>
+                  </>
+              )}
+
+              {user && !user.is_organization && !likeStateLoading && (
+                <>
+                <button
+                  onClick={handleLikeClick}
+                  className={`text-gray-500 focus:outline-none ${
+                    liked ? "text-red-500" : ""
+                  }`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>
+                </button>
+                <p className="pr-4">{numLikes} likes</p>
+                </>
+              )}
+
           </div>
-        </div>
+        
 
-        {/* Like Button */}
-        <div className="flex flex-row gap-2 items-center">
-        {(!isLoggedIn || user.is_organization) && (
-            <>
-            <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="gray"
-            className="w-6 h-6"
-            >
-            <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-            </svg>
-
-            <p className="pr-4">{eventInfo.num_likes} likes</p>
-            </>
-        )}
-
-        {user && !user.is_organization && !likeStateLoading && (
-          <>
-          <button
-            onClick={handleLikeClick}
-            className={`text-gray-500 focus:outline-none ${
-              liked ? "text-red-500" : ""
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-6 h-6"
-            >
-              <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-            </svg>
-          </button>
-          <p className="pr-4">{numLikes} likes</p>
-          </>
-        )}
 
         {user && !user.is_organization && likeStateLoading && (
           <LikeStateLoading/>
         )}
-        </div>
         </div>
         <div className="flex flex-row text-sm gap-2 text-gray-600">
         <svg
@@ -256,7 +328,7 @@ const EventPage = () => {
               />
             </svg>
             <p className="mb-4"> <span className="font-medium">Date: </span> {FormatDate(eventInfo.date)}</p>
-          </div>
+        </div>
           <p className="text-justify mb-4">{eventInfo.description}</p>
           <h3 className="mt-10 mb-3 text-lg font-semibold">Ticket Types:</h3>
           <div className="grid gap-4 p-4">
@@ -286,19 +358,33 @@ const EventPage = () => {
           ) : (
             <div className="mt-4">
               {comments.map((comment) => (
-                <div key={comment.comment_id} className="relative p-4 hover:bg-gray-100">
+                <div
+                  key={comment.comment_id}
+                  className="relative p-4 hover:bg-gray-100"
+                >
                   <div className="flex items-center gap-x-2">
                     <p className="font-semibold"> {comment.user_name}</p>
-                    <p className="text-gray-500 text-sm font-light"> {FormatDate(comment.date)}</p>
-                  </div>  
+                    <p className="text-gray-500 text-sm font-light">
+                      {" "}
+                      {formatDate(comment.date)}
+                    </p>
+                  </div>
 
                   <p className="text-gray-500 mt-1">{comment.text}</p>
                   {user && user.user_id === comment.user_id && (
                     <div className="absolute top-2 right-2 items-center">
-                      <button className="bg-[#494391] text-white px-2 py-1 rounded" onClick={() => handleEditButtonClick(comment)}>
+                      <button
+                        className="bg-[#494391] text-white px-2 py-1 rounded"
+                        onClick={() => handleEditButtonClick(comment)}
+                      >
                         Edit
                       </button>
-                      <button className="bg-red-500 text-white px-2 py-1 rounded ml-2" onClick={() =>handleDeleteButtonClick(comment.comment_id)}>
+                      <button
+                        className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+                        onClick={() =>
+                          handleDeleteButtonClick(comment.comment_id)
+                        }
+                      >
                         Delete
                       </button>
                     </div>
