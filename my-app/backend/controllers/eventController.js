@@ -1,5 +1,4 @@
 const { connectToCouchbase } = require('../db/connection');
-const { get } = require('../routes/eventRoutes');
 
 async function getTotalIncome(req, res) {
   const eventId = req.params.event_id;

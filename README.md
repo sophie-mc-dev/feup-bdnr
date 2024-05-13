@@ -17,9 +17,9 @@ Here are the full steps to get the project up and running:
    If the script fails to run on Linux, try adding the execution permission by running `chmod +x {script-name}.sh`. If it still doesn't execute correctly, try running it with Admin permissions.
 
 
-6. Open your browser and go to [localhost:8091](http://localhost:8091) and login with the default credentials to access the Couchbase's web interface for database management:
+3. (Optional) Open your browser and go to [localhost:8091](http://localhost:8091) and login with the default credentials to access the Couchbase's web interface for database management:
 
    - **username**: Administrator
    - **password**: password
 
-7. Finally to interact with the application open your browser and go to [localhost:8080](http://localhost:8080).
+4. Finally to interact with the application open your browser and go to [localhost:8080](http://localhost:8080).
