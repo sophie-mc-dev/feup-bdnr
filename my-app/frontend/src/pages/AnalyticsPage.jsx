@@ -11,6 +11,10 @@ const AnalyticsPage = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingTotalIncome, setIsLoadingTotalIncome] = useState(false);
+  const [isBestSellingEventLoading, setIsBestSellingEventLoading] = useState(false);
+  const [isTotalHostedLoading, setIsTotalHostedLoading] = useState(false);
+  const [isRevenuePerTicketTypeLoading, setIsRevenuePerTicketTypeLoading] = useState(false);
   const chartContainer = useRef(null);
   const chartInstance = useRef(null);
   const [chartColors, setChartColors] = useState([]);
@@ -33,14 +37,13 @@ const AnalyticsPage = () => {
     if (!user.is_organization) {
       navigate("/");
     } else {
+      return () => {
       fetchTotalIncome(userId);
       fetchBestSellingEvent(userId);
       fetchTotalEventsHosted(userId);
-      fetchTotalTicketsSold(userId);
       fetchTicketsByType(userId);
       fetchRevenueByTicketType(userId);
-      fetchTotalIncomeByDate(userId);
-      fetchTotalTicketsSoldByDate(userId);
+      }
     }
   }, [userId]);
 
@@ -54,7 +57,7 @@ const AnalyticsPage = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/users/${userId}`,
+        `http://localhost:3000/users/get_revenue_from_range_date/${userId}`,
         {
           params: {
             startDate: formattedStartDate,
@@ -63,8 +66,19 @@ const AnalyticsPage = () => {
         }
       );
       // Update the state variables for totalIncomeByDate and totalTicketsSoldByDate
-      setTotalIncomeByDate(response.data.income_from_date_range);
-      setTotalTicketsSoldByDate(response.data.tickets_sold_by_date_range);
+      setTotalIncomeByDate(response.data ? response.data : 0);
+
+      const response2 = await axios.get(
+        `http://localhost:3000/users/get_tickets_sold_from_range_date/${userId}`,
+        {
+          params: {
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+          },
+        }
+      );
+      setTotalTicketsSoldByDate(response2.data ? response2.data : 0);
+
     } catch (error) {
       console.error(error);
     } finally {
@@ -74,57 +88,46 @@ const AnalyticsPage = () => {
 
   const fetchTotalIncome = async (userId) => {
     try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
+      setIsLoadingTotalIncome(true);
+      const response = await axios.get("http://localhost:3000/users/total_income/" + userId);
       setTotalIncome(response.data.total_income);
-      setIsLoading(false);
+      setIsLoadingTotalIncome(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
+      setIsLoadingTotalIncome(false);
     }
   };
 
   const fetchBestSellingEvent = async (userId) => {
     try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
-      setBestSellingEvent(response.data.best_selling_event);
-      setIsLoading(false);
+      setIsBestSellingEventLoading(true);
+      const response = await axios.get("http://localhost:3000/users/best_selling_event/" + userId);
+      setBestSellingEvent(response.data);
+      setIsBestSellingEventLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
+      setIsBestSellingEventLoading(false);
     }
   };
 
   const fetchTotalEventsHosted = async (userId) => {
     try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
+      setIsTotalHostedLoading(true);
+      const response = await axios.get("http://localhost:3000/users/total_hosted_events/" + userId);
       setTotalEventsHosted(response.data.total_events_hosted);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
-  };
-
-  const fetchTotalTicketsSold = async (userId) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
       setTotalTicketsSold(response.data.total_tickets_sold);
-      setIsLoading(false);
+      setIsTotalHostedLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
+      setIsTotalHostedLoading(false);
     }
   };
 
   const fetchTicketsByType = async (userId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
-      setTicketsByType(response.data.tickets_sold_by_ticket_type);
+      const response = await axios.get("http://localhost:3000/users/total_tickets_per_type/" + userId);
+      setTicketsByType(response.data);
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -134,37 +137,13 @@ const AnalyticsPage = () => {
 
   const fetchRevenueByTicketType = async (userId) => {
     try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
-      setRevenueByTicketType(response.data.revenue_by_ticket_type);
-      setIsLoading(false);
+      setIsRevenuePerTicketTypeLoading(true);
+      const response = await axios.get("http://localhost:3000/users/total_revenue_per_ticket_type/" + userId);
+      setRevenueByTicketType(response.data);
+      setIsRevenuePerTicketTypeLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
-    }
-  };
-
-  const fetchTotalIncomeByDate = async (userId) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
-      setTotalIncomeByDate(response.data.income_from_date_range);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
-  };
-
-  const fetchTotalTicketsSoldByDate = async (userId) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/users/" + userId);
-      setTotalTicketsSoldByDate(response.data.tickets_sold_by_date_range);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
+      setIsRevenuePerTicketTypeLoading(false);
     }
   };
 
@@ -233,7 +212,7 @@ const AnalyticsPage = () => {
           <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-3">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg font-semibold mb-2">Total Income</h3>
-              {isLoading ? (
+              {isLoadingTotalIncome ? (
                 <Loading />
               ) : (
                 <p className="text-gray-600">${totalIncome}</p>
@@ -245,7 +224,7 @@ const AnalyticsPage = () => {
           <div className="bg-white overflow-hidden shadow rounded-lg lg:col-span-1">
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg font-semibold mb-2">Best Selling Event</h3>
-              {isLoading ? (
+              {isBestSellingEventLoading ? (
                 <Loading />
               ) : bestSellingEvent ? (
                 <div>
@@ -268,7 +247,7 @@ const AnalyticsPage = () => {
               <h3 className="text-lg font-semibold mb-2">
                 Total Events Hosted
               </h3>
-              {isLoading ? (
+              {isTotalHostedLoading ? (
                 <Loading />
               ) : (
                 <>
@@ -351,7 +330,7 @@ const AnalyticsPage = () => {
               <h3 className="text-lg font-semibold mb-2">
                 Revenue by Ticket Type
               </h3>
-              {isLoading ? (
+              {isRevenuePerTicketTypeLoading ? (
                 <Loading />
               ) : (
                 <div className="overflow-x-auto">

@@ -23,4 +23,18 @@ router.put('/like/', UserController.likeEvent);
 // dislike event
 router.delete('/dislike/', UserController.dislikeEvent);
 
+router.get('/total_income/:user_id', UserController.getTotalIncome);
+
+router.get('/best_selling_event/:user_id', UserController.getBestSellingEventByOrganizationId);
+
+router.get('/total_hosted_events/:user_id', UserController.getTotalEventsHostedByOrganizationId);
+
+router.get('/total_tickets_per_type/:user_id', UserController.getTotalTicketsPerTypePerOrganizationId);
+
+router.get('/total_revenue_per_ticket_type/:user_id', UserController.getTotalRevenueByTicketType);
+
+router.get('/get_revenue_from_range_date/:user_id', UserController.getIncomeFromRangeDate);
+
+router.get('/get_tickets_sold_from_range_date/:user_id', UserController.getTicketsSoldFromRangeDate);
+
 module.exports = router;

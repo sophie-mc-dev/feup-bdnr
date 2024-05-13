@@ -1,8 +1,9 @@
 const { connectToCouchbase } = require('../db/connection');
 const uuid = require('uuid');
 
-async function getAnalytics(result, userId, startDate, endDate) {
-    //get the total income of the organization
+async function getTotalIncome(req, res) {
+    const userId = req.params.user_id;
+
     const query2 = `
         SELECT SUM(item.ticket_price * item.quantity) AS total_income
         FROM event_shop._default.transactions AS txn
@@ -10,14 +11,23 @@ async function getAnalytics(result, userId, startDate, endDate) {
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
         AND txn.transaction_status = "purchased"
-    `
+    `;
     const options = { parameters: [userId] };
-    const { cluster } = await connectToCouchbase();
-    const revenue = await cluster.query(query2, options);
-    result.rows[0].total_income = revenue.rows[0].total_income;
 
-    //get the best selling event
-    const query3 = `
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function getBestSellingEventByOrganizationId(req, res) {
+    const userId = req.params.user_id;
+
+    const query2 = `
         SELECT event.event_name, SUM(item.quantity) AS total_tickets_sold
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
@@ -26,26 +36,47 @@ async function getAnalytics(result, userId, startDate, endDate) {
         AND txn.transaction_status = "purchased"
         GROUP BY event.event_name
         ORDER BY total_tickets_sold DESC
-        LIMIT 1    
-    `
-    const best_selling_event = await cluster.query(query3, options);
-    result.rows[0].best_selling_event = best_selling_event.rows[0];
+        LIMIT 1 
+    `;
+    const options = { parameters: [userId] };
 
-    // get total number of tickets sold and total number of events hosted
-    const query4 = `
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function getTotalEventsHostedByOrganizationId (req, res) {
+    const userId = req.params.user_id;
+
+    const query2 = `
         SELECT COUNT(DISTINCT event.event_id) AS total_events_hosted, SUM(item.quantity) AS total_tickets_sold
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
         AND txn.transaction_status = "purchased"
-    `
-    const total_tickets = await cluster.query(query4, options);
-    result.rows[0].total_events_hosted = total_tickets.rows[0].total_events_hosted;
-    result.rows[0].total_tickets_sold = total_tickets.rows[0].total_tickets_sold;
+    `;
+    const options = { parameters: [userId] };
 
-    //get the total number of tickets sold by ticket type
-    const query5 = `
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function getTotalTicketsPerTypePerOrganizationId (req, res) {
+    const userId = req.params.user_id;
+
+    const query2 = `
         SELECT item.ticket_type, SUM(item.quantity) AS quantity
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
@@ -54,12 +85,23 @@ async function getAnalytics(result, userId, startDate, endDate) {
         AND txn.transaction_status = "purchased"
         GROUP BY item.ticket_type
         ORDER BY quantity DESC
-    `
-    const tickets_sold_by_ticket_type = await cluster.query(query5, options);
-    result.rows[0].tickets_sold_by_ticket_type = tickets_sold_by_ticket_type.rows;
+    `;
+    const options = { parameters: [userId] };
 
-    //get the total revenue by ticket type
-    const query6 = `
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+async function getTotalRevenueByTicketType(req, res) {
+    const userId = req.params.user_id;
+
+    const query2 = `
         SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS total_income
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
@@ -68,43 +110,70 @@ async function getAnalytics(result, userId, startDate, endDate) {
         AND txn.transaction_status = "purchased"
         GROUP BY item.ticket_type
         ORDER BY total_income DESC
-    `
-    const revenue_by_ticket_type = await cluster.query(query6, options);
-    result.rows[0].revenue_by_ticket_type = revenue_by_ticket_type.rows;
+    `;
+    const options = { parameters: [userId] };
 
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
 
+async function getIncomeFromRangeDate(req, res) {
+    const userId = req.params.user_id;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
 
-    // income from date range
-    const query7 = `
+    const query2 = `
         SELECT SUM(item.ticket_price * item.quantity) AS total_income
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
         AND txn.transaction_status = "purchased"
-        AND txn.transaction_date BETWEEN $2 AND $3  
-    `
+        AND txn.transaction_date BETWEEN $2 AND $3 
+    `;
+    const options = { parameters: [userId, startDate, endDate] };
 
-    const date = new Date();
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows[0].total_income);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
 
-    const options2 = { parameters: [userId, startDate, endDate] };
-    const income_from_date_range = await cluster.query(query7, options2);
-    result.rows[0].income_from_date_range = income_from_date_range.rows[0].total_income;
+async function getTicketsSoldFromRangeDate(req, res) {
+    const userId = req.params.user_id;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
 
-    // get the total number of tickets sold by date range
-    const query8 = `
+    const query2 = `
         SELECT COUNT(DISTINCT event.event_id) AS total_events_hosted, SUM(item.quantity) AS total_tickets_sold
         FROM event_shop._default.transactions AS txn
         UNNEST txn.items AS item
         JOIN event_shop._default.events AS event ON item.event_id = event.event_id
         WHERE event.organization_id = $1
         AND txn.transaction_status = "purchased"
-        AND txn.transaction_date BETWEEN $2 AND $3
-    `
-    const tickets_sold_by_date_range = await cluster.query(query8, options2);
-    result.rows[0].tickets_sold_by_date_range = tickets_sold_by_date_range.rows[0].total_tickets_sold;
+        AND txn.transaction_date BETWEEN $2 AND $3 
+    `;
+    const options = { parameters: [userId, startDate, endDate] };
 
-    return result;
+    try {
+        const { bucket } = await connectToCouchbase();
+        let result = await bucket.scope('_default').query(query2, options);
+        res.json(result.rows[0].total_tickets_sold);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
 // login user
@@ -228,13 +297,6 @@ async function getUserById(req, res) {
         if (!result) {
             res.status(404).send('User not found');
         } else {
-            // check if user is organization
-            if (result.rows[0].is_organization){
-                // if the start and end date are provided, get the analytics
-                const startDate = req.query.startDate;
-                const endDate = req.query.endDate;
-                result = await getAnalytics(result, userId, startDate, endDate);
-            }
             res.json(result.rows[0]);
         }
     } catch (error) {
@@ -310,5 +372,12 @@ module.exports = {
     updateUser, 
     deleteUser,
     likeEvent,
-    dislikeEvent
+    dislikeEvent,
+    getTotalIncome,
+    getBestSellingEventByOrganizationId,
+    getTotalEventsHostedByOrganizationId,
+    getTotalTicketsPerTypePerOrganizationId,
+    getTotalRevenueByTicketType,
+    getIncomeFromRangeDate,
+    getTicketsSoldFromRangeDate
 };
