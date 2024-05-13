@@ -1,94 +1,124 @@
 const { connectToCouchbase } = require('../db/connection');
+const { get } = require('../routes/eventRoutes');
 
-async function getAnalytics(result, eventId) {
-  // get the total revenue from the event too
+async function getTotalIncome(req, res) {
+  const eventId = req.params.event_id;
   const query = `
-    SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income
-    FROM event_shop._default.transactions AS txn
-    UNNEST txn.items AS item
-    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-    WHERE event.event_id = $1
-    AND txn.transaction_status = "purchased"
-    GROUP BY event.event_id, event.event_name
-  `
+  SELECT event.event_id, event.event_name, SUM(item.ticket_price * item.quantity) AS total_income
+  FROM event_shop._default.transactions AS txn
+  UNNEST txn.items AS item
+  JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+  WHERE event.event_id = $1
+  AND txn.transaction_status = "purchased"
+  GROUP BY event.event_id, event.event_name
+`
   const options = { parameters: [eventId] };
-  const { cluster } = await connectToCouchbase();
-  const revenue = await cluster.query(query, options);
-  if(revenue.rows.length === 0) {
-    result.value.total_income = 0;
+  try {
+    const { cluster } = await connectToCouchbase();
+    const result = await cluster.query(query, options);
+    if(result.rows.length === 0) {
+      res.json({total_income: 0});
+    }
+    else {
+      res.json(result.rows[0]);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
   }
-  else {
-    result.value.total_income = revenue.rows[0].total_income;
-  }
-
-  //get the revenue by ticket type
-  const query2 = `
-    SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS revenue
-    FROM event_shop._default.transactions AS txn
-    UNNEST txn.items AS item
-    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-    WHERE event.event_id = $1
-    AND txn.transaction_status = "purchased"
-    GROUP BY item.ticket_type
-  `
-
-  const revenueByTicketType = await cluster.query(query2, options);
-
-
-  const ticketTypes = result.value.ticket_types;
-
-  // get the ticket types not in the revenueByTicketType
-  const ticketTypesNotInRevenueByTicketType = ticketTypes.filter(ticketType => !revenueByTicketType.rows.map(row => row.ticket_type).includes(ticketType.ticket_type));
-
-  ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
-    revenueByTicketType.rows.push({revenue: 0, ticket_type: ticketType.ticket_type});
-  }
-  );
-
-  //sort rows by revenue
-  revenueByTicketType.rows.sort((a, b) => b.revenue - a.revenue);
-  result.value.revenueByTicketType = revenueByTicketType.rows;
-
-
-  //get the total number of tickets sold
-  const query3 = `
-    SELECT SUM(item.quantity) AS totalTicketsSold
-    FROM event_shop._default.transactions AS txn
-    UNNEST txn.items AS item
-    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-    AND txn.transaction_status = "purchased"
-    WHERE event.event_id = $1
-  `
-  const totalTicketsSold = await cluster.query(query3, options);
-  result.value.totalTicketsSold = totalTicketsSold.rows[0].totalTicketsSold;
-
-  //get the number of tickets sold by ticket type
-  const query4 = `
-    SELECT item.ticket_type, SUM(item.quantity) AS quantity
-    FROM event_shop._default.transactions AS txn
-    UNNEST txn.items AS item
-    JOIN event_shop._default.events AS event ON item.event_id = event.event_id
-    WHERE event.event_id = $1
-    AND txn.transaction_status = "purchased"
-    GROUP BY item.ticket_type
-    ORDER BY quantity DESC
-    `
-
-  const ticketsSoldByTicketType = await cluster.query(query4, options);
-
-  ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
-    ticketsSoldByTicketType.rows.push({quantity: 0, ticket_type: ticketType.ticket_type});
-  }
-  );
-
-  //sort rows by quantity
-  ticketsSoldByTicketType.rows.sort((a, b) => b.quantity - a.quantity);
-
-  result.value.ticketsSoldByTicketType = ticketsSoldByTicketType.rows;
-
-  return result;
 }
 
+async function getRevenueByTicketType(req, res) {
+  const eventId = req.params.event_id;
+  const query = `
+  SELECT item.ticket_type, SUM(item.ticket_price * item.quantity) AS revenue
+  FROM event_shop._default.transactions AS txn
+  UNNEST txn.items AS item
+  JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+  WHERE event.event_id = $1
+  AND txn.transaction_status = "purchased"
+  GROUP BY item.ticket_type
+`
+  const options = { parameters: [eventId] };
+  try {
+    const { cluster, eventsCollection } = await connectToCouchbase();
+    const result = await cluster.query(query, options);
+    const event = await eventsCollection.get(eventId);
+
+    const ticketTypes = event.value.ticket_types;
+
+    const ticketTypesNotInRevenueByTicketType = ticketTypes.filter(ticketType => !result.rows.map(row => row.ticket_type).includes(ticketType.ticket_type));
+    ticketTypesNotInRevenueByTicketType.forEach(ticketType => {
+      result.rows.push({revenue: 0, ticket_type: ticketType.ticket_type});
+    }
+    );
+
+    //sort rows by revenue
+    result.rows.sort((a, b) => b.revenue - a.revenue);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getNumberOfTicketsSold(req, res) {
+  const eventId = req.params.event_id;
+  const query = `
+  SELECT SUM(item.quantity) AS totalTicketsSold
+  FROM event_shop._default.transactions AS txn
+  UNNEST txn.items AS item
+  JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+  AND txn.transaction_status = "purchased"
+  WHERE event.event_id = $1
+`
+  const options = { parameters: [eventId] };
+  try {
+    const { cluster } = await connectToCouchbase();
+    const result = await cluster.query(query, options);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getNumberOfTicketsSoldByTicketType(req, res) {
+  const eventId = req.params.event_id;
+  const query = `
+  SELECT item.ticket_type, SUM(item.quantity) AS quantity
+  FROM event_shop._default.transactions AS txn
+  UNNEST txn.items AS item
+  JOIN event_shop._default.events AS event ON item.event_id = event.event_id
+  WHERE event.event_id = $1
+  AND txn.transaction_status = "purchased"
+  GROUP BY item.ticket_type
+  ORDER BY quantity DESC
+`
+  const options = { parameters: [eventId] };
+  try {
+    const { cluster,  eventsCollection } = await connectToCouchbase();
+    const result = await cluster.query(query, options);
+    const event = await eventsCollection.get(eventId);
+
+    const ticketTypes = event.value.ticket_types;
+
+    const ticketTypesNotInTicketsSoldByTicketType = ticketTypes.filter(ticketType => !result.rows.map(row => row.ticket_type).includes(ticketType.ticket_type));
+    ticketTypesNotInTicketsSoldByTicketType.forEach(ticketType => {
+      result.rows.push({quantity: 0, ticket_type: ticketType.ticket_type});
+    }
+    );
+
+    //sort rows by quantity
+    result.rows.sort((a, b) => b.quantity - a.quantity);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
 
 async function getUpcomingEvents(req, res) {
   const offset = parseInt(req.query.offset);
@@ -120,7 +150,6 @@ async function getEventById(req, res) {
     if (!result) {
       res.status(404).send('Event not found');
     } else {
-      result = await getAnalytics(result, eventId);
       res.json(result.value);
     }
   } catch (error) {
@@ -309,5 +338,9 @@ module.exports = {
   getLikedEventsByUserId,
   getPastEventsByOrganizationId,
   getUpcomingEventsByOrganizationId,
-  getEventsByArtistId
+  getEventsByArtistId,
+  getTotalIncome,
+  getRevenueByTicketType,
+  getNumberOfTicketsSold,
+  getNumberOfTicketsSoldByTicketType
 };

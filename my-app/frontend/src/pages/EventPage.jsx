@@ -42,6 +42,11 @@ const EventPage = () => {
   const [totalTicketsSold, setTotalTicketsSold] = useState(0);
   const [totalTicketsSoldType, setTotalTicketsSoldType] = useState([]);
 
+  const [isLoadingIncome, setIsLoadingIncome] = useState(false);
+  const [isRevenuePerTypeLoading, setIsRevenuePerTypeLoading] = useState(false);
+  const [isTotalTicketsSoldLoading, setIsTotalTicketsSoldLoading] = useState(false);
+  const [isTotalTicketsSoldTypeLoading, setIsTotalTicketsSoldTypeLoading] = useState(false);
+
   useEffect(() => {
     if (id) {
       fetchEventInfo(id);
@@ -67,40 +72,49 @@ const EventPage = () => {
 
   const fetchTotalRevenue = async (id) => {
     try {
-      const response = await axios.get("http://localhost:3000/events/" + id);
+      setIsLoadingIncome(true);
+      const response = await axios.get("http://localhost:3000/events/income/" + id );
       setTotalRevenue(response.data.total_income);
+      setIsLoadingIncome(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsLoadingIncome(false);
     }
   };
 
   const fetchRevenuePerType = async (id) => {
     try {
-      const response = await axios.get("http://localhost:3000/events/" + id);
-      // get the top 3 ticket types
-      setRevenuePerType(response.data.revenueByTicketType);
+      setIsRevenuePerTypeLoading(true);
+      const response = await axios.get("http://localhost:3000/events/revenue_by_type/" + id);
+      setRevenuePerType(response.data);
+      setIsRevenuePerTypeLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsRevenuePerTypeLoading(false);
     }
   };
 
   const fetchTotalTicketsSold = async (id) => {
     try {
-      const response = await axios.get("http://localhost:3000/events/" + id);
+      setIsTotalTicketsSoldLoading(true);
+      const response = await axios.get("http://localhost:3000/events/tickets_sold/" + id);
       setTotalTicketsSold(response.data.totalTicketsSold);
+      setIsTotalTicketsSoldLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsTotalTicketsSoldLoading(false);
     }
   };
 
   const fetchTotalTicketsSoldType = async (id) => {
     try {
-      const response = await axios.get("http://localhost:3000/events/" + id);
-      setTotalTicketsSoldType(
-        response.data.ticketsSoldByTicketType
-      );
+      setIsTotalTicketsSoldTypeLoading(true);
+      const response = await axios.get("http://localhost:3000/events/tickets_sold_by_type/" + id);
+      setTotalTicketsSoldType(response.data);
+      setIsTotalTicketsSoldTypeLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsTotalTicketsSoldTypeLoading(false);
     }
   };
 
@@ -226,12 +240,16 @@ const EventPage = () => {
         <div className=" w-full p-20">
           {user && user.user_id === eventInfo.organization_id && (
             <div className="mb-20">
+              {isLoadingIncome || isRevenuePerTypeLoading || isTotalTicketsSoldLoading || isTotalTicketsSoldTypeLoading ? (
+                <Loading />
+              ) : (
               <EventAnalyticsCard
                 totalEventRevenue={totalRevenue}
                 revenueByTicketType={revenuePerType}
                 totalTicketsSold={totalTicketsSold}
                 ticketsSoldByTicketType={totalTicketsSoldType}
               />
+              )}
             </div>
           )}
           <div className="flex flex-row justify-between items-center">
