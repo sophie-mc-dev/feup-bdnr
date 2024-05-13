@@ -23,3 +23,28 @@ Here are the full steps to get the project up and running:
    - **password**: password
 
 4. Finally to interact with the application open your browser and go to [localhost:8080](http://localhost:8080).
+
+- **NOTE:** You can create a new account or login with the following credentials:
+
+
+- **Consumer Credentials:** 
+
+|  Username | Email |  Password |
+|----------|----------|----------|
+|   brett_johnson   |   brett_johnson@example.com   |   password   |
+|   kim_martinez   |   kim_martinez@example.com   |   password   |
+|   leslie_briggs   |   leslie_briggs@example.com   |   password   |
+|   charles_chapman   |   charles_chapman@example.com   |   password   |
+|   keith_graham   |   keith_graham@example.com   |   password   |
+
+- **Organization Credentials:** 
+
+|  Username | Email |  Password |
+|----------|----------|----------|
+|   raymond,_holland_and_johnson   |   raymond,_holland_and_johnson@example.com   |   password   |
+|   butler,_white_and_harris   |   butler,_white_and_harris@example.com   |   password   |
+|   parker-wagner   |   parker-wagner@example.com   |   password   |
+|   flores,_noble_and_gamble   |   flores,_noble_and_gamble@example.com   |   password   |
+|   landry-webb   |   landry-webb@example.com   |   password   |
+|   cox-romero  |   cox-romero@example.com   |   password   |
+|   moran-reynolds  |   moran-reynolds@example.com   |   password   |
