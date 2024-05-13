@@ -158,12 +158,16 @@ def generate_user_data(num_consumers, num_organizations):
         users.append(user)
 
     for _ in range(num_organizations):
+        name = fake.unique.company()
+        username = name.lower().replace(" ", "_")
+        email = username + "@example.com"
+
         organization = {
             "user_id": fake.unique.random_number(digits=6),
-            "name": fake.company(),
-            "username": fake.unique.user_name(),
-            "email": fake.unique.email(),
-            "password": fake.password(),
+            "name": name,
+            "username": username,
+            "email": email,
+            "password": "password",
             "is_organization": True
         }
         users.append(organization)

@@ -1,0 +1,322 @@
+[
+    {
+        "category_id": "1",
+        "category_name": "Gaming"
+    },
+    {
+        "category_id": "2",
+        "category_name": "Performing Arts"
+    },
+    {
+        "category_id": "3",
+        "category_name": "Cars"
+    },
+    {
+        "category_id": "4",
+        "category_name": "Education"
+    },
+    {
+        "category_id": "5",
+        "category_name": "Movies & Film"
+    },
+    {
+        "category_id": "6",
+        "category_name": "Drama"
+    },
+    {
+        "category_id": "7",
+        "category_name": "Yoga"
+    },
+    {
+        "category_id": "8",
+        "category_name": "Social Justice"
+    },
+    {
+        "category_id": "9",
+        "category_name": "Housing"
+    },
+    {
+        "category_id": "10",
+        "category_name": "Style"
+    },
+    {
+        "category_id": "11",
+        "category_name": "Family"
+    },
+    {
+        "category_id": "12",
+        "category_name": "Children"
+    },
+    {
+        "category_id": "13",
+        "category_name": "Real Estate"
+    },
+    {
+        "category_id": "14",
+        "category_name": "Adventure"
+    },
+    {
+        "category_id": "15",
+        "category_name": "Property"
+    },
+    {
+        "category_id": "16",
+        "category_name": "Entrepreneurship"
+    },
+    {
+        "category_id": "17",
+        "category_name": "Sports"
+    },
+    {
+        "category_id": "18",
+        "category_name": "Beauty"
+    },
+    {
+        "category_id": "19",
+        "category_name": "Fitness"
+    },
+    {
+        "category_id": "20",
+        "category_name": "Fashion"
+    },
+    {
+        "category_id": "21",
+        "category_name": "Comedy"
+    },
+    {
+        "category_id": "22",
+        "category_name": "Humor"
+    },
+    {
+        "category_id": "23",
+        "category_name": "Books"
+    },
+    {
+        "category_id": "24",
+        "category_name": "Animals"
+    },
+    {
+        "category_id": "25",
+        "category_name": "Heritage"
+    },
+    {
+        "category_id": "26",
+        "category_name": "Creativity"
+    },
+    {
+        "category_id": "27",
+        "category_name": "DIY"
+    },
+    {
+        "category_id": "28",
+        "category_name": "Development"
+    },
+    {
+        "category_id": "29",
+        "category_name": "Competition"
+    },
+    {
+        "category_id": "30",
+        "category_name": "Tastings"
+    },
+    {
+        "category_id": "31",
+        "category_name": "Green Living"
+    },
+    {
+        "category_id": "32",
+        "category_name": "Science"
+    },
+    {
+        "category_id": "33",
+        "category_name": "Lifestyle"
+    },
+    {
+        "category_id": "34",
+        "category_name": "Sales"
+    },
+    {
+        "category_id": "35",
+        "category_name": "Handmade"
+    },
+    {
+        "category_id": "36",
+        "category_name": "Activism"
+    },
+    {
+        "category_id": "37",
+        "category_name": "Literature"
+    },
+    {
+        "category_id": "38",
+        "category_name": "History"
+    },
+    {
+        "category_id": "39",
+        "category_name": "Parenting"
+    },
+    {
+        "category_id": "40",
+        "category_name": "Spirituality"
+    },
+    {
+        "category_id": "41",
+        "category_name": "Innovation"
+    },
+    {
+        "category_id": "42",
+        "category_name": "Finance"
+    },
+    {
+        "category_id": "43",
+        "category_name": "Pets"
+    },
+    {
+        "category_id": "44",
+        "category_name": "Entertainment"
+    },
+    {
+        "category_id": "45",
+        "category_name": "Environment"
+    },
+    {
+        "category_id": "46",
+        "category_name": "Writing"
+    },
+    {
+        "category_id": "47",
+        "category_name": "Stand-up"
+    },
+    {
+        "category_id": "48",
+        "category_name": "Food & Drink"
+    },
+    {
+        "category_id": "49",
+        "category_name": "Music"
+    },
+    {
+        "category_id": "50",
+        "category_name": "Business"
+    },
+    {
+        "category_id": "51",
+        "category_name": "Networking"
+    },
+    {
+        "category_id": "52",
+        "category_name": "Visual Arts"
+    },
+    {
+        "category_id": "53",
+        "category_name": "Automotive"
+    },
+    {
+        "category_id": "54",
+        "category_name": "Technology"
+    },
+    {
+        "category_id": "55",
+        "category_name": "Meditation"
+    },
+    {
+        "category_id": "56",
+        "category_name": "Pet Care"
+    },
+    {
+        "category_id": "57",
+        "category_name": "Mindfulness"
+    },
+    {
+        "category_id": "58",
+        "category_name": "Cinema"
+    },
+    {
+        "category_id": "59",
+        "category_name": "Shopping"
+    },
+    {
+        "category_id": "60",
+        "category_name": "Art"
+    },
+    {
+        "category_id": "61",
+        "category_name": "Home & Garden"
+    },
+    {
+        "category_id": "62",
+        "category_name": "Exploration"
+    },
+    {
+        "category_id": "63",
+        "category_name": "Design"
+    },
+    {
+        "category_id": "64",
+        "category_name": "Dance"
+    },
+    {
+        "category_id": "65",
+        "category_name": "Sustainability"
+    },
+    {
+        "category_id": "66",
+        "category_name": "Travel"
+    },
+    {
+        "category_id": "67",
+        "category_name": "Photography"
+    },
+    {
+        "category_id": "68",
+        "category_name": "Video Games"
+    },
+    {
+        "category_id": "69",
+        "category_name": "Culinary"
+    },
+    {
+        "category_id": "70",
+        "category_name": "Makeup"
+    },
+    {
+        "category_id": "71",
+        "category_name": "Health & Wellness"
+    },
+    {
+        "category_id": "72",
+        "category_name": "Reading"
+    },
+    {
+        "category_id": "73",
+        "category_name": "Theater"
+    },
+    {
+        "category_id": "74",
+        "category_name": "Retail"
+    },
+    {
+        "category_id": "75",
+        "category_name": "Vehicles"
+    },
+    {
+        "category_id": "76",
+        "category_name": "Learning"
+    },
+    {
+        "category_id": "77",
+        "category_name": "Concert"
+    },
+    {
+        "category_id": "78",
+        "category_name": "Crafts"
+    },
+    {
+        "category_id": "79",
+        "category_name": "Investing"
+    },
+    {
+        "category_id": "80",
+        "category_name": "Well-being"
+    }
+]

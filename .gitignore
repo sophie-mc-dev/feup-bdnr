@@ -1,9 +1,2 @@
 node_modules
 *.DS_STORE
-my-app/data/generated_data/couchbase_documents.json
-my-app/data/generated_data/categories.json
-my-app/data/generated_data/events.json
-my-app/data/generated_data/locations.json
-my-app/data/generated_data/users.json
-my-app/data/generated_data/artists.json
-my-app/data/generated_data/transactions.json

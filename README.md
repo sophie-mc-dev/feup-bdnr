@@ -4,15 +4,6 @@
 
 Here are the full steps to get the project up and running:
 
-1. Navigate to the [data](my-app/data) folder.
-
-4. Before running the application's scripts, make sure you have generated data inside the [generated_data](my-app/data/generated_data/) directory. If not, run the Python script `generate_input_events.py` and `generate.py`.<br>
-   **Note:** First, before running any Python scripts, make sure you install the required packages by running in the [my-app](my-app/) directory:
-
-   ```
-   pip install -r requirements.txt
-   ```
-
 1. Navigate to the [my-app](my-app/) folder.
 
 2. Run the following scripts, in order, in different terminal windows: 
