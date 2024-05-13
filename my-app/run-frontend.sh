@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd my-app/frontend
+cd frontend
 
 npm install
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd my-app/backend
+cd backend
 
 npm install
 
