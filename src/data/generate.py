@@ -87,7 +87,6 @@ def generate_category_data(events_file_path):
     for category_name in unique_categories:
         category = {
             "category_name": category_name,
-            "event_ids": [] # will be filled later when the events are created
         }
         categories.append(category)
     return categories
@@ -225,12 +224,6 @@ def generate_document():
 
         random_consumer = random.choice(consumers)
         random_consumer["comments"].append(comment)
-    
-    # Assign list of events for each category
-    for category in categories:
-        for event in events:
-            if category["category_name"] in event["categories"]:
-                category["event_ids"].append(event["event_id"])
 
     # Assign organization and location of each event
     for event in events:
@@ -239,7 +232,6 @@ def generate_document():
 
         random_event_location = random.choice(locations)
         event["location"] = random_event_location["city_name"]
-        random_event_location.setdefault("event_ids", []).append(event["event_id"])
 
         if ("Music" in event["categories"]):
             random_event_artists = random.sample(artists, random.randint(1, 6))
